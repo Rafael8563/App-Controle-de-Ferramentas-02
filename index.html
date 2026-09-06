@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#060d17">
+    <title>Controle de Ferramentas 3D</title>
+    <style>
+        /* =====================================================
+           CONFIGURAÇÃO GERAL
+        ===================================================== */
+        :root {
+            --fundo1: #060d17;
+            --fundo2: #0a1a2e;
+            --fundo3: #0d2a3d;
+            --card: rgba(255, 255, 255, 0.06);
+            --borda: rgba(255, 255, 255, 0.10);
+            --texto: #ffffff;
+            --cinza: #b0c8d9;
+            --verde: #2ddb7a;
+            --amarelo: #ffd14a;
+            --vermelho: #ff6b82;
+            --azul: #1eb8c9;
+            --azul-claro: #6ae2ef;
+            --roxo: #7c5cbf;
+            --laranja: #f5a623;
+            --rosa: #ff6b9d;
+            --sombra: 0 15px 50px rgba(0, 0, 0, 0.5);
+            --radius: 16px;
+            --transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: var(--texto);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: var(--fundo1);
+            position: relative;
+            perspective: 1400px;
+        }
+
+        /* =====================================================
+           FUNDO ANIMADO DIVERTIDO
+        ===================================================== */
+        .bg-scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            perspective: 1200px;
+        }
+
+        /* Orbes coloridas saltitantes */
+        .bg-scene .orb {
+            position: absolute;
+            border-radius: 50%;
+            animation: orbBounce 20s ease-in-out infinite alternate;
+            will-change: transform;
+            mix-blend-mode: screen;
+            transform-style: preserve-3d;
+        }
+
+        .bg-scene .orb::after {
+            content: '';
+            position: absolute;
+            inset: 10%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), transparent 70%);
+            animation: orbShine 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes orbShine {
+            0% {
+                transform: scale(0.7) translateZ(0px);
+                opacity: 0.4;
+            }
+            100% {
+                transform: scale(1.3) translateZ(60px);
+                opacity: 1;
+            }
+        }
+
+        .bg-scene .orb:nth-child(1) {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle at 30% 30%, #0b6b73, transparent 70%);
+            top: -20%;
+            left: -10%;
+            animation-duration: 18s;
+            animation-delay: 0s;
+            transform: translateZ(-100px) rotateX(10deg);
+        }
+
+        .bg-scene .orb:nth-child(2) {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle at 70% 70%, #7c5cbf, transparent 70%);
+            bottom: -15%;
+            right: -8%;
+            animation-duration: 22s;
+            animation-delay: -5s;
+            transform: translateZ(-50px) rotateY(15deg);
+        }
+
+        .bg-scene .orb:nth-child(3) {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle at 50% 50%, #1eb8c9, transparent 70%);
+            top: 25%;
+            left: 50%;
+            animation-duration: 25s;
+            animation-delay: -10s;
+            transform: translateX(-50%) translateZ(80px);
+        }
+
+        .bg-scene .orb:nth-child(4) {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle at 60% 40%, #f5a623, transparent 70%);
+            bottom: 20%;
+            left: 5%;
+            animation-duration: 16s;
+            animation-delay: -15s;
+            transform: translateZ(-30px) rotateX(-8deg);
+        }
+
+        .bg-scene .orb:nth-child(5) {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle at 40% 60%, #ff6b9d, transparent 70%);
+            top: 5%;
+            right: 5%;
+            animation-duration: 20s;
+            animation-delay: -8s;
+            transform: translateZ(40px) rotateY(-12deg);
+        }
+
+        .bg-scene .orb:nth-child(6) {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle at 50% 50%, #2ddb7a, transparent 70%);
+            top: 55%;
+            right: 12%;
+            animation-duration: 19s;
+            animation-delay: -12s;
+            transform: translateZ(20px) rotateX(5deg);
+        }
+
+        @keyframes orbBounce {
+            0% {
+                transform: translate(0, 0) scale(1) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+            }
+            20% {
+                transform: translate(60px, -100px) scale(1.15) rotateX(8deg) rotateY(12deg) rotateZ(5deg);
+            }
+            40% {
+                transform: translate(-80px, 50px) scale(0.85) rotateX(-6deg) rotateY(-10deg) rotateZ(-8deg);
+            }
+            60% {
+                transform: translate(100px, 80px) scale(1.08) rotateX(10deg) rotateY(15deg) rotateZ(7deg);
+            }
+            80% {
+                transform: translate(-50px, -70px) scale(0.92) rotateX(-5deg) rotateY(-8deg) rotateZ(-4deg);
+            }
+            100% {
+                transform: translate(40px, 40px) scale(1) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+            }
+        }
+
+        /* Emojis flutuantes */
+        .bg-scene .float-emoji {
+            position: absolute;
+            font-size: 30px;
+            animation: floatEmoji3D 15s ease-in-out infinite alternate;
+            will-change: transform;
+            filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.1));
+            transform-style: preserve-3d;
+        }
+
+        .bg-scene .float-emoji:nth-child(7) {
+            top: 15%;
+            left: 8%;
+            animation-duration: 14s;
+            animation-delay: -2s;
+            font-size: 36px;
+        }
+        .bg-scene .float-emoji:nth-child(8) {
+            top: 75%;
+            left: 85%;
+            animation-duration: 18s;
+            animation-delay: -6s;
+            font-size: 28px;
+        }
+        .bg-scene .float-emoji:nth-child(9) {
+            top: 45%;
+            left: 20%;
+            animation-duration: 16s;
+            animation-delay: -10s;
+            font-size: 32px;
+        }
+        .bg-scene .float-emoji:nth-child(10) {
+            top: 8%;
+            left: 70%;
+            animation-duration: 20s;
+            animation-delay: -4s;
+            font-size: 40px;
+        }
+        .bg-scene .float-emoji:nth-child(11) {
+            top: 85%;
+            left: 10%;
+            animation-duration: 13s;
+            animation-delay: -8s;
+            font-size: 34px;
+        }
+        .bg-scene .float-emoji:nth-child(12) {
+            top: 50%;
+            left: 55%;
+            animation-duration: 17s;
+            animation-delay: -12s;
+            font-size: 26px;
+        }
+        .bg-scene .float-emoji:nth-child(13) {
+            top: 30%;
+            left: 40%;
+            animation-duration: 19s;
+            animation-delay: -3s;
+            font-size: 38px;
+        }
+        .bg-scene .float-emoji:nth-child(14) {
+            top: 65%;
+            left: 70%;
+            animation-duration: 15s;
+            animation-delay: -7s;
+            font-size: 30px;
+        }
+
+        @keyframes floatEmoji3D {
+            0% {
+                transform: translateY(0px) translateX(0px) scale(1) rotateZ(0deg) translateZ(0px);
+            }
+            25% {
+                transform: translateY(-30px) translateX(20px) scale(1.2) rotateZ(10deg) translateZ(30px);
+            }
+            50% {
+                transform: translateY(20px) translateX(-15px) scale(0.9) rotateZ(-8deg) translateZ(-20px);
+            }
+            75% {
+                transform: translateY(-20px) translateX(30px) scale(1.1) rotateZ(15deg) translateZ(40px);
+            }
+            100% {
+                transform: translateY(10px) translateX(-10px) scale(1) rotateZ(-5deg) translateZ(0px);
+            }
+        }
+
+        /* Estrelas cintilantes */
+        .bg-scene .star {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+            animation: starTwinkle 3s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+
+        .bg-scene .star:nth-child(15) {
+            width: 4px;
+            height: 4px;
+            top: 10%;
+            left: 15%;
+            animation-delay: 0s;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        .bg-scene .star:nth-child(16) {
+            width: 3px;
+            height: 3px;
+            top: 80%;
+            left: 90%;
+            animation-delay: 0.5s;
+        }
+        .bg-scene .star:nth-child(17) {
+            width: 5px;
+            height: 5px;
+            top: 40%;
+            left: 30%;
+            animation-delay: 1s;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+        .bg-scene .star:nth-child(18) {
+            width: 3px;
+            height: 3px;
+            top: 5%;
+            left: 80%;
+            animation-delay: 1.5s;
+        }
+        .bg-scene .star:nth-child(19) {
+            width: 4px;
+            height: 4px;
+            top: 90%;
+            left: 20%;
+            animation-delay: 2s;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        .bg-scene .star:nth-child(20) {
+            width: 3px;
+            height: 3px;
+            top: 55%;
+            left: 60%;
+            animation-delay: 2.5s;
+        }
+
+        @keyframes starTwinkle {
+            0% {
+                transform: scale(0.3) translateZ(0px);
+                opacity: 0.2;
+            }
+            100% {
+                transform: scale(1.5) translateZ(30px);
+                opacity: 1;
+            }
+        }
+
+        /* =====================================================
+           APP WRAPPER 3D
+        ===================================================== */
+        .app-wrapper {
+            position: relative;
+            z-index: 1;
+            transform-style: preserve-3d;
+        }
+
+        /* =====================================================
+           CABEÇALHO 3D
+        ===================================================== */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            padding: 12px 20px 8px;
+            background: rgba(3, 10, 20, 0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--borda);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            transform-style: preserve-3d;
+            transform: translateZ(50px) rotateX(0deg);
+            transition: transform 0.5s ease;
+        }
+
+        header:hover {
+            transform: translateZ(60px) rotateX(2deg);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transform-style: preserve-3d;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--azul), var(--roxo), var(--rosa), var(--amarelo));
+            background-size: 300% 300%;
+            display: grid;
+            place-items: center;
+            font-size: 24px;
+            box-shadow: 0 4px 30px rgba(30, 184, 201, 0.3);
+            animation: logoSpin3D 6s ease-in-out infinite alternate;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease;
+        }
+
+        .logo-icon:hover {
+            transform: rotateY(360deg) translateZ(20px) scale(1.1);
+        }
+
+        @keyframes logoSpin3D {
+            0% {
+                background-position: 0% 50%;
+                transform: rotateY(0deg) translateZ(10px);
+                box-shadow: 0 4px 30px rgba(30, 184, 201, 0.3);
+            }
+            50% {
+                transform: rotateY(180deg) translateZ(20px);
+                box-shadow: 0 4px 40px rgba(124, 92, 191, 0.4);
+            }
+            100% {
+                background-position: 100% 50%;
+                transform: rotateY(360deg) translateZ(10px);
+                box-shadow: 0 4px 30px rgba(255, 107, 157, 0.3);
+            }
+        }
+
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent 60%);
+            transform: translateZ(1px);
+        }
+
+        .logo-text h1 {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(135deg, #fff 30%, var(--azul-claro), var(--roxo), var(--rosa));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            animation: textWiggle 6s ease-in-out infinite alternate;
+            background-size: 300% 300%;
+            transform: translateZ(5px);
+        }
+
+        @keyframes textWiggle {
+            0% {
+                background-position: 0% 50%;
+                transform: translateZ(5px) rotateX(0deg);
+            }
+            50% {
+                transform: translateZ(15px) rotateX(2deg);
+            }
+            100% {
+                background-position: 100% 50%;
+                transform: translateZ(5px) rotateX(0deg);
+            }
+        }
+
+        .subtitulo {
+            font-size: 12px;
+            color: var(--cinza);
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+            transform: translateZ(3px);
+        }
+
+        /* =====================================================
+           MENU 3D DIVERTIDO
+        ===================================================== */
+        nav {
+            display: flex;
+            gap: 5px;
+            overflow-x: auto;
+            padding-top: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--borda) transparent;
+            transform-style: preserve-3d;
+        }
+
+        nav button {
+            white-space: nowrap;
+            border: none;
+            background: transparent;
+            color: var(--cinza);
+            border-radius: 30px;
+            padding: 8px 18px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 0.2px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: translateZ(0px);
+        }
+
+        nav button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 30px;
+            background: var(--card);
+            border: 1px solid var(--borda);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: -1;
+            transform: translateZ(-5px);
+        }
+
+        nav button:hover {
+            color: #fff;
+            transform: translateY(-4px) translateZ(15px) scale(1.05);
+        }
+
+        nav button:hover::before {
+            opacity: 1;
+        }
+
+        nav button.ativo {
+            color: #fff;
+            background: linear-gradient(135deg, var(--azul), var(--roxo), var(--rosa));
+            background-size: 200% 200%;
+            animation: btnGradient 3s ease-in-out infinite alternate;
+            box-shadow: 0 4px 35px rgba(30, 184, 201, 0.3);
+            border: none;
+            transform: translateY(-3px) translateZ(20px) scale(1.05);
+        }
+
+        @keyframes btnGradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+
+        nav button.ativo::before {
+            display: none;
+        }
+
+        /* =====================================================
+           CONTEÚDO 3D
+        ===================================================== */
+        .container {
+            max-width: 1260px;
+            margin: auto;
+            padding: 18px 20px;
+            transform-style: preserve-3d;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            transform-style: preserve-3d;
+        }
+
+        /* =====================================================
+           CARTÕES 3D DIVERTIDOS
+        ===================================================== */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--borda);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            box-shadow: var(--sombra);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transform: rotateX(0deg) rotateY(0deg) translateZ(0px);
+            animation: cardFloat 6s ease-in-out infinite alternate;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        .card:nth-child(3) {
+            animation-delay: 1s;
+        }
+        .card:nth-child(4) {
+            animation-delay: 1.5s;
+        }
+        .card:nth-child(5) {
+            animation-delay: 2s;
+        }
+        .card:nth-child(6) {
+            animation-delay: 2.5s;
+        }
+
+        @keyframes cardFloat {
+            0% {
+                transform: translateY(0px) rotateX(0deg) rotateY(0deg) translateZ(0px);
+            }
+            100% {
+                transform: translateY(-8px) rotateX(2deg) rotateY(3deg) translateZ(15px);
+            }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 60%);
+            pointer-events: none;
+            border-radius: var(--radius);
+            transform: translateZ(-1px);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.03), transparent 60%);
+            pointer-events: none;
+            opacity: 0;
+            transition: var(--transition);
+            border-radius: 50%;
+            transform: translateZ(-1px);
+        }
+
+        .card:hover {
+            transform: rotateX(4deg) rotateY(8deg) translateY(-10px) translateZ(30px) scale(1.02);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(30, 184, 201, 0.05);
+            animation-play-state: paused;
+        }
+
+        .card:hover::after {
+            opacity: 1;
+            transform: scale(0.7) translateZ(10px);
+        }
+
+        .card h2,
+        .card h3 {
+            margin-top: 0;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card h3 {
+            font-size: 13px;
+            color: var(--cinza);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 500;
+            opacity: 0.7;
+        }
+
+        /* =====================================================
+           ESTATÍSTICAS 3D
+        ===================================================== */
+        .estatistica {
+            text-align: center;
+            padding: 4px 2px;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .estatistica .icon {
+            font-size: 34px;
+            display: block;
+            margin-bottom: 2px;
+            filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.2));
+            transform: translateZ(15px);
+            animation: iconWiggle 3s ease-in-out infinite alternate;
+        }
+
+        .estatistica:nth-child(2) .icon {
+            animation-delay: 0.5s;
+        }
+        .estatistica:nth-child(3) .icon {
+            animation-delay: 1s;
+        }
+        .estatistica:nth-child(4) .icon {
+            animation-delay: 1.5s;
+        }
+        .estatistica:nth-child(5) .icon {
+            animation-delay: 2s;
+        }
+        .estatistica:nth-child(6) .icon {
+            animation-delay: 2.5s;
+        }
+
+        @keyframes iconWiggle {
+            0% {
+                transform: translateZ(10px) rotateZ(0deg) scale(1);
+            }
+            100% {
+                transform: translateZ(25px) rotateZ(10deg) scale(1.1);
+            }
+        }
+
+        .estatistica .label {
+            font-size: 11px;
+            color: var(--cinza);
+            font-weight: 400;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            transform: translateZ(5px);
+        }
+
+        .estatistica strong {
+            display: block;
+            font-size: 40px;
+            font-weight: 800;
+            margin-top: 2px;
+            background: linear-gradient(135deg, #fff 20%, var(--azul-claro), var(--roxo), var(--rosa));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            animation: counterRainbow 4s ease-in-out infinite alternate;
+            transform: translateZ(25px);
+        }
+
+        @keyframes counterRainbow {
+            0% {
+                background-position: 0% 50%;
+                filter: drop-shadow(0 0 15px rgba(30, 184, 201, 0.1));
+                transform: translateZ(20px);
+            }
+            50% {
+                filter: drop-shadow(0 0 30px rgba(124, 92, 191, 0.2));
+                transform: translateZ(30px);
+            }
+            100% {
+                background-position: 100% 50%;
+                filter: drop-shadow(0 0 15px rgba(255, 107, 157, 0.1));
+                transform: translateZ(20px);
+            }
+        }
+
+        /* =====================================================
+           BOTÕES 3D DIVERTIDOS
+        ===================================================== */
+        button {
+            border: none;
+            background: var(--card);
+            color: white;
+            border-radius: 30px;
+            padding: 9px 22px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(4px);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.2px;
+            border: 1px solid var(--borda);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transform: translateZ(0px);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent);
+            opacity: 0;
+            transition: var(--transition);
+            border-radius: 30px;
+            transform: translateZ(-1px);
+        }
+
+        button:hover::before {
+            opacity: 1;
+        }
+
+        button:hover {
+            transform: translateY(-4px) translateZ(20px) scale(1.05);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        button:active {
+            transform: scale(0.94) translateZ(5px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--azul), var(--roxo));
+            border-color: transparent;
+            box-shadow: 0 4px 30px rgba(30, 184, 201, 0.2);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 8px 50px rgba(30, 184, 201, 0.35);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #1a8a5a, #2ddb7a);
+            border-color: transparent;
+        }
+        .btn-success:hover {
+            box-shadow: 0 8px 40px rgba(45, 219, 122, 0.25);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #a82f4a, #ff6b82);
+            border-color: transparent;
+        }
+        .btn-danger:hover {
+            box-shadow: 0 8px 40px rgba(255, 107, 130, 0.25);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #8a6612, #f5a623);
+            border-color: transparent;
+        }
+        .btn-warning:hover {
+            box-shadow: 0 8px 40px rgba(245, 166, 35, 0.25);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: var(--borda);
+        }
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* =====================================================
+           ITEMS 3D
+        ===================================================== */
+        .item {
+            display: grid;
+            grid-template-columns: 90px 1fr auto;
+            gap: 14px;
+            align-items: center;
+            padding: 8px 10px;
+            transform-style: preserve-3d;
+        }
+
+        .imagem-mini {
+            width: 90px;
+            height: 72px;
+            object-fit: cover;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--borda);
+            transition: var(--transition);
+            transform: translateZ(8px);
+        }
+
+        .imagem-mini:hover {
+            transform: scale(1.08) translateZ(20px) rotateY(5deg);
+            border-color: rgba(30, 184, 201, 0.3);
+        }
+
+        .imagem-placeholder {
+            width: 90px;
+            height: 72px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--borda);
+            display: grid;
+            place-items: center;
+            font-size: 32px;
+            color: var(--cinza);
+            opacity: 0.5;
+            transform: translateZ(8px);
+        }
+
+        .item-info .nome {
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: -0.2px;
+            transform: translateZ(5px);
+        }
+        .item-info .detalhes {
+            color: var(--cinza);
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 2px 0 4px;
+            opacity: 0.7;
+            transform: translateZ(3px);
+        }
+        .item-info .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+            transform: translateZ(5px);
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            transform-style: preserve-3d;
+        }
+
+        .item-actions button {
+            padding: 5px 10px;
+            font-size: 13px;
+            border-radius: 30px;
+            border: 1px solid var(--borda);
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--cinza);
+            min-width: 34px;
+            justify-content: center;
+            transform: translateZ(0px);
+        }
+
+        .item-actions button:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            transform: scale(1.1) translateZ(15px);
+        }
+
+        .item-actions .btn-edit:hover {
+            background: rgba(30, 184, 201, 0.15);
+            color: var(--azul-claro);
+            border-color: rgba(30, 184, 201, 0.15);
+        }
+        .item-actions .btn-share:hover {
+            background: rgba(45, 219, 122, 0.12);
+            color: var(--verde);
+            border-color: rgba(45, 219, 122, 0.12);
+        }
+        .item-actions .btn-delete:hover {
+            background: rgba(255, 107, 130, 0.12);
+            color: var(--vermelho);
+            border-color: rgba(255, 107, 130, 0.12);
+        }
+
+        /* =====================================================
+           BADGES 3D
+        ===================================================== */
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            margin: 2px 2px 2px 0;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            border: 1px solid transparent;
+            transition: var(--transition);
+            transform: translateZ(2px);
+        }
+
+        .badge:hover {
+            transform: scale(1.08) translateZ(10px);
+        }
+
+        .badge-success {
+            background: rgba(45, 219, 122, 0.15);
+            color: var(--verde);
+            border-color: rgba(45, 219, 122, 0.10);
+        }
+        .badge-warning {
+            background: rgba(255, 209, 74, 0.12);
+            color: var(--amarelo);
+            border-color: rgba(255, 209, 74, 0.08);
+        }
+        .badge-danger {
+            background: rgba(255, 107, 130, 0.12);
+            color: var(--vermelho);
+            border-color: rgba(255, 107, 130, 0.08);
+        }
+        .badge-info {
+            background: rgba(30, 184, 201, 0.12);
+            color: var(--azul-claro);
+            border-color: rgba(30, 184, 201, 0.08);
+        }
+        .badge-purple {
+            background: rgba(124, 92, 191, 0.15);
+            color: var(--roxo);
+            border-color: rgba(124, 92, 191, 0.10);
+        }
+
+        /* =====================================================
+           MODAIS 3D DIVERTIDOS
+        ===================================================== */
+        dialog {
+            width: min(800px, 94vw);
+            padding: 0;
+            border: 1px solid var(--borda);
+            border-radius: 24px;
+            background: rgba(9, 23, 39, 0.97);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            color: white;
+            box-shadow: 0 50px 120px rgba(0, 0, 0, 0.9);
+            animation: modalBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-style: preserve-3d;
+            perspective: 800px;
+        }
+
+        @keyframes modalBounce {
+            from {
+                opacity: 0;
+                transform: rotateX(15deg) rotateY(-10deg) scale(0.8) translateY(80px) translateZ(-80px);
+            }
+            to {
+                opacity: 1;
+                transform: rotateX(0deg) rotateY(0deg) scale(1) translateY(0) translateZ(0px);
+            }
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            animation: backdropPop 0.5s ease-out;
+        }
+
+        @keyframes backdropPop {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateZ(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateZ(0px);
+            }
+        }
+
+        .modal {
+            padding: 26px 30px;
+            transform-style: preserve-3d;
+        }
+
+        .modal h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            background: linear-gradient(135deg, #fff 30%, var(--azul-claro), var(--roxo), var(--rosa));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transform: translateZ(15px);
+            animation: titleWiggle 4s ease-in-out infinite alternate;
+            background-size: 300% 300%;
+        }
+
+        @keyframes titleWiggle {
+            0% {
+                background-position: 0% 50%;
+                transform: translateZ(10px) rotateX(0deg);
+            }
+            100% {
+                background-position: 100% 50%;
+                transform: translateZ(20px) rotateX(2deg);
+            }
+        }
+
+        /* =====================================================
+           SETORES 3D
+        ===================================================== */
+        .setor-card .count {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 2px 0;
+            background: linear-gradient(135deg, #fff 30%, var(--azul-claro), var(--amarelo));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transform: translateZ(8px);
+        }
+
+        /* =====================================================
+           HISTÓRICO 3D
+        ===================================================== */
+        .historico-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--borda);
+            transition: var(--transition);
+            transform-style: preserve-3d;
+        }
+
+        .historico-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            margin: 0 -10px;
+            padding: 10px 10px;
+            border-radius: 8px;
+            transform: translateZ(8px) scale(1.01);
+        }
+
+        .historico-item .acao {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .historico-item .data {
+            font-size: 11px;
+            color: var(--cinza);
+            opacity: 0.5;
+            white-space: nowrap;
+        }
+
+        /* =====================================================
+           UTILITÁRIOS
+        ===================================================== */
+        .hidden {
+            display: none !important;
+        }
+        .muted {
+            color: var(--cinza);
+        }
+        .text-sm {
+            font-size: 12px;
+        }
+        .mt-10 {
+            margin-top: 10px;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .mt-20 {
+            margin-top: 20px;
+        }
+        .mb-10 {
+            margin-bottom: 10px;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .text-center {
+            text-align: center;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 22px 0 16px;
+        }
+
+        .section-header h2 {
+            font-weight: 700;
+            font-size: 19px;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #fff 30%, var(--azul-claro), var(--roxo));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transform: translateZ(5px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--cinza);
+        }
+        .empty-state .emoji {
+            font-size: 52px;
+            display: block;
+            margin-bottom: 14px;
+            opacity: 0.4;
+            animation: floatEmoji3D 4s ease-in-out infinite alternate;
+            transform-style: preserve-3d;
+        }
+
+        .search-bar input {
+            border-radius: 30px;
+            padding: 11px 22px;
+            background: rgba(0, 0, 0, 0.3);
+            border-color: var(--borda);
+            font-size: 13px;
+            letter-spacing: 0.3px;
+            width: 100%;
+            border: 1px solid var(--borda);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            outline: none;
+            font-size: 14px;
+            transition: var(--transition);
+            font-family: inherit;
+            padding: 11px 16px;
+            margin: 4px 0 10px;
+            transform: translateZ(5px);
+        }
+
+        .search-bar input:focus {
+            border-color: var(--azul);
+            box-shadow: 0 0 0 4px rgba(30, 184, 201, 0.08), inset 0 0 20px rgba(30, 184, 201, 0.02);
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateZ(10px);
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 12px;
+            color: var(--cinza);
+            opacity: 0.3;
+            border-top: 1px solid var(--borda);
+            margin-top: 28px;
+            letter-spacing: 0.8px;
+            transition: var(--transition);
+            transform: translateZ(0px);
+        }
+
+        footer:hover {
+            opacity: 0.6;
+            transform: translateZ(8px);
+        }
+
+        /* =====================================================
+           RESPONSIVO
+        ===================================================== */
+        @media (max-width: 768px) {
+            .item {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                text-align: center;
+            }
+            .item .imagem-mini,
+            .item .imagem-placeholder {
+                width: 100%;
+                height: 130px;
+                margin: 0 auto;
+                max-width: 200px;
+            }
+            .item-actions {
+                justify-content: center;
+                margin-top: 4px;
+            }
+            .modal {
+                padding: 16px 18px;
+            }
+            h1 {
+                font-size: 17px;
+            }
+            .logo-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 20px;
+            }
+            .estatistica strong {
+                font-size: 30px;
+            }
+            .grid {
+                grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+                gap: 12px;
+            }
+            nav button {
+                font-size: 11.5px;
+                padding: 6px 12px;
+            }
+            header {
+                padding: 8px 14px 6px;
+            }
+            .container {
+                padding: 12px 14px;
+            }
+            .bg-scene .orb {
+                width: 300px !important;
+                height: 300px !important;
+            }
+            .bg-scene .float-emoji {
+                font-size: 20px !important;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .logo-area {
+                gap: 10px;
+            }
+            .estatistica strong {
+                font-size: 24px;
+            }
+            .card {
+                padding: 14px 16px;
+            }
+            .bg-scene .orb {
+                width: 200px !important;
+                height: 200px !important;
+            }
+            .bg-scene .float-emoji {
+                font-size: 16px !important;
+            }
+        }
+
+        /* =====================================================
+           SCROLLBAR
+        ===================================================== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--borda);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- =====================================================
+    FUNDO ANIMADO DIVERTIDO
+    ===================================================== -->
+    <div class="bg-scene">
+        <!-- Orbes coloridas -->
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+
+        <!-- Emojis flutuantes -->
+        <div class="float-emoji">🚀</div>
+        <div class="float-emoji">⚡</div>
+        <div class="float-emoji">🌟</div>
+        <div class="float-emoji">🎯</div>
+        <div class="float-emoji">💪</div>
+        <div class="float-emoji">🔥</div>
+        <div class="float-emoji">🌈</div>
+        <div class="float-emoji">🎉</div>
+
+        <!-- Estrelas cintilantes -->
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+    </div>
+
+    <!-- =====================================================
+    APP
+    ===================================================== -->
+    <div class="app-wrapper">
+
+        <!-- CABEÇALHO 3D -->
+        <header>
+            <div class="header-top">
+                <div class="logo-area">
+                    <div class="logo-icon">🛠</div>
+                    <div class="logo-text">
+                        <h1>Controle 3D</h1>
+                        <div class="subtitulo">Ferramentas • Ativos • Manutenção</div>
+                    </div>
+                </div>
+            </div>
+            <nav>
+                <button class="ativo" data-tela="painel">📊 Painel</button>
+                <button data-tela="ferramentas">🔧 Ferramentas</button>
+                <button data-tela="ativos">🏭 Ativos</button>
+                <button data-tela="externa">🚚 Externa</button>
+                <button data-tela="setores">📍 Setores</button>
+                <button data-tela="historico">📋 Histórico</button>
+            </nav>
+        </header>
+
+        <!-- CONTEÚDO -->
+        <main class="container">
+
+            <!-- =============================================
+            PAINEL 3D
+            ============================================= -->
+            <section id="painel">
+                <div id="estatisticas" class="grid"></div>
+
+                <div class="card mt-20">
+                    <h2>🏭 Resumo da Empresa</h2>
+                    <div id="resumoEmpresa" style="display:flex;gap:24px;flex-wrap:wrap;margin-top:8px;"></div>
+                </div>
+
+                <div class="card mt-16">
+                    <h2>📲 Relatórios</h2>
+                    <div class="acoes">
+                        <button class="btn-success" onclick="compartilharRelatorio()">📱 WhatsApp</button>
+                        <button class="btn-outline" onclick="window.print()">🖨️ Imprimir</button>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <h2>📍 Setores</h2>
+                    <button class="btn-primary" onclick="abrirFerramenta()">＋ Nova ferramenta</button>
+                </div>
+                <div id="cartoesSetores" class="grid"></div>
+            </section>
+
+            <!-- =============================================
+            FERRAMENTAS
+            ============================================= -->
+            <section id="ferramentas" class="hidden">
+                <div class="flex-between">
+                    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,#fff 30%,var(--azul-claro),var(--roxo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🔧 Ferramentas</h2>
+                    <button class="btn-primary" onclick="abrirFerramenta()">＋ Cadastrar</button>
+                </div>
+                <div class="search-bar">
+                    <input id="pesquisaFerramenta" placeholder="🔎 Pesquisar ferramenta, código ou setor..." oninput="mostrarFerramentas()">
+                </div>
+                <div id="listaFerramentas" class="grid"></div>
+            </section>
+
+            <!-- =============================================
+            ATIVOS
+            ============================================= -->
+            <section id="ativos" class="hidden">
+                <div class="flex-between">
+                    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,#fff 30%,var(--roxo),var(--rosa));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🏭 Ativos da Empresa</h2>
+                    <button class="btn-primary" onclick="abrirAtivo()">＋ Novo ativo</button>
+                </div>
+                <div class="search-bar">
+                    <input id="pesquisaAtivo" placeholder="🔎 Pesquisar ativo, patrimônio ou setor..." oninput="mostrarAtivos()">
+                </div>
+                <div id="listaAtivos" class="grid"></div>
+            </section>
+
+            <!-- =============================================
+            MANUTENÇÃO EXTERNA
+            ============================================= -->
+            <section id="externa" class="hidden">
+                <div class="flex-between">
+                    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,#fff 30%,var(--laranja),var(--amarelo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🚚 Manutenção Externa</h2>
+                    <button class="btn-primary" onclick="abrirManutencaoExterna()">＋ Enviar</button>
+                </div>
+                <div class="card mb-10" style="padding:12px 18px;">
+                    <p class="muted text-sm" style="margin:0;opacity:0.6;">Controle de ferramentas e ativos enviados para empresas terceirizadas.</p>
+                </div>
+                <div id="listaManutencaoExterna" class="grid"></div>
+            </section>
+
+            <!-- =============================================
+            SETORES
+            ============================================= -->
+            <section id="setores" class="hidden">
+                <h2 style="font-weight:700;font-size:19px;background:linear-gradient(135deg,#fff 30%,var(--verde),var(--azul-claro));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">📍 Mapa dos Setores</h2>
+                <div id="mapaSetores" class="grid mt-10"></div>
+            </section>
+
+            <!-- =============================================
+            HISTÓRICO
+            ============================================= -->
+            <section id="historico" class="hidden">
+                <h2 style="font-weight:700;font-size:19px;background:linear-gradient(135deg,#fff 30%,var(--rosa),var(--roxo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">📋 Histórico Geral</h2>
+                <div id="listaHistorico" class="card mt-10" style="padding:8px 16px;"></div>
+            </section>
+
+        </main>
+
+        <footer>✦ Sistema 3D de Controle de Ferramentas e Manutenção ✦</footer>
+
+    </div>
+
+    <!-- =====================================================
+    MODAIS
+    ===================================================== -->
+    <dialog id="dialogFerramenta">
+        <div class="modal">
+            <h2 id="tituloFerramenta">Cadastrar ferramenta</h2>
+            <input type="hidden" id="idFerramenta">
+            <label>Nome da ferramenta</label>
+            <input id="nomeFerramenta" placeholder="Ex.: Furadeira">
+            <label>Patrimônio / Código</label>
+            <input id="codigoFerramenta" placeholder="Ex.: FER-001">
+            <label>Setor</label>
+            <select id="setorFerramenta"></select>
+            <label>Status</label>
+            <select id="statusFerramenta">
+                <option>Disponível</option>
+                <option>Emprestada</option>
+                <option>Manutenção</option>
+            </select>
+            <label>Observações</label>
+            <textarea id="obsFerramenta" rows="3"></textarea>
+            <div class="acoes">
+                <button class="btn-outline" onclick="document.getElementById('entradaFoto').click()">📷 Foto</button>
+                <button class="btn-outline" onclick="abrirCamera('ferramenta')">📹 Câmera</button>
+                <button class="btn-outline" onclick="document.getElementById('entradaVideo').click()">🎬 Vídeo</button>
+            </div>
+            <input id="entradaFoto" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotos(this.files)">
+            <input id="entradaVideo" class="hidden" type="file" accept="video/*" capture="environment" onchange="adicionarVideo(this.files[0])">
+            <div id="previewFerramenta" class="preview"></div>
+            <div class="acoes" style="margin-top:18px;">
+                <button class="btn-outline" onclick="fecharFerramenta()">Cancelar</button>
+                <button class="btn-primary" onclick="salvarFerramenta()">💾 Salvar</button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="dialogAtivo">
+        <div class="modal">
+            <h2>🏭 Cadastro de Ativo</h2>
+            <input type="hidden" id="idAtivo">
+            <label>Nome do ativo</label>
+            <input id="nomeAtivo" placeholder="Ex.: Compressor">
+            <label>Patrimônio / TAG</label>
+            <input id="codigoAtivo" placeholder="Ex.: AT-001">
+            <label>Tipo do ativo</label>
+            <select id="tipoAtivo">
+                <option>Máquina</option>
+                <option>Equipamento</option>
+                <option>Veículo</option>
+                <option>Instalação</option>
+                <option>Outro</option>
+            </select>
+            <label>Setor</label>
+            <select id="setorAtivo"></select>
+            <label>Status</label>
+            <select id="statusAtivo">
+                <option>Operando</option>
+                <option>Parado</option>
+                <option>Manutenção</option>
+                <option>Manutenção Externa</option>
+            </select>
+            <label>Observações</label>
+            <textarea id="obsAtivo" rows="3"></textarea>
+            <div class="acoes">
+                <button class="btn-outline" onclick="document.getElementById('entradaFotoAtivo').click()">📷 Foto</button>
+                <button class="btn-outline" onclick="abrirCamera('ativo')">📹 Câmera</button>
+            </div>
+            <input id="entradaFotoAtivo" class="hidden" type="file" accept="image/*" capture="environment" onchange="adicionarFotoAtivo(this.files[0])">
+            <div id="previewAtivo" class="preview"></div>
+            <div class="acoes" style="margin-top:18px;">
+                <button class="btn-outline" onclick="fecharAtivo()">Cancelar</button>
+                <button class="btn-primary" onclick="salvarAtivo()">💾 Salvar</button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="dialogExterna">
+        <div class="modal">
+            <h2>🚚 Manutenção Fora da Empresa</h2>
+            <input type="hidden" id="idExterna">
+            <label>Tipo</label>
+            <select id="tipoExterno">
+                <option>Ferramenta</option>
+                <option>Ativo</option>
+            </select>
+            <label>Nome do item</label>
+            <input id="nomeExterno" placeholder="Nome da ferramenta ou ativo">
+            <label>Patrimônio / Código</label>
+            <input id="codigoExterno" placeholder="Ex.: FER-001">
+            <label>Empresa / Assistência Técnica</label>
+            <input id="empresaExterna" placeholder="Nome da empresa">
+            <label>Responsável</label>
+            <input id="responsavelExterno" placeholder="Nome do responsável">
+            <label>Data de saída</label>
+            <input id="dataSaida" type="date">
+            <label>Previsão de retorno</label>
+            <input id="dataRetorno" type="date">
+            <label>Status</label>
+            <select id="statusExterno">
+                <option>Enviado</option>
+                <option>Em manutenção</option>
+                <option>Aguardando orçamento</option>
+                <option>Aguardando peça</option>
+                <option>Pronto para retorno</option>
+                <option>Retornado</option>
+            </select>
+            <label>Descrição do serviço</label>
+            <textarea id="servicoExterno" rows="4" placeholder="Defeito apresentado, serviço solicitado, peças, orçamento etc."></textarea>
+            <div class="acoes">
+                <button class="btn-outline" onclick="document.getElementById('entradaFotoExterna').click()">📷 Foto</button>
+                <button class="btn-outline" onclick="document.getElementById('entradaVideoExterna').click()">🎬 Vídeo</button>
+            </div>
+            <input id="entradaFotoExterna" class="hidden" type="file" accept="image/*" capture="environment" onchange="adicionarFotoExterna(this.files[0])">
+            <input id="entradaVideoExterna" class="hidden" type="file" accept="video/*" capture="environment" onchange="adicionarVideoExterno(this.files[0])">
+            <div id="previewExterna" class="preview"></div>
+            <div class="acoes" style="margin-top:18px;">
+                <button class="btn-outline" onclick="fecharExterna()">Cancelar</button>
+                <button class="btn-primary" onclick="salvarExterna()">💾 Salvar</button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="dialogCamera">
+        <div class="modal" style="padding:18px 20px;">
+            <h2 style="font-size:18px;">📹 Câmera</h2>
+            <video id="camera" autoplay playsinline></video>
+            <div class="acoes" style="margin-top:12px;">
+                <button class="btn-primary" onclick="tirarFoto()">📸 Capturar</button>
+                <button class="btn-outline" onclick="fecharCamera()">Fechar</button>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        /* =====================================================
+           SETORES
+        ===================================================== */
+        const SETORES = [
+            "Acabamento 01", "Acabamento 02",
+            "Laminação 01", "Laminação 02",
+            "Marcenaria", "CNC",
+            "Tecelagem", "Manutenção"
+        ];
+
+        /* =====================================================
+           BANCO DE DADOS LOCAL
+        ===================================================== */
+        let ferramentas = JSON.parse(localStorage.getItem("controleFerramentas") || "[]");
+        let ativos = JSON.parse(localStorage.getItem("controleAtivos") || "[]");
+        let manutencoesExternas = JSON.parse(localStorage.getItem("controleManutencoesExternas") || "[]");
+        let historico = JSON.parse(localStorage.getItem("controleHistorico") || "[]");
+
+        /* =====================================================
+           VARIÁVEIS
+        ===================================================== */
+        let midiasFerramenta = [];
+        let midiasAtivo = [];
+        let midiasExterna = [];
+        let cameraStream = null;
+        let cameraDestino = "ferramenta";
+
+        /* =====================================================
+           SALVAR BANCO
+        ===================================================== */
+        function salvarBanco() {
+            localStorage.setItem("controleFerramentas", JSON.stringify(ferramentas));
+            localStorage.setItem("controleAtivos", JSON.stringify(ativos));
+            localStorage.setItem("controleManutencoesExternas", JSON.stringify(manutencoesExternas));
+            localStorage.setItem("controleHistorico", JSON.stringify(historico));
+        }
+
+        /* =====================================================
+           ESCAPAR TEXTO
+        ===================================================== */
+        function escapar(texto = "") {
+            return String(texto)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        /* =====================================================
+           GERAR ID
+        ===================================================== */
+        function gerarId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+        }
+
+        /* =====================================================
+           HISTÓRICO
+        ===================================================== */
+        function registrarHistorico(nome, acao) {
+            historico.push({
+                nome: nome,
+                acao: acao,
+                data: new Date().toISOString()
+            });
+            if (historico.length > 300) historico.shift();
+            salvarBanco();
+        }
+
+        /* =====================================================
+           INICIALIZAÇÃO
+        ===================================================== */
+        function iniciar() {
+            document.getElementById("setorFerramenta").innerHTML =
+                SETORES.map(s => `<option>${s}</option>`).join("");
+            document.getElementById("setorAtivo").innerHTML =
+                SETORES.map(s => `<option>${s}</option>`).join("");
+
+            document.querySelectorAll("nav button").forEach(botao => {
+                botao.onclick = function() {
+                    document.querySelectorAll("nav button").forEach(b => b.classList.remove("ativo"));
+                    this.classList.add("ativo");
+                    document.querySelectorAll("main section").forEach(s => s.classList.add("hidden"));
+                    document.getElementById(this.dataset.tela).classList.remove("hidden");
+                    mostrarTudo();
+                };
+            });
+
+            mostrarTudo();
+        }
+
+        /* =====================================================
+           MOSTRAR TUDO
+        ===================================================== */
+        function mostrarTudo() {
+            mostrarEstatisticas();
+            mostrarSetores();
+            mostrarFerramentas();
+            mostrarAtivos();
+            mostrarManutencoesExternas();
+            mostrarHistorico();
+        }
+
+        /* =====================================================
+           ESTATÍSTICAS
+        ===================================================== */
+        function mostrarEstatisticas() {
+            const totalFerramentas = ferramentas.length;
+            const disponiveis = ferramentas.filter(x => x.status === "Disponível").length;
+            const emprestadas = ferramentas.filter(x => x.status === "Emprestada").length;
+            const totalAtivos = ativos.length;
+            const ativosManutencao = ativos.filter(x => x.status === "Manutenção" || x.status === "Manutenção Externa")
+                .length;
+            const externasPendentes = manutencoesExternas.filter(x => x.status !== "Retornado").length;
+
+            document.getElementById("estatisticas").innerHTML = `
+                <div class="card estatistica">
+                    <span class="icon">🔧</span>
+                    <span class="label">Ferramentas</span>
+                    <strong>${totalFerramentas}</strong>
+                </div>
+                <div class="card estatistica">
+                    <span class="icon">🟢</span>
+                    <span class="label">Disponíveis</span>
+                    <strong>${disponiveis}</strong>
+                </div>
+                <div class="card estatistica">
+                    <span class="icon">📤</span>
+                    <span class="label">Emprestadas</span>
+                    <strong>${emprestadas}</strong>
+                </div>
+                <div class="card estatistica">
+                    <span class="icon">🏭</span>
+                    <span class="label">Ativos</span>
+                    <strong>${totalAtivos}</strong>
+                </div>
+                <div class="card estatistica">
+                    <span class="icon">🧰</span>
+                    <span class="label">Ativos em manutenção</span>
+                    <strong>${ativosManutencao}</strong>
+                </div>
+                <div class="card estatistica">
+                    <span class="icon">🚚</span>
+                    <span class="label">Manutenção externa</span>
+                    <strong>${externasPendentes}</strong>
+                </div>
+            `;
+
+            document.getElementById("resumoEmpresa").innerHTML = `
+                <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:18px;">🔧</span> <span class="muted text-sm">Ferramentas:</span> <strong style="font-size:18px;">${totalFerramentas}</strong></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:18px;">🏭</span> <span class="muted text-sm">Ativos:</span> <strong style="font-size:18px;">${totalAtivos}</strong></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:18px;">🚚</span> <span class="muted text-sm">Itens fora:</span> <strong style="font-size:18px;">${externasPendentes}</strong></div>
+            `;
+        }
+
+        /* =====================================================
+           SETORES
+        ===================================================== */
+        function gerarSetores() {
+            let html = "";
+            SETORES.forEach(setor => {
+                const lista = ferramentas.filter(x => x.setor === setor);
+                const ativosSetor = ativos.filter(x => x.setor === setor);
+
+                html += `
+                    <div class="card setor-card">
+                        <h3>📍 ${escapar(setor)}</h3>
+                        <div class="count">${lista.length + ativosSetor.length}</div>
+                        <div style="font-size:12px;color:var(--cinza);opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">itens no total</div>
+                        <div class="stats">
+                            <span class="badge badge-success">🟢 ${lista.filter(x => x.status === "Disponível").length}</span>
+                            <span class="badge badge-warning">📤 ${lista.filter(x => x.status === "Emprestada").length}</span>
+                            <span class="badge badge-danger">🧰 ${lista.filter(x => x.status === "Manutenção").length}</span>
+                            <span class="badge badge-info">🏭 ${ativosSetor.length}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            return html;
+        }
+
+        function mostrarSetores() {
+            const html = gerarSetores();
+            document.getElementById("cartoesSetores").innerHTML = html;
+            document.getElementById("mapaSetores").innerHTML = html;
+        }
+
+        /* =====================================================
+           FERRAMENTAS
+        ===================================================== */
+        function mostrarFerramentas() {
+            const pesquisa = (document.getElementById("pesquisaFerramenta")?.value || "").toLowerCase();
+            const lista = ferramentas.filter(x =>
+                (x.nome + " " + x.codigo + " " + x.setor).toLowerCase().includes(pesquisa)
+            );
+
+            if (!lista.length) {
+                document.getElementById("listaFerramentas").innerHTML = `
+                    <div class="card empty-state">
+                        <span class="emoji">🔍</span>
+                        <span class="text">Nenhuma ferramenta encontrada.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            document.getElementById("listaFerramentas").innerHTML =
+                lista.map(x => {
+                    const statusClass = x.status === "Disponível" ? "badge-success" :
+                        x.status === "Emprestada" ? "badge-warning" : "badge-danger";
+
+                    const fotoHtml = x.fotos?.[0] ?
+                        `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
+                        `<div class="imagem-placeholder">🔧</div>`;
+
+                    return `
+                        <div class="card item">
+                            ${fotoHtml}
+                            <div class="item-info">
+                                <div class="nome">${escapar(x.nome)}</div>
+                                <div class="detalhes">
+                                    Código: ${escapar(x.codigo || "-")}<br>
+                                    Setor: ${escapar(x.setor)}
+                                </div>
+                                <div class="tags">
+                                    <span class="badge ${statusClass}">${escapar(x.status)}</span>
+                                    ${x.video ? `<span class="badge badge-info">🎬 Vídeo</span>` : ""}
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn-edit" onclick="abrirFerramenta('${x.id}')" title="Editar">✏️</button>
+                                <button class="btn-share" onclick="compartilharFerramenta('${x.id}')" title="WhatsApp">📲</button>
+                                <button class="btn-delete" onclick="excluirFerramenta('${x.id}')" title="Excluir">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+        }
+
+        /* =====================================================
+           CADASTRO DE FERRAMENTA
+        ===================================================== */
+        function abrirFerramenta(id = null) {
+            midiasFerramenta = [];
+            document.getElementById("idFerramenta").value = id || "";
+
+            if (id) {
+                const x = ferramentas.find(f => f.id === id);
+                if (!x) return;
+
+                document.getElementById("tituloFerramenta").textContent = "Editar ferramenta";
+                document.getElementById("nomeFerramenta").value = x.nome;
+                document.getElementById("codigoFerramenta").value = x.codigo || "";
+                document.getElementById("setorFerramenta").value = x.setor;
+                document.getElementById("statusFerramenta").value = x.status;
+                document.getElementById("obsFerramenta").value = x.observacoes || "";
+
+                (x.fotos || []).forEach(foto => {
+                    midiasFerramenta.push({ tipo: "foto", src: foto });
+                });
+                if (x.video) {
+                    midiasFerramenta.push({ tipo: "video", src: x.video });
+                }
+            } else {
+                document.getElementById("tituloFerramenta").textContent = "Cadastrar ferramenta";
+                document.getElementById("nomeFerramenta").value = "";
+                document.getElementById("codigoFerramenta").value = "";
+                document.getElementById("obsFerramenta").value = "";
+                document.getElementById("setorFerramenta").value = SETORES[0];
+                document.getElementById("statusFerramenta").value = "Disponível";
+            }
+
+            mostrarPreviewFerramenta();
+            document.getElementById("dialogFerramenta").showModal();
+        }
+
+        function fecharFerramenta() {
+            document.getElementById("dialogFerramenta").close();
+        }
+
+        /* =====================================================
+           SALVAR FERRAMENTA
+        ===================================================== */
+        function salvarFerramenta() {
+            const nome = document.getElementById("nomeFerramenta").value.trim();
+            if (!nome) {
+                alert("Digite o nome da ferramenta.");
+                return;
+            }
+
+            const id = document.getElementById("idFerramenta").value || gerarId();
+            const ferramenta = {
+                id: id,
+                nome: nome,
+                codigo: document.getElementById("codigoFerramenta").value.trim(),
+                setor: document.getElementById("setorFerramenta").value,
+                status: document.getElementById("statusFerramenta").value,
+                observacoes: document.getElementById("obsFerramenta").value.trim(),
+                fotos: midiasFerramenta.filter(m => m.tipo === "foto").map(m => m.src),
+                video: midiasFerramenta.find(m => m.tipo === "video")?.src || null,
+                data: new Date().toISOString()
+            };
+
+            const existe = ferramentas.find(x => x.id === id);
+            if (existe) {
+                ferramentas = ferramentas.map(x => x.id === id ? ferramenta : x);
+                registrarHistorico(nome, "✏️ Ferramenta atualizada");
+            } else {
+                ferramentas.push(ferramenta);
+                registrarHistorico(nome, "➕ Ferramenta cadastrada");
+            }
+
+            salvarBanco();
+            fecharFerramenta();
+            mostrarTudo();
+        }
+
+        /* =====================================================
+           EXCLUIR FERRAMENTA
+        ===================================================== */
+        function excluirFerramenta(id) {
+            const x = ferramentas.find(f => f.id === id);
+            if (!x) return;
+            if (confirm(`Excluir a ferramenta "${x.nome}"?`)) {
+                ferramentas = ferramentas.filter(f => f.id !== id);
+                registrarHistorico(x.nome, "🗑️ Ferramenta excluída");
+                salvarBanco();
+                mostrarTudo();
+            }
+        }
+
+        /* =====================================================
+           ATIVOS
+        ===================================================== */
+        function abrirAtivo(id = null) {
+            midiasAtivo = [];
+            document.getElementById("idAtivo").value = id || "";
+
+            if (id) {
+                const x = ativos.find(a => a.id === id);
+                if (!x) return;
+
+                document.getElementById("nomeAtivo").value = x.nome;
+                document.getElementById("codigoAtivo").value = x.codigo || "";
+                document.getElementById("tipoAtivo").value = x.tipo || "Máquina";
+                document.getElementById("setorAtivo").value = x.setor;
+                document.getElementById("statusAtivo").value = x.status;
+                document.getElementById("obsAtivo").value = x.observacoes || "";
+
+                if (x.foto) {
+                    midiasAtivo.push({ tipo: "foto", src: x.foto });
+                }
+            } else {
+                document.getElementById("nomeAtivo").value = "";
+                document.getElementById("codigoAtivo").value = "";
+                document.getElementById("obsAtivo").value = "";
+                document.getElementById("setorAtivo").value = SETORES[0];
+                document.getElementById("tipoAtivo").value = "Máquina";
+            }
+
+            mostrarPreviewAtivo();
+            document.getElementById("dialogAtivo").showModal();
+        }
+
+        function fecharAtivo() {
+            document.getElementById("dialogAtivo").close();
+        }
+
+        /* =====================================================
+           SALVAR ATIVO
+        ===================================================== */
+        function salvarAtivo() {
+            const nome = document.getElementById("nomeAtivo").value.trim();
+            if (!nome) {
+                alert("Digite o nome do ativo.");
+                return;
+            }
+
+            const id = document.getElementById("idAtivo").value || gerarId();
+            const ativo = {
+                id: id,
+                nome: nome,
+                codigo: document.getElementById("codigoAtivo").value.trim(),
+                tipo: document.getElementById("tipoAtivo").value,
+                setor: document.getElementById("setorAtivo").value,
+                status: document.getElementById("statusAtivo").value,
+                observacoes: document.getElementById("obsAtivo").value.trim(),
+                foto: midiasAtivo.find(m => m.tipo === "foto")?.src || null,
+                data: new Date().toISOString()
+            };
+
+            const existe = ativos.find(x => x.id === id);
+            if (existe) {
+                ativos = ativos.map(x => x.id === id ? ativo : x);
+                registrarHistorico(nome, "✏️ Ativo atualizado");
+            } else {
+                ativos.push(ativo);
+                registrarHistorico(nome, "➕ Ativo cadastrado");
+            }
+
+            salvarBanco();
+            fecharAtivo();
+            mostrarTudo();
+        }
+
+        /* =====================================================
+           MOSTRAR ATIVOS
+        ===================================================== */
+        function mostrarAtivos() {
+            const pesquisa = (document.getElementById("pesquisaAtivo")?.value || "").toLowerCase();
+            const lista = ativos.filter(x =>
+                (x.nome + " " + x.codigo + " " + x.setor + " " + x.tipo).toLowerCase().includes(pesquisa)
+            );
+
+            if (!lista.length) {
+                document.getElementById("listaAtivos").innerHTML = `
+                    <div class="card empty-state">
+                        <span class="emoji">🏭</span>
+                        <span class="text">Nenhum ativo cadastrado.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            document.getElementById("listaAtivos").innerHTML =
+                lista.map(x => {
+                    const statusClass = x.status === "Operando" ? "badge-success" :
+                        x.status === "Parado" ? "badge-warning" :
+                        x.status === "Manutenção Externa" ? "badge-info" : "badge-danger";
+
+                    const fotoHtml = x.foto ?
+                        `<img class="imagem-mini" src="${x.foto}" alt="${escapar(x.nome)}">` :
+                        `<div class="imagem-placeholder">🏭</div>`;
+
+                    return `
+                        <div class="card item">
+                            ${fotoHtml}
+                            <div class="item-info">
+                                <div class="nome">${escapar(x.nome)}</div>
+                                <div class="detalhes">
+                                    TAG: ${escapar(x.codigo || "-")}<br>
+                                    Tipo: ${escapar(x.tipo)}<br>
+                                    Setor: ${escapar(x.setor)}
+                                </div>
+                                <div class="tags">
+                                    <span class="badge ${statusClass}">${escapar(x.status)}</span>
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn-edit" onclick="abrirAtivo('${x.id}')" title="Editar">✏️</button>
+                                <button class="btn-share" onclick="compartilharAtivo('${x.id}')" title="WhatsApp">📲</button>
+                                <button class="btn-delete" onclick="excluirAtivo('${x.id}')" title="Excluir">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+        }
+
+        /* =====================================================
+           EXCLUIR ATIVO
+        ===================================================== */
+        function excluirAtivo(id) {
+            const x = ativos.find(a => a.id === id);
+            if (!x) return;
+            if (confirm(`Excluir o ativo "${x.nome}"?`)) {
+                ativos = ativos.filter(a => a.id !== id);
+                registrarHistorico(x.nome, "🗑️ Ativo excluído");
+                salvarBanco();
+                mostrarTudo();
+            }
+        }
+
+        /* =====================================================
+           MANUTENÇÃO EXTERNA
+        ===================================================== */
+        function abrirManutencaoExterna(id = null) {
+            midiasExterna = [];
+            document.getElementById("idExterna").value = id || "";
+
+            if (id) {
+                const x = manutencoesExternas.find(m => m.id === id);
+                if (!x) return;
+
+                document.getElementById("tipoExterno").value = x.tipo || "Ferramenta";
+                document.getElementById("nomeExterno").value = x.nome;
+                document.getElementById("codigoExterno").value = x.codigo || "";
+                document.getElementById("empresaExterna").value = x.empresa || "";
+                document.getElementById("responsavelExterno").value = x.responsavel || "";
+                document.getElementById("dataSaida").value = x.dataSaida || "";
+                document.getElementById("dataRetorno").value = x.dataRetorno || "";
+                document.getElementById("statusExterno").value = x.status || "Enviado";
+                document.getElementById("servicoExterno").value = x.servico || "";
+
+                if (x.foto) {
+                    midiasExterna.push({ tipo: "foto", src: x.foto });
+                }
+                if (x.video) {
+                    midiasExterna.push({ tipo: "video", src: x.video });
+                }
+            } else {
+                document.getElementById("nomeExterno").value = "";
+                document.getElementById("codigoExterno").value = "";
+                document.getElementById("empresaExterna").value = "";
+                document.getElementById("responsavelExterno").value = "";
+                document.getElementById("dataSaida").value = new Date().toISOString().substring(0, 10);
+                document.getElementById("dataRetorno").value = "";
+                document.getElementById("servicoExterno").value = "";
+            }
+
+            mostrarPreviewExterna();
+            document.getElementById("dialogExterna").showModal();
+        }
+
+        function fecharExterna() {
+            document.getElementById("dialogExterna").close();
+        }
+
+        /* =====================================================
+           SALVAR MANUTENÇÃO EXTERNA
+        ===================================================== */
+        function salvarExterna() {
+            const nome = document.getElementById("nomeExterno").value.trim();
+            if (!nome) {
+                alert("Digite o nome do item.");
+                return;
+            }
+
+            const id = document.getElementById("idExterna").value || gerarId();
+            const registro = {
+                id: id,
+                tipo: document.getElementById("tipoExterno").value,
+                nome: nome,
+                codigo: document.getElementById("codigoExterno").value.trim(),
+                empresa: document.getElementById("empresaExterna").value.trim(),
+                responsavel: document.getElementById("responsavelExterno").value.trim(),
+                dataSaida: document.getElementById("dataSaida").value,
+                dataRetorno: document.getElementById("dataRetorno").value,
+                status: document.getElementById("statusExterno").value,
+                servico: document.getElementById("servicoExterno").value.trim(),
+                foto: midiasExterna.find(m => m.tipo === "foto")?.src || null,
+                video: midiasExterna.find(m => m.tipo === "video")?.src || null,
+                data: new Date().toISOString()
+            };
+
+            const existe = manutencoesExternas.find(x => x.id === id);
+            if (existe) {
+                manutencoesExternas = manutencoesExternas.map(x => x.id === id ? registro : x);
+                registrarHistorico(nome, "✏️ Manutenção externa atualizada");
+            } else {
+                manutencoesExternas.push(registro);
+                registrarHistorico(nome, "🚚 Enviado para manutenção externa");
+            }
+
+            salvarBanco();
+            fecharExterna();
+            mostrarTudo();
+        }
+
+        /* =====================================================
+           MOSTRAR MANUTENÇÕES EXTERNAS
+        ===================================================== */
+        function mostrarManutencoesExternas() {
+            if (!manutencoesExternas.length) {
+                document.getElementById("listaManutencaoExterna").innerHTML = `
+                    <div class="card empty-state">
+                        <span class="emoji">📭</span>
+                        <span class="text">Nenhum item em manutenção externa.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            document.getElementById("listaManutencaoExterna").innerHTML =
+                manutencoesExternas.slice().reverse().map(x => {
+                    const statusClass = x.status === "Retornado" ? "badge-success" :
+                        x.status === "Em manutenção" ? "badge-warning" :
+                        x.status === "Aguardando peça" || x.status === "Aguardando orçamento" ? "badge-danger" :
+                        "badge-info";
+
+                    return `
+                        <div class="card">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px;">
+                                <h3 style="font-size:16px;margin:0;">🚚 ${escapar(x.nome)}</h3>
+                                <span class="badge ${statusClass}">${escapar(x.status)}</span>
+                            </div>
+                            <div style="font-size:13px;line-height:1.6;margin-top:8px;">
+                                <div><span class="muted" style="opacity:0.6;">Tipo:</span> ${escapar(x.tipo)}</div>
+                                <div><span class="muted" style="opacity:0.6;">Código:</span> ${escapar(x.codigo || "-")}</div>
+                                <div><span class="muted" style="opacity:0.6;">Empresa:</span> ${escapar(x.empresa || "-")}</div>
+                                <div><span class="muted" style="opacity:0.6;">Responsável:</span> ${escapar(x.responsavel || "-")}</div>
+                                <div><span class="muted" style="opacity:0.6;">Saída:</span> ${x.dataSaida || "-"}</div>
+                                <div><span class="muted" style="opacity:0.6;">Retorno previsto:</span> ${x.dataRetorno || "-"}</div>
+                                <div class="text-sm muted" style="margin-top:4px;opacity:0.5;">${escapar(x.servico || "Sem descrição do serviço")}</div>
+                            </div>
+                            ${x.foto ? `<img src="${x.foto}" style="width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-top:8px;">` : ""}
+                            <div class="acoes" style="margin-top:10px;">
+                                <button class="btn-edit" onclick="abrirManutencaoExterna('${x.id}')">✏️ Editar</button>
+                                <button class="btn-share" onclick="compartilharManutencao('${x.id}')">📲 WhatsApp</button>
+                                <button class="btn-delete" onclick="excluirManutencao('${x.id}')">🗑️ Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+        }
+
+        /* =====================================================
+           EXCLUIR MANUTENÇÃO EXTERNA
+        ===================================================== */
+        function excluirManutencao(id) {
+            const x = manutencoesExternas.find(m => m.id === id);
+            if (!x) return;
+            if (confirm("Excluir este registro?")) {
+                manutencoesExternas = manutencoesExternas.filter(m => m.id !== id);
+                registrarHistorico(x.nome, "🗑️ Registro de manutenção externa excluído");
+                salvarBanco();
+                mostrarTudo();
+            }
+        }
+
+        /* =====================================================
+           FOTOS / VÍDEOS - FERRAMENTA
+        ===================================================== */
+        function adicionarFotos(arquivos) {
+            [...arquivos].forEach(arquivo => {
+                const leitor = new FileReader();
+                leitor.onload = function() {
+                    midiasFerramenta.push({ tipo: "foto", src: this.result });
+                    mostrarPreviewFerramenta();
+                };
+                leitor.readAsDataURL(arquivo);
+            });
+        }
+
+        function adicionarVideo(arquivo) {
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = function() {
+                midiasFerramenta = midiasFerramenta.filter(m => m.tipo !== "video");
+                midiasFerramenta.push({ tipo: "video", src: this.result });
+                mostrarPreviewFerramenta();
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function mostrarPreviewFerramenta() {
+            document.getElementById("previewFerramenta").innerHTML =
+                midiasFerramenta.map(m =>
+                    m.tipo === "foto" ?
+                    `<img src="${m.src}" alt="Preview">` :
+                    `<video src="${m.src}" controls></video>`
+                ).join("");
+        }
+
+        /* =====================================================
+           FOTO ATIVO
+        ===================================================== */
+        function adicionarFotoAtivo(arquivo) {
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = function() {
+                midiasAtivo = [{ tipo: "foto", src: this.result }];
+                mostrarPreviewAtivo();
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function mostrarPreviewAtivo() {
+            document.getElementById("previewAtivo").innerHTML =
+                midiasAtivo.map(m => `<img src="${m.src}" alt="Preview">`).join("");
+        }
+
+        /* =====================================================
+           FOTO / VÍDEO EXTERNO
+        ===================================================== */
+        function adicionarFotoExterna(arquivo) {
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = function() {
+                midiasExterna = midiasExterna.filter(m => m.tipo !== "foto");
+                midiasExterna.push({ tipo: "foto", src: this.result });
+                mostrarPreviewExterna();
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function adicionarVideoExterno(arquivo) {
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = function() {
+                midiasExterna = midiasExterna.filter(m => m.tipo !== "video");
+                midiasExterna.push({ tipo: "video", src: this.result });
+                mostrarPreviewExterna();
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function mostrarPreviewExterna() {
+            document.getElementById("previewExterna").innerHTML =
+                midiasExterna.map(m =>
+                    m.tipo === "foto" ?
+                    `<img src="${m.src}" alt="Preview">` :
+                    `<video src="${m.src}" controls></video>`
+                ).join("");
+        }
+
+        /* =====================================================
+           CÂMERA
+        ===================================================== */
+        async function abrirCamera(destino = "ferramenta") {
+            cameraDestino = destino;
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment" },
+                    audio: false
+                });
+                document.getElementById("camera").srcObject = cameraStream;
+                document.getElementById("dialogCamera").showModal();
+            } catch (e) {
+                alert("Não foi possível acessar a câmera. Verifique as permissões.");
+            }
+        }
+
+        function fecharCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(t => t.stop());
+                cameraStream = null;
+            }
+            document.getElementById("dialogCamera").close();
+        }
+
+        function tirarFoto() {
+            const video = document.getElementById("camera");
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext("2d").drawImage(video, 0, 0);
+            const imagem = canvas.toDataURL("image/jpeg", 0.85);
+
+            if (cameraDestino === "ferramenta") {
+                midiasFerramenta.push({ tipo: "foto", src: imagem });
+                mostrarPreviewFerramenta();
+            } else if (cameraDestino === "ativo") {
+                midiasAtivo = [{ tipo: "foto", src: imagem }];
+                mostrarPreviewAtivo();
+            }
+
+            fecharCamera();
+        }
+
+        /* =====================================================
+           HISTÓRICO
+        ===================================================== */
+        function mostrarHistorico() {
+            if (!historico.length) {
+                document.getElementById("listaHistorico").innerHTML = `
+                    <div class="empty-state" style="padding:20px;">
+                        <span class="emoji" style="font-size:32px;">📭</span>
+                        <span class="text">Nenhum registro no histórico.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            document.getElementById("listaHistorico").innerHTML =
+                historico.slice().reverse().slice(0, 50).map(h => `
+                    <div class="historico-item">
+                        <div>
+                            <div class="acao">${escapar(h.nome)}</div>
+                            <div class="text-sm muted" style="opacity:0.5;">${escapar(h.acao)}</div>
+                        </div>
+                        <div class="data">${new Date(h.data).toLocaleString("pt-BR")}</div>
+                    </div>
+                `).join("");
+        }
+
+        /* =====================================================
+           WHATSAPP - COMPARTILHAMENTOS
+        ===================================================== */
+        function abrirWhatsApp(texto) {
+            window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
+        }
+
+        function compartilharFerramenta(id) {
+            const x = ferramentas.find(f => f.id === id);
+            if (!x) return;
+            const texto =
+                `🛠️ *Ferramenta*\nNome: ${x.nome}\nCódigo: ${x.codigo || "-"}\nSetor: ${x.setor}\nStatus: ${x.status}\nObs: ${x.observacoes || "-"}`;
+            abrirWhatsApp(texto);
+        }
+
+        function compartilharAtivo(id) {
+            const x = ativos.find(a => a.id === id);
+            if (!x) return;
+            const texto =
+                `🏭 *Ativo*\nNome: ${x.nome}\nTAG: ${x.codigo || "-"}\nTipo: ${x.tipo}\nSetor: ${x.setor}\nStatus: ${x.status}\nObs: ${x.observacoes || "-"}`;
+            abrirWhatsApp(texto);
+        }
+
+        function compartilharManutencao(id) {
+            const x = manutencoesExternas.find(m => m.id === id);
+            if (!x) return;
+            const texto =
+                `🚚 *Manutenção Externa*\nItem: ${x.nome}\nTipo: ${x.tipo}\nCódigo: ${x.codigo || "-"}\nEmpresa: ${x.empresa || "-"}\nResponsável: ${x.responsavel || "-"}\nSaída: ${x.dataSaida || "-"}\nRetorno: ${x.dataRetorno || "-"}\nStatus: ${x.status}\nServiço: ${x.servico || "-"}`;
+            abrirWhatsApp(texto);
+        }
+
+        /* =====================================================
+           RELATÓRIO GERAL
+        ===================================================== */
+        function compartilharRelatorio() {
+            let texto = `📊 *RELATÓRIO DE CONTROLE*\n\n`;
+            texto += `🔧 *Ferramentas*\nTotal: ${ferramentas.length}\nDisponíveis: ${ferramentas.filter(x => x.status === "Disponível").length}\nEmprestadas: ${ferramentas.filter(x => x.status === "Emprestada").length}\n\n`;
+            texto += `🏭 *Ativos*\nTotal: ${ativos.length}\nEm manutenção: ${ativos.filter(x => x.status === "Manutenção" || x.status === "Manutenção Externa").length}\n\n`;
+            texto += `🚚 *Manutenção Externa*\nItens fora: ${manutencoesExternas.filter(x => x.status !== "Retornado").length}\n\n`;
+            texto += `📍 *Setores*\n`;
+            SETORES.forEach(setor => {
+                const qtd = ferramentas.filter(x => x.setor === setor).length;
+                texto += `${setor}: ${qtd} ferramentas\n`;
+            });
+            abrirWhatsApp(texto);
+        }
+
+        /* =====================================================
+           INICIAR APLICAÇÃO
+        ===================================================== */
+        document.addEventListener("DOMContentLoaded", iniciar);
+    </script>
+</body>
+</html>
