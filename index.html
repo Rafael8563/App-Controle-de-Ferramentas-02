@@ -1996,7 +1996,7 @@
             document.getElementById("setorPedido").innerHTML =
                 SETORES.map(s => `<option>${s}</option>`).join("");
 
-            // Data atual no campo de data do pedido
+            // Data atual nos campos
             document.getElementById("dataPedido").value = new Date().toISOString().substring(0, 10);
             document.getElementById("dataCriado").value = new Date().toISOString().substring(0, 10);
 
@@ -2216,6 +2216,9 @@
                 }).join("");
         }
 
+        /* =====================================================
+           ABRIR FERRAMENTA
+        ===================================================== */
         function abrirFerramenta(id = null) {
             midiasFerramenta = [];
             document.getElementById("idFerramenta").value = id || "";
@@ -2254,6 +2257,9 @@
             document.getElementById("dialogFerramenta").close();
         }
 
+        /* =====================================================
+           SALVAR FERRAMENTA - COM ALARME AUTOMÁTICO
+        ===================================================== */
         function salvarFerramenta() {
             const nome = document.getElementById("nomeFerramenta").value.trim();
             if (!nome) {
@@ -2264,6 +2270,7 @@
             const id = document.getElementById("idFerramenta").value || gerarId();
             const status = document.getElementById("statusFerramenta").value;
             const setor = document.getElementById("setorFerramenta").value;
+            const statusAnterior = ferramentas.find(f => f.id === id)?.status;
 
             const ferramenta = {
                 id: id,
@@ -2274,17 +2281,40 @@
                 observacoes: document.getElementById("obsFerramenta").value.trim(),
                 fotos: midiasFerramenta.filter(m => m.tipo === "foto").map(m => m.src),
                 video: midiasFerramenta.find(m => m.tipo === "video")?.src || null,
-                dataEmprestimo: null,
+                dataEmprestimo: status === "Emprestada" ? new Date().toISOString() : null,
                 dataCriacao: new Date().toISOString()
             };
 
             const existe = ferramentas.find(f => f.id === id);
+
+            // =========================================================
+            // CONTROLE DE ALARME - 24h
+            // =========================================================
             if (existe) {
+                // Atualização
                 ferramentas = ferramentas.map(f => f.id === id ? ferramenta : f);
                 registrarHistorico(nome, "✏️ Ferramenta atualizada");
+
+                // Se mudou de status para "Emprestada" -> ATIVA ALARME
+                if (status === "Emprestada" && statusAnterior !== "Emprestada") {
+                    iniciarAlarme(ferramenta);
+                    registrarHistorico(nome, "⏰ Alarme de 24h ativado para devolução");
+                }
+                // Se foi devolvida (status mudou de Emprestada para outro) -> DESATIVA ALARME
+                if (status !== "Emprestada" && statusAnterior === "Emprestada") {
+                    pararAlarme(id);
+                    registrarHistorico(nome, "✅ Alarme desativado (ferramenta devolvida)");
+                }
             } else {
+                // Nova ferramenta
                 ferramentas.push(ferramenta);
                 registrarHistorico(nome, "🔧 Ferramenta cadastrada");
+
+                // Se já nasceu como "Emprestada" -> ATIVA ALARME
+                if (status === "Emprestada") {
+                    iniciarAlarme(ferramenta);
+                    registrarHistorico(nome, "⏰ Alarme de 24h ativado para devolução");
+                }
             }
 
             salvarBanco();
@@ -2292,6 +2322,9 @@
             mostrarTudo();
         }
 
+        /* =====================================================
+           EXCLUIR FERRAMENTA
+        ===================================================== */
         function excluirFerramenta(id) {
             const x = ferramentas.find(f => f.id === id);
             if (!x) return;
