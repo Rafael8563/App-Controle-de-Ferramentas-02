@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#060d17">
     <title>Controle de Ferramentas 3D</title>
     <style>
         /* =====================================================
@@ -46,9 +45,6 @@
             perspective: 1400px;
         }
 
-        /* =====================================================
-           FUNDO ESTÁTICO PROFISSIONAL
-        ===================================================== */
         .bg-scene {
             position: fixed;
             top: 0;
@@ -58,25 +54,19 @@
             z-index: 0;
             pointer-events: none;
             overflow: hidden;
-            background: 
+            background:
                 radial-gradient(ellipse at 20% 50%, rgba(30, 184, 201, 0.08) 0%, transparent 60%),
                 radial-gradient(ellipse at 80% 20%, rgba(124, 92, 191, 0.08) 0%, transparent 50%),
                 radial-gradient(ellipse at 50% 80%, rgba(255, 107, 157, 0.05) 0%, transparent 50%),
                 linear-gradient(180deg, #060d17 0%, #0a1a2e 40%, #0d2a3d 100%);
         }
 
-        /* =====================================================
-           APP WRAPPER 3D
-        ===================================================== */
         .app-wrapper {
             position: relative;
             z-index: 1;
             transform-style: preserve-3d;
         }
 
-        /* =====================================================
-           CABEÇALHO 3D
-        ===================================================== */
         header {
             position: sticky;
             top: 0;
@@ -195,9 +185,6 @@
             transform: translateZ(3px);
         }
 
-        /* =====================================================
-           ALARME - NOTIFICAÇÃO DE 24H
-        ===================================================== */
         .alarme-container {
             position: fixed;
             top: 80px;
@@ -311,7 +298,6 @@
             background: rgba(0, 0, 0, 0.5);
         }
 
-        /* Badge de alarme no menu */
         .alarme-badge {
             position: relative;
         }
@@ -336,7 +322,8 @@
         }
 
         @keyframes pulseBadge {
-            0%, 100% {
+            0%,
+            100% {
                 transform: scale(1);
             }
             50% {
@@ -344,9 +331,6 @@
             }
         }
 
-        /* =====================================================
-           MENU 3D DIVERTIDO
-        ===================================================== */
         nav {
             display: flex;
             gap: 5px;
@@ -419,9 +403,6 @@
             display: none;
         }
 
-        /* =====================================================
-           CONTEÚDO 3D
-        ===================================================== */
         .container {
             max-width: 1260px;
             margin: auto;
@@ -436,9 +417,6 @@
             transform-style: preserve-3d;
         }
 
-        /* =====================================================
-           CARTÕES 3D DIVERTIDOS
-        ===================================================== */
         .card {
             background: var(--card);
             border: 1px solid var(--borda);
@@ -537,9 +515,6 @@
             opacity: 0.7;
         }
 
-        /* =====================================================
-           ESTATÍSTICAS 3D
-        ===================================================== */
         .estatistica {
             text-align: center;
             padding: 4px 2px;
@@ -623,9 +598,6 @@
             }
         }
 
-        /* =====================================================
-           BOTÕES 3D DIVERTIDOS
-        ===================================================== */
         button {
             border: none;
             background: var(--card);
@@ -731,9 +703,6 @@
             box-shadow: 0 8px 40px rgba(245, 166, 35, 0.25);
         }
 
-        /* =====================================================
-           ITEMS 3D
-        ===================================================== */
         .item {
             display: grid;
             grid-template-columns: 90px 1fr auto;
@@ -837,9 +806,6 @@
             border-color: rgba(255, 107, 130, 0.12);
         }
 
-        /* =====================================================
-           BADGES 3D
-        ===================================================== */
         .badge {
             display: inline-block;
             padding: 3px 12px;
@@ -893,7 +859,6 @@
             border-color: rgba(245, 166, 35, 0.10);
         }
 
-        /* Badge de tempo restante */
         .badge-tempo {
             background: rgba(255, 209, 74, 0.15);
             color: var(--amarelo);
@@ -908,9 +873,6 @@
             animation: pulseBadge 1.5s ease-in-out infinite;
         }
 
-        /* =====================================================
-           MODAIS 3D DIVERTIDOS
-        ===================================================== */
         dialog {
             width: min(800px, 94vw);
             padding: 0;
@@ -1039,9 +1001,6 @@
             object-fit: cover;
         }
 
-        /* =====================================================
-           SETORES 3D
-        ===================================================== */
         .setor-card .count {
             font-size: 28px;
             font-weight: 700;
@@ -1053,9 +1012,6 @@
             transform: translateZ(8px);
         }
 
-        /* =====================================================
-           HISTÓRICO 3D
-        ===================================================== */
         .historico-item {
             display: flex;
             justify-content: space-between;
@@ -1087,9 +1043,6 @@
             white-space: nowrap;
         }
 
-        /* =====================================================
-           UTILITÁRIOS
-        ===================================================== */
         .hidden {
             display: none !important;
         }
@@ -1206,9 +1159,6 @@
             transform: translateZ(8px);
         }
 
-        /* =====================================================
-           RESPONSIVO
-        ===================================================== */
         @media (max-width: 768px) {
             .item {
                 grid-template-columns: 1fr;
@@ -1283,9 +1233,6 @@
             }
         }
 
-        /* =====================================================
-           SCROLLBAR
-        ===================================================== */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -1418,7 +1365,7 @@
             </section>
 
             <!-- =============================================
-            PEDIDOS DE MATERIAIS (NOVA SEÇÃO)
+            PEDIDOS DE MATERIAIS
             ============================================= -->
             <section id="pedidos" class="hidden">
                 <div class="flex-between">
@@ -1596,40 +1543,20 @@
         </div>
     </dialog>
 
-    <!-- =============================================
-    MODAL DE PEDIDOS DE MATERIAIS (NOVO)
-    ============================================= -->
     <dialog id="dialogPedido">
         <div class="modal">
             <h2 id="tituloPedido">📦 Cadastrar Pedido de Material</h2>
             <input type="hidden" id="idPedido">
-            
             <label>Material / Insumo</label>
             <input id="nomePedido" placeholder="Ex.: Parafusos M8, Tinta Epóxi, Lona plástica...">
-            
             <label>Quantidade</label>
             <input id="quantidadePedido" placeholder="Ex.: 100 unidades, 5 litros, 20 metros...">
-            
             <label>Fornecedor</label>
             <input id="fornecedorPedido" placeholder="Nome do fornecedor">
-            
             <label>Setor / Departamento</label>
-            <select id="setorPedido">
-                <option>Acabamento 01</option>
-                <option>Acabamento 02</option>
-                <option>Laminação 01</option>
-                <option>Laminação 02</option>
-                <option>Marcenaria</option>
-                <option>CNC</option>
-                <option>Tecelagem</option>
-                <option>Manutenção</option>
-                <option>Almoxarifado</option>
-                <option>Compras</option>
-            </select>
-            
+            <select id="setorPedido"></select>
             <label>Data do pedido</label>
             <input id="dataPedido" type="date">
-            
             <label>Status</label>
             <select id="statusPedido">
                 <option>Pendente</option>
@@ -1638,16 +1565,12 @@
                 <option>Recebido</option>
                 <option>Cancelado</option>
             </select>
-            
             <label>Quem recebeu (para marcar quando chegar)</label>
             <input id="recebedorPedido" placeholder="Nome de quem recebeu o material">
-            
             <label>Data e hora do recebimento</label>
             <input id="dataHoraRecebimentoPedido" type="datetime-local">
-            
             <label>Observações</label>
             <textarea id="obsPedido" rows="3" placeholder="Informações adicionais sobre o pedido"></textarea>
-            
             <div class="acoes">
                 <button class="btn-outline" onclick="document.getElementById('entradaFotoPedido').click()">📷 Foto do material</button>
                 <button class="btn-outline" onclick="abrirCamera('pedido')">📹 Câmera</button>
@@ -1656,7 +1579,6 @@
             <input id="entradaFotoPedido" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotosPedido(this.files)">
             <input id="entradaVideoPedido" class="hidden" type="file" accept="video/*" capture="environment" onchange="adicionarVideoPedido(this.files[0])">
             <div id="previewPedido" class="preview"></div>
-            
             <div class="acoes" style="margin-top:18px;">
                 <button class="btn-outline" onclick="fecharPedido()">Cancelar</button>
                 <button class="btn-pedido" onclick="salvarPedido()">💾 Salvar</button>
@@ -1802,7 +1724,7 @@
         }
 
         /* =====================================================
-           SISTEMA DE ALARME - 24 HORAS (mantido)
+           SISTEMA DE ALARME - 24 HORAS
         ===================================================== */
         function iniciarAlarme(ferramenta) {
             const agora = new Date();
@@ -2071,9 +1993,12 @@
                 SETORES.map(s => `<option>${s}</option>`).join("");
             document.getElementById("setorCriado").innerHTML =
                 SETORES.map(s => `<option>${s}</option>`).join("");
+            document.getElementById("setorPedido").innerHTML =
+                SETORES.map(s => `<option>${s}</option>`).join("");
 
             // Data atual no campo de data do pedido
             document.getElementById("dataPedido").value = new Date().toISOString().substring(0, 10);
+            document.getElementById("dataCriado").value = new Date().toISOString().substring(0, 10);
 
             // Navegação
             document.querySelectorAll("nav button").forEach(botao => {
@@ -2220,7 +2145,7 @@
         }
 
         /* =====================================================
-           FERRAMENTAS (mantido - código resumido)
+           FERRAMENTAS
         ===================================================== */
         function mostrarFerramentas() {
             const pesquisa = (document.getElementById("pesquisaFerramenta")?.value || "").toLowerCase();
@@ -2291,32 +2216,462 @@
                 }).join("");
         }
 
-        // Funções de ferramenta (abrir, salvar, excluir) mantidas - código omitido para brevidade
-        function abrirFerramenta(id = null) { /* ... */ }
-        function fecharFerramenta() { /* ... */ }
-        function salvarFerramenta() { /* ... */ }
-        function excluirFerramenta(id) { /* ... */ }
+        function abrirFerramenta(id = null) {
+            midiasFerramenta = [];
+            document.getElementById("idFerramenta").value = id || "";
+
+            if (id) {
+                const x = ferramentas.find(f => f.id === id);
+                if (!x) return;
+
+                document.getElementById("tituloFerramenta").textContent = "✏️ Editar ferramenta";
+                document.getElementById("nomeFerramenta").value = x.nome;
+                document.getElementById("codigoFerramenta").value = x.codigo || "";
+                document.getElementById("setorFerramenta").value = x.setor;
+                document.getElementById("statusFerramenta").value = x.status;
+                document.getElementById("obsFerramenta").value = x.observacoes || "";
+
+                (x.fotos || []).forEach(foto => {
+                    midiasFerramenta.push({ tipo: "foto", src: foto });
+                });
+                if (x.video) {
+                    midiasFerramenta.push({ tipo: "video", src: x.video });
+                }
+            } else {
+                document.getElementById("tituloFerramenta").textContent = "📦 Cadastrar ferramenta";
+                document.getElementById("nomeFerramenta").value = "";
+                document.getElementById("codigoFerramenta").value = "";
+                document.getElementById("setorFerramenta").value = SETORES[0];
+                document.getElementById("statusFerramenta").value = "Disponível";
+                document.getElementById("obsFerramenta").value = "";
+            }
+
+            mostrarPreviewFerramenta();
+            document.getElementById("dialogFerramenta").showModal();
+        }
+
+        function fecharFerramenta() {
+            document.getElementById("dialogFerramenta").close();
+        }
+
+        function salvarFerramenta() {
+            const nome = document.getElementById("nomeFerramenta").value.trim();
+            if (!nome) {
+                alert("Digite o nome da ferramenta.");
+                return;
+            }
+
+            const id = document.getElementById("idFerramenta").value || gerarId();
+            const status = document.getElementById("statusFerramenta").value;
+            const setor = document.getElementById("setorFerramenta").value;
+
+            const ferramenta = {
+                id: id,
+                nome: nome,
+                codigo: document.getElementById("codigoFerramenta").value.trim(),
+                setor: setor,
+                status: status,
+                observacoes: document.getElementById("obsFerramenta").value.trim(),
+                fotos: midiasFerramenta.filter(m => m.tipo === "foto").map(m => m.src),
+                video: midiasFerramenta.find(m => m.tipo === "video")?.src || null,
+                dataEmprestimo: null,
+                dataCriacao: new Date().toISOString()
+            };
+
+            const existe = ferramentas.find(f => f.id === id);
+            if (existe) {
+                ferramentas = ferramentas.map(f => f.id === id ? ferramenta : f);
+                registrarHistorico(nome, "✏️ Ferramenta atualizada");
+            } else {
+                ferramentas.push(ferramenta);
+                registrarHistorico(nome, "🔧 Ferramenta cadastrada");
+            }
+
+            salvarBanco();
+            fecharFerramenta();
+            mostrarTudo();
+        }
+
+        function excluirFerramenta(id) {
+            const x = ferramentas.find(f => f.id === id);
+            if (!x) return;
+            if (confirm(`Excluir a ferramenta "${x.nome}"?`)) {
+                if (x.status === "Emprestada") {
+                    pararAlarme(id);
+                }
+                ferramentas = ferramentas.filter(f => f.id !== id);
+                registrarHistorico(x.nome, "🗑️ Ferramenta excluída");
+                salvarBanco();
+                mostrarTudo();
+            }
+        }
 
         /* =====================================================
-           ATIVOS (mantido - código resumido)
+           FOTOS / VÍDEOS - FERRAMENTA
         ===================================================== */
-        function abrirAtivo(id = null) { /* ... */ }
-        function fecharAtivo() { /* ... */ }
-        function salvarAtivo() { /* ... */ }
-        function mostrarAtivos() { /* ... */ }
-        function excluirAtivo(id) { /* ... */ }
+        function adicionarFotos(arquivos) {
+            [...arquivos].forEach(arquivo => {
+                const leitor = new FileReader();
+                leitor.onload = function() {
+                    midiasFerramenta.push({ tipo: "foto", src: this.result });
+                    mostrarPreviewFerramenta();
+                };
+                leitor.readAsDataURL(arquivo);
+            });
+        }
+
+        function adicionarVideo(arquivo) {
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = function() {
+                midiasFerramenta = midiasFerramenta.filter(m => m.tipo !== "video");
+                midiasFerramenta.push({ tipo: "video", src: this.result });
+                mostrarPreviewFerramenta();
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function mostrarPreviewFerramenta() {
+            document.getElementById("previewFerramenta").innerHTML =
+                midiasFerramenta.map(m =>
+                    m.tipo === "foto" ?
+                    `<img src="${m.src}" alt="Preview">` :
+                    `<video src="${m.src}" controls></video>`
+                ).join("");
+        }
 
         /* =====================================================
-           ATIVOS CRIADOS (mantido - código resumido)
+           ATIVOS
         ===================================================== */
-        function abrirCriado(id = null) { /* ... */ }
-        function fecharCriado() { /* ... */ }
-        function salvarCriado() { /* ... */ }
-        function mostrarCriados() { /* ... */ }
-        function excluirCriado(id) { /* ... */ }
+        function abrirAtivo(id = null) {
+            midiasAtivo = [];
+            document.getElementById("idAtivo").value = id || "";
+
+            if (id) {
+                const x = ativos.find(a => a.id === id);
+                if (!x) return;
+                document.getElementById("nomeAtivo").value = x.nome;
+                document.getElementById("codigoAtivo").value = x.codigo || "";
+                document.getElementById("tipoAtivo").value = x.tipo;
+                document.getElementById("setorAtivo").value = x.setor;
+                document.getElementById("statusAtivo").value = x.status;
+                document.getElementById("obsAtivo").value = x.observacoes || "";
+                if (x.fotos?.[0]) {
+                    midiasAtivo = [{ tipo: "foto", src: x.fotos[0] }];
+                }
+            } else {
+                document.getElementById("nomeAtivo").value = "";
+                document.getElementById("codigoAtivo").value = "";
+                document.getElementById("tipoAtivo").value = "Máquina";
+                document.getElementById("setorAtivo").value = SETORES[0];
+                document.getElementById("statusAtivo").value = "Operando";
+                document.getElementById("obsAtivo").value = "";
+            }
+
+            mostrarPreviewAtivo();
+            document.getElementById("dialogAtivo").showModal();
+        }
+
+        function fecharAtivo() {
+            document.getElementById("dialogAtivo").close();
+        }
+
+        function salvarAtivo() {
+            const nome = document.getElementById("nomeAtivo").value.trim();
+            if (!nome) {
+                alert("Digite o nome do ativo.");
+                return;
+            }
+
+            const id = document.getElementById("idAtivo").value || gerarId();
+            const ativo = {
+                id: id,
+                nome: nome,
+                codigo: document.getElementById("codigoAtivo").value.trim(),
+                tipo: document.getElementById("tipoAtivo").value,
+                setor: document.getElementById("setorAtivo").value,
+                status: document.getElementById("statusAtivo").value,
+                observacoes: document.getElementById("obsAtivo").value.trim(),
+                fotos: midiasAtivo.filter(m => m.tipo === "foto").map(m => m.src),
+                dataCriacao: new Date().toISOString()
+            };
+
+            const existe = ativos.find(a => a.id === id);
+            if (existe) {
+                ativos = ativos.map(a => a.id === id ? ativo : a);
+                registrarHistorico(nome, "✏️ Ativo atualizado");
+            } else {
+                ativos.push(ativo);
+                registrarHistorico(nome, "🏭 Ativo cadastrado");
+            }
+
+            salvarBanco();
+            fecharAtivo();
+            mostrarTudo();
+        }
+
+        function mostrarAtivos() {
+            const pesquisa = (document.getElementById("pesquisaAtivo")?.value || "").toLowerCase();
+            const lista = ativos.filter(x =>
+                (x.nome + " " + x.codigo + " " + x.setor + " " + x.tipo).toLowerCase().includes(pesquisa)
+            );
+
+            if (!lista.length) {
+                document.getElementById("listaAtivos").innerHTML = `
+                    <div class="card empty-state">
+                        <span class="emoji">🏭</span>
+                        <span class="text">Nenhum ativo encontrado.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            document.getElementById("listaAtivos").innerHTML =
+                lista.map(x => {
+                    const statusClass = x.status === "Operando" ? "badge-success" :
+                        x.status === "Parado" ? "badge-warning" :
+                        x.status === "Manutenção" ? "badge-danger" :
+                        x.status === "Manutenção Externa" ? "badge-info" : "badge-warning";
+
+                    const fotoHtml = x.fotos?.[0] ?
+                        `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
+                        `<div class="imagem-placeholder">🏭</div>`;
+
+                    return `
+                        <div class="card item">
+                            ${fotoHtml}
+                            <div class="item-info">
+                                <div class="nome">${escapar(x.nome)}</div>
+                                <div class="detalhes">
+                                    TAG: ${escapar(x.codigo || "-")}<br>
+                                    Tipo: ${escapar(x.tipo)}<br>
+                                    Setor: ${escapar(x.setor)}
+                                </div>
+                                <div class="tags">
+                                    <span class="badge ${statusClass}">${escapar(x.status)}</span>
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn-edit" onclick="abrirAtivo('${x.id}')" title="Editar">✏️</button>
+                                <button class="btn-share" onclick="compartilharAtivo('${x.id}')" title="WhatsApp">📲</button>
+                                <button class="btn-delete" onclick="excluirAtivo('${x.id}')" title="Excluir">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+        }
+
+        function excluirAtivo(id) {
+            const x = ativos.find(a => a.id === id);
+            if (!x) return;
+            if (confirm(`Excluir o ativo "${x.nome}"?`)) {
+                ativos = ativos.filter(a => a.id !== id);
+                registrarHistorico(x.nome, "🗑️ Ativo excluído");
+                salvarBanco();
+                mostrarTudo();
+            }
+        }
+
+        function adicionarFotoAtivo(arquivo) {
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = function() {
+                midiasAtivo = [{ tipo: "foto", src: this.result }];
+                mostrarPreviewAtivo();
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function mostrarPreviewAtivo() {
+            document.getElementById("previewAtivo").innerHTML =
+                midiasAtivo.map(m =>
+                    m.tipo === "foto" ?
+                    `<img src="${m.src}" alt="Preview">` :
+                    `<video src="${m.src}" controls></video>`
+                ).join("");
+        }
 
         /* =====================================================
-           PEDIDOS DE MATERIAIS (NOVA SEÇÃO)
+           ATIVOS CRIADOS PELA MANUTENÇÃO
+        ===================================================== */
+        function abrirCriado(id = null) {
+            midiasCriado = [];
+            document.getElementById("idCriado").value = id || "";
+
+            if (id) {
+                const x = ativosCriados.find(a => a.id === id);
+                if (!x) return;
+                document.getElementById("nomeCriado").value = x.nome;
+                document.getElementById("codigoCriado").value = x.codigo || "";
+                document.getElementById("tipoCriado").value = x.tipo;
+                document.getElementById("responsavelCriado").value = x.responsavel || "";
+                document.getElementById("setorCriado").value = x.setor;
+                document.getElementById("dataCriado").value = x.dataCriado || "";
+                document.getElementById("statusCriado").value = x.status;
+                document.getElementById("materiaisCriado").value = x.materiais || "";
+                document.getElementById("obsCriado").value = x.observacoes || "";
+                (x.fotos || []).forEach(foto => {
+                    midiasCriado.push({ tipo: "foto", src: foto });
+                });
+                if (x.video) {
+                    midiasCriado.push({ tipo: "video", src: x.video });
+                }
+            } else {
+                document.getElementById("nomeCriado").value = "";
+                document.getElementById("codigoCriado").value = "";
+                document.getElementById("tipoCriado").value = "Máquina";
+                document.getElementById("responsavelCriado").value = "";
+                document.getElementById("setorCriado").value = SETORES[0];
+                document.getElementById("dataCriado").value = new Date().toISOString().substring(0, 10);
+                document.getElementById("statusCriado").value = "Em produção";
+                document.getElementById("materiaisCriado").value = "";
+                document.getElementById("obsCriado").value = "";
+            }
+
+            mostrarPreviewCriado();
+            document.getElementById("dialogCriado").showModal();
+        }
+
+        function fecharCriado() {
+            document.getElementById("dialogCriado").close();
+        }
+
+        function salvarCriado() {
+            const nome = document.getElementById("nomeCriado").value.trim();
+            if (!nome) {
+                alert("Digite o nome do ativo.");
+                return;
+            }
+
+            const id = document.getElementById("idCriado").value || gerarId();
+            const criado = {
+                id: id,
+                nome: nome,
+                codigo: document.getElementById("codigoCriado").value.trim(),
+                tipo: document.getElementById("tipoCriado").value,
+                responsavel: document.getElementById("responsavelCriado").value.trim(),
+                setor: document.getElementById("setorCriado").value,
+                dataCriado: document.getElementById("dataCriado").value,
+                status: document.getElementById("statusCriado").value,
+                materiais: document.getElementById("materiaisCriado").value.trim(),
+                observacoes: document.getElementById("obsCriado").value.trim(),
+                fotos: midiasCriado.filter(m => m.tipo === "foto").map(m => m.src),
+                video: midiasCriado.find(m => m.tipo === "video")?.src || null,
+                dataCadastro: new Date().toISOString()
+            };
+
+            const existe = ativosCriados.find(a => a.id === id);
+            if (existe) {
+                ativosCriados = ativosCriados.map(a => a.id === id ? criado : a);
+                registrarHistorico(nome, "✏️ Ativo criado atualizado");
+            } else {
+                ativosCriados.push(criado);
+                registrarHistorico(nome, "🔨 Ativo criado pela manutenção cadastrado");
+            }
+
+            salvarBanco();
+            fecharCriado();
+            mostrarTudo();
+        }
+
+        function mostrarCriados() {
+            const pesquisa = (document.getElementById("pesquisaCriado")?.value || "").toLowerCase();
+            const lista = ativosCriados.filter(x =>
+                (x.nome + " " + x.codigo + " " + x.setor + " " + x.responsavel).toLowerCase().includes(pesquisa)
+            );
+
+            if (!lista.length) {
+                document.getElementById("listaCriados").innerHTML = `
+                    <div class="card empty-state">
+                        <span class="emoji">🔨</span>
+                        <span class="text">Nenhum ativo criado encontrado.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            document.getElementById("listaCriados").innerHTML =
+                lista.map(x => {
+                    const statusClass = x.status === "Finalizado" || x.status === "Instalado" ? "badge-success" :
+                        x.status === "Em produção" ? "badge-warning" :
+                        x.status === "Em teste" ? "badge-info" :
+                        x.status === "Em manutenção" ? "badge-danger" : "badge-warning";
+
+                    const fotoHtml = x.fotos?.[0] ?
+                        `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
+                        `<div class="imagem-placeholder">🔨</div>`;
+
+                    return `
+                        <div class="card item">
+                            ${fotoHtml}
+                            <div class="item-info">
+                                <div class="nome">${escapar(x.nome)}</div>
+                                <div class="detalhes">
+                                    Código: ${escapar(x.codigo || "-")}<br>
+                                    Tipo: ${escapar(x.tipo)}<br>
+                                    Setor: ${escapar(x.setor)}<br>
+                                    Responsável: ${escapar(x.responsavel || "-")}
+                                    ${x.dataCriado ? `<br>📅 Criação: ${new Date(x.dataCriado).toLocaleDateString('pt-BR')}` : ''}
+                                </div>
+                                <div class="tags">
+                                    <span class="badge ${statusClass}">${escapar(x.status)}</span>
+                                    ${x.video ? `<span class="badge badge-info">🎬 Vídeo</span>` : ""}
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn-edit" onclick="abrirCriado('${x.id}')" title="Editar">✏️</button>
+                                <button class="btn-share" onclick="compartilharCriado('${x.id}')" title="WhatsApp">📲</button>
+                                <button class="btn-delete" onclick="excluirCriado('${x.id}')" title="Excluir">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+        }
+
+        function excluirCriado(id) {
+            const x = ativosCriados.find(a => a.id === id);
+            if (!x) return;
+            if (confirm(`Excluir o ativo criado "${x.nome}"?`)) {
+                ativosCriados = ativosCriados.filter(a => a.id !== id);
+                registrarHistorico(x.nome, "🗑️ Ativo criado excluído");
+                salvarBanco();
+                mostrarTudo();
+            }
+        }
+
+        function adicionarFotosCriado(arquivos) {
+            [...arquivos].forEach(arquivo => {
+                const leitor = new FileReader();
+                leitor.onload = function() {
+                    midiasCriado.push({ tipo: "foto", src: this.result });
+                    mostrarPreviewCriado();
+                };
+                leitor.readAsDataURL(arquivo);
+            });
+        }
+
+        function adicionarVideoCriado(arquivo) {
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = function() {
+                midiasCriado = midiasCriado.filter(m => m.tipo !== "video");
+                midiasCriado.push({ tipo: "video", src: this.result });
+                mostrarPreviewCriado();
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function mostrarPreviewCriado() {
+            document.getElementById("previewCriado").innerHTML =
+                midiasCriado.map(m =>
+                    m.tipo === "foto" ?
+                    `<img src="${m.src}" alt="Preview">` :
+                    `<video src="${m.src}" controls></video>`
+                ).join("");
+        }
+
+        /* =====================================================
+           PEDIDOS DE MATERIAIS
         ===================================================== */
         function abrirPedido(id = null) {
             midiasPedido = [];
@@ -2409,7 +2764,8 @@
         function mostrarPedidos() {
             const pesquisa = (document.getElementById("pesquisaPedido")?.value || "").toLowerCase();
             const lista = pedidosMateriais.filter(x =>
-                (x.nome + " " + x.quantidade + " " + x.fornecedor + " " + x.setor + " " + x.recebedor).toLowerCase().includes(pesquisa)
+                (x.nome + " " + x.quantidade + " " + x.fornecedor + " " + x.setor + " " + x.recebedor).toLowerCase()
+                .includes(pesquisa)
             );
 
             if (!lista.length) {
@@ -2438,9 +2794,9 @@
                         `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
                         `<div class="imagem-placeholder">📦</div>`;
 
-                    const recebidoInfo = x.recebedor ? 
+                    const recebidoInfo = x.recebedor ?
                         `<br>👤 Recebido por: ${escapar(x.recebedor)}` : '';
-                    const dataRecebimentoInfo = x.dataHoraRecebimento ? 
+                    const dataRecebimentoInfo = x.dataHoraRecebimento ?
                         `<br>📅 Recebido em: ${new Date(x.dataHoraRecebimento).toLocaleString('pt-BR')}` : '';
 
                     return `
@@ -2490,7 +2846,7 @@
             salvarBanco();
             registrarHistorico(pedido.nome, `✅ Material recebido por ${pedido.recebedor}`);
             mostrarTudo();
-            
+
             alert(`✅ Material "${pedido.nome}" marcado como recebido por ${pedido.recebedor}!`);
         }
 
@@ -2505,9 +2861,6 @@
             }
         }
 
-        /* =====================================================
-           FOTOS / VÍDEOS - PEDIDO
-        ===================================================== */
         function adicionarFotosPedido(arquivos) {
             [...arquivos].forEach(arquivo => {
                 const leitor = new FileReader();
@@ -2540,31 +2893,186 @@
         }
 
         /* =====================================================
-           MANUTENÇÃO EXTERNA (mantido - código resumido)
+           MANUTENÇÃO EXTERNA
         ===================================================== */
-        function abrirManutencaoExterna(id = null) { /* ... */ }
-        function fecharExterna() { /* ... */ }
-        function salvarExterna() { /* ... */ }
-        function mostrarManutencoesExternas() { /* ... */ }
-        function excluirManutencao(id) { /* ... */ }
+        function abrirManutencaoExterna(id = null) {
+            midiasExterna = [];
+            document.getElementById("idExterna").value = id || "";
+
+            if (id) {
+                const x = manutencoesExternas.find(m => m.id === id);
+                if (!x) return;
+                document.getElementById("tipoExterno").value = x.tipo;
+                document.getElementById("nomeExterno").value = x.nome;
+                document.getElementById("codigoExterno").value = x.codigo || "";
+                document.getElementById("empresaExterna").value = x.empresa || "";
+                document.getElementById("responsavelExterno").value = x.responsavel || "";
+                document.getElementById("dataSaida").value = x.dataSaida || "";
+                document.getElementById("dataRetorno").value = x.dataRetorno || "";
+                document.getElementById("statusExterno").value = x.status;
+                document.getElementById("servicoExterno").value = x.servico || "";
+                if (x.fotos?.[0]) {
+                    midiasExterna = [{ tipo: "foto", src: x.fotos[0] }];
+                }
+                if (x.video) {
+                    midiasExterna.push({ tipo: "video", src: x.video });
+                }
+            } else {
+                document.getElementById("tipoExterno").value = "Ferramenta";
+                document.getElementById("nomeExterno").value = "";
+                document.getElementById("codigoExterno").value = "";
+                document.getElementById("empresaExterna").value = "";
+                document.getElementById("responsavelExterno").value = "";
+                document.getElementById("dataSaida").value = "";
+                document.getElementById("dataRetorno").value = "";
+                document.getElementById("statusExterno").value = "Enviado";
+                document.getElementById("servicoExterno").value = "";
+            }
+
+            mostrarPreviewExterna();
+            document.getElementById("dialogExterna").showModal();
+        }
+
+        function fecharExterna() {
+            document.getElementById("dialogExterna").close();
+        }
+
+        function salvarExterna() {
+            const nome = document.getElementById("nomeExterno").value.trim();
+            if (!nome) {
+                alert("Digite o nome do item.");
+                return;
+            }
+
+            const id = document.getElementById("idExterna").value || gerarId();
+            const externo = {
+                id: id,
+                tipo: document.getElementById("tipoExterno").value,
+                nome: nome,
+                codigo: document.getElementById("codigoExterno").value.trim(),
+                empresa: document.getElementById("empresaExterna").value.trim(),
+                responsavel: document.getElementById("responsavelExterno").value.trim(),
+                dataSaida: document.getElementById("dataSaida").value,
+                dataRetorno: document.getElementById("dataRetorno").value,
+                status: document.getElementById("statusExterno").value,
+                servico: document.getElementById("servicoExterno").value.trim(),
+                fotos: midiasExterna.filter(m => m.tipo === "foto").map(m => m.src),
+                video: midiasExterna.find(m => m.tipo === "video")?.src || null,
+                dataCadastro: new Date().toISOString()
+            };
+
+            const existe = manutencoesExternas.find(m => m.id === id);
+            if (existe) {
+                manutencoesExternas = manutencoesExternas.map(m => m.id === id ? externo : m);
+                registrarHistorico(nome, "✏️ Manutenção externa atualizada");
+            } else {
+                manutencoesExternas.push(externo);
+                registrarHistorico(nome, "🚚 Manutenção externa cadastrada");
+            }
+
+            salvarBanco();
+            fecharExterna();
+            mostrarTudo();
+        }
+
+        function mostrarManutencoesExternas() {
+            const lista = manutencoesExternas;
+
+            if (!lista.length) {
+                document.getElementById("listaManutencaoExterna").innerHTML = `
+                    <div class="card empty-state">
+                        <span class="emoji">🚚</span>
+                        <span class="text">Nenhum item em manutenção externa.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            document.getElementById("listaManutencaoExterna").innerHTML =
+                lista.slice().reverse().map(x => {
+                    const statusClass = x.status === "Retornado" ? "badge-success" :
+                        x.status === "Enviado" ? "badge-info" :
+                        x.status === "Em manutenção" ? "badge-warning" :
+                        x.status === "Aguardando orçamento" ? "badge-warning" :
+                        x.status === "Aguardando peça" ? "badge-danger" :
+                        x.status === "Pronto para retorno" ? "badge-info" : "badge-warning";
+
+                    const fotoHtml = x.fotos?.[0] ?
+                        `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
+                        `<div class="imagem-placeholder">🚚</div>`;
+
+                    return `
+                        <div class="card item">
+                            ${fotoHtml}
+                            <div class="item-info">
+                                <div class="nome">${escapar(x.nome)}</div>
+                                <div class="detalhes">
+                                    Tipo: ${escapar(x.tipo)}<br>
+                                    Código: ${escapar(x.codigo || "-")}<br>
+                                    Empresa: ${escapar(x.empresa || "-")}<br>
+                                    Responsável: ${escapar(x.responsavel || "-")}
+                                    ${x.dataSaida ? `<br>📅 Saída: ${new Date(x.dataSaida).toLocaleDateString('pt-BR')}` : ''}
+                                    ${x.dataRetorno ? `<br>📅 Previsão: ${new Date(x.dataRetorno).toLocaleDateString('pt-BR')}` : ''}
+                                </div>
+                                <div class="tags">
+                                    <span class="badge ${statusClass}">${escapar(x.status)}</span>
+                                    ${x.video ? `<span class="badge badge-info">🎬 Vídeo</span>` : ""}
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn-edit" onclick="abrirManutencaoExterna('${x.id}')" title="Editar">✏️</button>
+                                <button class="btn-share" onclick="compartilharManutencao('${x.id}')" title="WhatsApp">📲</button>
+                                <button class="btn-delete" onclick="excluirManutencao('${x.id}')" title="Excluir">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+        }
+
+        function excluirManutencao(id) {
+            const x = manutencoesExternas.find(m => m.id === id);
+            if (!x) return;
+            if (confirm(`Excluir o item "${x.nome}"?`)) {
+                manutencoesExternas = manutencoesExternas.filter(m => m.id !== id);
+                registrarHistorico(x.nome, "🗑️ Manutenção externa excluída");
+                salvarBanco();
+                mostrarTudo();
+            }
+        }
+
+        function adicionarFotoExterna(arquivo) {
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = function() {
+                midiasExterna = midiasExterna.filter(m => m.tipo !== "foto");
+                midiasExterna.push({ tipo: "foto", src: this.result });
+                mostrarPreviewExterna();
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function adicionarVideoExterno(arquivo) {
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = function() {
+                midiasExterna = midiasExterna.filter(m => m.tipo !== "video");
+                midiasExterna.push({ tipo: "video", src: this.result });
+                mostrarPreviewExterna();
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function mostrarPreviewExterna() {
+            document.getElementById("previewExterna").innerHTML =
+                midiasExterna.map(m =>
+                    m.tipo === "foto" ?
+                    `<img src="${m.src}" alt="Preview">` :
+                    `<video src="${m.src}" controls></video>`
+                ).join("");
+        }
 
         /* =====================================================
-           FOTOS / VÍDEOS - FERRAMENTA (mantido)
-        ===================================================== */
-        function adicionarFotos(arquivos) { /* ... */ }
-        function adicionarVideo(arquivo) { /* ... */ }
-        function mostrarPreviewFerramenta() { /* ... */ }
-        function adicionarFotoAtivo(arquivo) { /* ... */ }
-        function mostrarPreviewAtivo() { /* ... */ }
-        function adicionarFotosCriado(arquivos) { /* ... */ }
-        function adicionarVideoCriado(arquivo) { /* ... */ }
-        function mostrarPreviewCriado() { /* ... */ }
-        function adicionarFotoExterna(arquivo) { /* ... */ }
-        function adicionarVideoExterno(arquivo) { /* ... */ }
-        function mostrarPreviewExterna() { /* ... */ }
-
-        /* =====================================================
-           CÂMERA (mantido)
+           CÂMERA
         ===================================================== */
         async function abrirCamera(destino = "ferramenta") {
             cameraDestino = destino;
@@ -2707,7 +3215,6 @@
                 texto += `${setor}: ${qtd} ferramentas\n`;
             });
 
-            // Pedidos pendentes
             const pendentes = pedidosMateriais.filter(x => x.status === "Pendente" || x.status === "Parcialmente recebido");
             if (pendentes.length > 0) {
                 texto += `\n⏳ *Pedidos Pendentes*\n`;
