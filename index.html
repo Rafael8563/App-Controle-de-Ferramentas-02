@@ -5,32 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle de Ferramentas 3D</title>
     
-    <!-- =====================================================
-    MANIFEST - INSTALAÇÃO COMO APP
-    ===================================================== -->
     <link rel="manifest" href="./manifest.json">
 
-    <!-- =====================================================
-    REGISTRO DO SERVICE WORKER PARA OFFLINE
-    ===================================================== -->
+    <!-- jsPDF + AutoTable para gerar PDFs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
-                    .then((registration) => {
-                        console.log('✅ Service Worker registrado com sucesso!');
-                    })
-                    .catch((error) => {
-                        console.log('❌ Falha ao registrar Service Worker:', error);
-                    });
+                    .then(() => console.log('✅ Service Worker registrado!'))
+                    .catch((e) => console.log('❌ Falha SW:', e));
             });
         }
     </script>
 
     <style>
-        /* =====================================================
-           CONFIGURAÇÃO GERAL
-        ===================================================== */
         :root {
             --fundo1: #060d17;
             --fundo2: #0a1a2e;
@@ -52,11 +43,7 @@
             --transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -70,10 +57,7 @@
 
         .bg-scene {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             z-index: 0;
             pointer-events: none;
             overflow: hidden;
@@ -84,11 +68,7 @@
                 linear-gradient(180deg, #060d17 0%, #0a1a2e 40%, #0d2a3d 100%);
         }
 
-        .app-wrapper {
-            position: relative;
-            z-index: 1;
-            transform-style: preserve-3d;
-        }
+        .app-wrapper { position: relative; z-index: 1; transform-style: preserve-3d; }
 
         header {
             position: sticky;
@@ -101,12 +81,7 @@
             border-bottom: 1px solid var(--borda);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
             transform-style: preserve-3d;
-            transform: translateZ(50px) rotateX(0deg);
             transition: transform 0.5s ease;
-        }
-
-        header:hover {
-            transform: translateZ(60px) rotateX(2deg);
         }
 
         .header-top {
@@ -117,112 +92,56 @@
             gap: 8px;
         }
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            transform-style: preserve-3d;
-        }
+        .logo-area { display: flex; align-items: center; gap: 14px; }
 
         .logo-icon {
-            width: 48px;
-            height: 48px;
+            width: 48px; height: 48px;
             border-radius: 16px;
             background: linear-gradient(135deg, var(--azul), var(--roxo), var(--rosa), var(--amarelo));
             background-size: 300% 300%;
-            display: grid;
-            place-items: center;
+            display: grid; place-items: center;
             font-size: 24px;
             box-shadow: 0 4px 30px rgba(30, 184, 201, 0.3);
             animation: logoSpin3D 6s ease-in-out infinite alternate;
             position: relative;
-            overflow: hidden;
-            transform-style: preserve-3d;
-            transition: transform 0.6s ease;
-        }
-
-        .logo-icon:hover {
-            transform: rotateY(360deg) translateZ(20px) scale(1.1);
         }
 
         @keyframes logoSpin3D {
-            0% {
-                background-position: 0% 50%;
-                transform: rotateY(0deg) translateZ(10px);
-                box-shadow: 0 4px 30px rgba(30, 184, 201, 0.3);
-            }
-            50% {
-                transform: rotateY(180deg) translateZ(20px);
-                box-shadow: 0 4px 40px rgba(124, 92, 191, 0.4);
-            }
-            100% {
-                background-position: 100% 50%;
-                transform: rotateY(360deg) translateZ(10px);
-                box-shadow: 0 4px 30px rgba(255, 107, 157, 0.3);
-            }
-        }
-
-        .logo-icon::before {
-            content: '';
-            position: absolute;
-            inset: 2px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent 60%);
-            transform: translateZ(1px);
+            0% { background-position: 0% 50%; transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+            100% { background-position: 100% 50%; transform: rotateY(360deg); }
         }
 
         .logo-text h1 {
             font-size: 22px;
             font-weight: 800;
-            margin: 0;
             background: linear-gradient(135deg, #fff 30%, var(--azul-claro), var(--roxo), var(--rosa));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            letter-spacing: -0.5px;
-            animation: textWiggle 6s ease-in-out infinite alternate;
             background-size: 300% 300%;
-            transform: translateZ(5px);
+            animation: textWiggle 6s ease-in-out infinite alternate;
         }
 
         @keyframes textWiggle {
-            0% {
-                background-position: 0% 50%;
-                transform: translateZ(5px) rotateX(0deg);
-            }
-            50% {
-                transform: translateZ(15px) rotateX(2deg);
-            }
-            100% {
-                background-position: 100% 50%;
-                transform: translateZ(5px) rotateX(0deg);
-            }
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
 
-        .subtitulo {
-            font-size: 12px;
-            color: var(--cinza);
-            font-weight: 400;
-            letter-spacing: 0.5px;
-            opacity: 0.7;
-            transform: translateZ(3px);
-        }
+        .subtitulo { font-size: 12px; color: var(--cinza); opacity: 0.7; }
 
         #statusRede {
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 11px; font-weight: 600;
             padding: 4px 12px;
             border-radius: 20px;
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--borda);
-            transition: all 0.3s ease;
             white-space: nowrap;
         }
 
         .alarme-container {
             position: fixed;
-            top: 80px;
-            right: 20px;
+            top: 80px; right: 20px;
             z-index: 1000;
             max-width: 400px;
             width: 100%;
@@ -239,140 +158,41 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
             animation: slideInAlarme 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             pointer-events: auto;
-            transform-style: preserve-3d;
-            transform: translateZ(30px);
         }
 
         .alarme-notificacao.urgente {
             background: rgba(255, 0, 0, 0.9);
-            border-color: rgba(255, 0, 0, 0.5);
             animation: pulseAlarme 1s ease-in-out infinite alternate;
         }
 
         @keyframes slideInAlarme {
-            from {
-                opacity: 0;
-                transform: translateX(100px) translateZ(-30px) rotateY(10deg);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0) translateZ(30px) rotateY(0deg);
-            }
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         @keyframes pulseAlarme {
-            0% {
-                transform: translateZ(30px) scale(1);
-                box-shadow: 0 20px 60px rgba(255, 0, 0, 0.4);
-            }
-            100% {
-                transform: translateZ(40px) scale(1.02);
-                box-shadow: 0 20px 80px rgba(255, 0, 0, 0.6);
-            }
+            0% { transform: scale(1); box-shadow: 0 20px 60px rgba(255,0,0,0.4); }
+            100% { transform: scale(1.02); box-shadow: 0 20px 80px rgba(255,0,0,0.6); }
         }
 
-        .alarme-notificacao .alarme-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .alarme-notificacao .alarme-titulo {
-            font-weight: 700;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .alarme-notificacao .alarme-tempo {
-            font-size: 20px;
-            font-weight: 800;
-            color: #fff;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-        }
-
-        .alarme-notificacao .alarme-detalhes {
-            font-size: 13px;
-            opacity: 0.9;
-            margin-top: 6px;
-            line-height: 1.4;
-        }
-
-        .alarme-notificacao .alarme-acoes {
-            margin-top: 12px;
-            display: flex;
-            gap: 8px;
-        }
-
-        .alarme-notificacao .alarme-acoes button {
-            padding: 6px 16px;
-            font-size: 12px;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
+        .alarme-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+        .alarme-titulo { font-weight: 700; font-size: 16px; }
+        .alarme-tempo { font-size: 20px; font-weight: 800; }
+        .alarme-detalhes { font-size: 13px; margin-top: 6px; line-height: 1.4; }
+        .alarme-acoes { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .alarme-acoes button {
+            padding: 6px 16px; font-size: 12px;
+            border: none; border-radius: 20px;
+            cursor: pointer; font-weight: 600;
             background: rgba(255, 255, 255, 0.2);
             color: #fff;
-            backdrop-filter: blur(10px);
-        }
-
-        .alarme-notificacao .alarme-acoes button:hover {
-            transform: scale(1.05) translateZ(10px);
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .alarme-notificacao .alarme-acoes .btn-fechar-alarme {
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .alarme-notificacao .alarme-acoes .btn-fechar-alarme:hover {
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .alarme-badge {
-            position: relative;
-        }
-
-        .alarme-badge::after {
-            content: attr(data-count);
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: var(--vermelho);
-            color: #fff;
-            font-size: 10px;
-            font-weight: 700;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 10px rgba(255, 107, 130, 0.4);
-            animation: pulseBadge 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulseBadge {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.2);
-            }
         }
 
         nav {
-            display: flex;
-            gap: 5px;
+            display: flex; gap: 5px;
             overflow-x: auto;
             padding-top: 10px;
             scrollbar-width: thin;
-            scrollbar-color: var(--borda) transparent;
-            transform-style: preserve-3d;
         }
 
         nav button {
@@ -386,32 +206,13 @@
             font-size: 13px;
             cursor: pointer;
             transition: var(--transition);
-            letter-spacing: 0.2px;
             position: relative;
-            transform-style: preserve-3d;
-            transform: translateZ(0px);
-        }
-
-        nav button::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 30px;
-            background: var(--card);
-            border: 1px solid var(--borda);
-            opacity: 0;
-            transition: var(--transition);
-            z-index: -1;
-            transform: translateZ(-5px);
         }
 
         nav button:hover {
             color: #fff;
-            transform: translateY(-4px) translateZ(15px) scale(1.05);
-        }
-
-        nav button:hover::before {
-            opacity: 1;
+            background: var(--card);
+            transform: translateY(-3px);
         }
 
         nav button.ativo {
@@ -420,35 +221,38 @@
             background-size: 200% 200%;
             animation: btnGradient 3s ease-in-out infinite alternate;
             box-shadow: 0 4px 35px rgba(30, 184, 201, 0.3);
-            border: none;
-            transform: translateY(-3px) translateZ(20px) scale(1.05);
         }
 
         @keyframes btnGradient {
-            0% {
-                background-position: 0% 50%;
-            }
-            100% {
-                background-position: 100% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
 
-        nav button.ativo::before {
-            display: none;
+        nav button.alarme-badge::after {
+            content: attr(data-count);
+            position: absolute;
+            top: -4px; right: -4px;
+            background: var(--vermelho);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .container {
             max-width: 1260px;
             margin: auto;
             padding: 18px 20px;
-            transform-style: preserve-3d;
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
-            transform-style: preserve-3d;
         }
 
         .card {
@@ -458,88 +262,18 @@
             padding: 22px 24px;
             box-shadow: var(--sombra);
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
-            transform-style: preserve-3d;
-            transform: rotateX(0deg) rotateY(0deg) translateZ(0px);
-            animation: cardFloat 6s ease-in-out infinite alternate;
-        }
-
-        .card:nth-child(2) {
-            animation-delay: 0.5s;
-        }
-        .card:nth-child(3) {
-            animation-delay: 1s;
-        }
-        .card:nth-child(4) {
-            animation-delay: 1.5s;
-        }
-        .card:nth-child(5) {
-            animation-delay: 2s;
-        }
-        .card:nth-child(6) {
-            animation-delay: 2.5s;
-        }
-
-        @keyframes cardFloat {
-            0% {
-                transform: translateY(0px) rotateX(0deg) rotateY(0deg) translateZ(0px);
-            }
-            100% {
-                transform: translateY(-8px) rotateX(2deg) rotateY(3deg) translateZ(15px);
-            }
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 60%);
-            pointer-events: none;
-            border-radius: var(--radius);
-            transform: translateZ(-1px);
-        }
-
-        .card::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.03), transparent 60%);
-            pointer-events: none;
-            opacity: 0;
-            transition: var(--transition);
-            border-radius: 50%;
-            transform: translateZ(-1px);
         }
 
         .card:hover {
-            transform: rotateX(4deg) rotateY(8deg) translateY(-10px) translateZ(30px) scale(1.02);
+            transform: translateY(-8px);
             border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(30, 184, 201, 0.05);
-            animation-play-state: paused;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
         }
 
-        .card:hover::after {
-            opacity: 1;
-            transform: scale(0.7) translateZ(10px);
-        }
-
-        .card h2,
-        .card h3 {
-            margin-top: 0;
-            font-weight: 600;
-            position: relative;
-            z-index: 1;
-        }
-
+        .card h2, .card h3 { margin-top: 0; font-weight: 600; }
         .card h3 {
             font-size: 13px;
             color: var(--cinza);
@@ -549,55 +283,14 @@
             opacity: 0.7;
         }
 
-        .estatistica {
-            text-align: center;
-            padding: 4px 2px;
-            position: relative;
-            transform-style: preserve-3d;
-        }
-
-        .estatistica .icon {
-            font-size: 34px;
-            display: block;
-            margin-bottom: 2px;
-            filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.2));
-            transform: translateZ(15px);
-            animation: iconWiggle 3s ease-in-out infinite alternate;
-        }
-
-        .estatistica:nth-child(2) .icon {
-            animation-delay: 0.5s;
-        }
-        .estatistica:nth-child(3) .icon {
-            animation-delay: 1s;
-        }
-        .estatistica:nth-child(4) .icon {
-            animation-delay: 1.5s;
-        }
-        .estatistica:nth-child(5) .icon {
-            animation-delay: 2s;
-        }
-        .estatistica:nth-child(6) .icon {
-            animation-delay: 2.5s;
-        }
-
-        @keyframes iconWiggle {
-            0% {
-                transform: translateZ(10px) rotateZ(0deg) scale(1);
-            }
-            100% {
-                transform: translateZ(25px) rotateZ(10deg) scale(1.1);
-            }
-        }
-
+        .estatistica { text-align: center; padding: 4px 2px; }
+        .estatistica .icon { font-size: 34px; display: block; margin-bottom: 2px; }
         .estatistica .label {
             font-size: 11px;
             color: var(--cinza);
-            font-weight: 400;
             opacity: 0.7;
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            transform: translateZ(5px);
         }
 
         .estatistica strong {
@@ -612,24 +305,11 @@
             background-clip: text;
             line-height: 1.1;
             animation: counterRainbow 4s ease-in-out infinite alternate;
-            transform: translateZ(25px);
         }
 
         @keyframes counterRainbow {
-            0% {
-                background-position: 0% 50%;
-                filter: drop-shadow(0 0 15px rgba(30, 184, 201, 0.1));
-                transform: translateZ(20px);
-            }
-            50% {
-                filter: drop-shadow(0 0 30px rgba(124, 92, 191, 0.2));
-                transform: translateZ(30px);
-            }
-            100% {
-                background-position: 100% 50%;
-                filter: drop-shadow(0 0 15px rgba(255, 107, 157, 0.1));
-                transform: translateZ(20px);
-            }
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
 
         button {
@@ -642,99 +322,56 @@
             font-size: 13px;
             cursor: pointer;
             transition: var(--transition);
-            backdrop-filter: blur(4px);
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            letter-spacing: 0.2px;
             border: 1px solid var(--borda);
-            position: relative;
-            overflow: hidden;
-            transform-style: preserve-3d;
-            transform: translateZ(0px);
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent);
-            opacity: 0;
-            transition: var(--transition);
-            border-radius: 30px;
-            transform: translateZ(-1px);
-        }
-
-        button:hover::before {
-            opacity: 1;
         }
 
         button:hover {
-            transform: translateY(-4px) translateZ(20px) scale(1.05);
+            transform: translateY(-3px);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        button:active {
-            transform: scale(0.94) translateZ(5px);
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--azul), var(--roxo));
             border-color: transparent;
-            box-shadow: 0 4px 30px rgba(30, 184, 201, 0.2);
-        }
-        .btn-primary:hover {
-            box-shadow: 0 8px 50px rgba(30, 184, 201, 0.35);
         }
 
         .btn-success {
             background: linear-gradient(135deg, #1a8a5a, #2ddb7a);
             border-color: transparent;
         }
-        .btn-success:hover {
-            box-shadow: 0 8px 40px rgba(45, 219, 122, 0.25);
-        }
 
         .btn-danger {
             background: linear-gradient(135deg, #a82f4a, #ff6b82);
             border-color: transparent;
-        }
-        .btn-danger:hover {
-            box-shadow: 0 8px 40px rgba(255, 107, 130, 0.25);
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #8a6612, #f5a623);
-            border-color: transparent;
-        }
-        .btn-warning:hover {
-            box-shadow: 0 8px 40px rgba(245, 166, 35, 0.25);
         }
 
         .btn-outline {
             background: transparent;
             border-color: var(--borda);
         }
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.25);
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #d32f2f, #ff5722);
+            border-color: transparent;
+            box-shadow: 0 4px 20px rgba(211, 47, 47, 0.3);
+        }
+
+        .btn-pdf:hover {
+            box-shadow: 0 8px 40px rgba(211, 47, 47, 0.5);
         }
 
         .btn-created {
             background: linear-gradient(135deg, #2ddb7a, #1eb8c9);
             border-color: transparent;
         }
-        .btn-created:hover {
-            box-shadow: 0 8px 40px rgba(45, 219, 122, 0.25);
-        }
 
         .btn-pedido {
             background: linear-gradient(135deg, #f5a623, #ff6b9d);
             border-color: transparent;
-        }
-        .btn-pedido:hover {
-            box-shadow: 0 8px 40px rgba(245, 166, 35, 0.25);
         }
 
         .item {
@@ -743,101 +380,38 @@
             gap: 14px;
             align-items: center;
             padding: 8px 10px;
-            transform-style: preserve-3d;
         }
 
         .imagem-mini {
-            width: 90px;
-            height: 72px;
+            width: 90px; height: 72px;
             object-fit: cover;
             border-radius: 12px;
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--borda);
-            transition: var(--transition);
-            transform: translateZ(8px);
-        }
-
-        .imagem-mini:hover {
-            transform: scale(1.08) translateZ(20px) rotateY(5deg);
-            border-color: rgba(30, 184, 201, 0.3);
         }
 
         .imagem-placeholder {
-            width: 90px;
-            height: 72px;
+            width: 90px; height: 72px;
             border-radius: 12px;
             background: rgba(255, 255, 255, 0.02);
             border: 1px dashed var(--borda);
-            display: grid;
-            place-items: center;
+            display: grid; place-items: center;
             font-size: 32px;
             color: var(--cinza);
             opacity: 0.5;
-            transform: translateZ(8px);
         }
 
-        .item-info .nome {
-            font-weight: 600;
-            font-size: 15px;
-            letter-spacing: -0.2px;
-            transform: translateZ(5px);
-        }
-        .item-info .detalhes {
-            color: var(--cinza);
-            font-size: 12px;
-            line-height: 1.5;
-            margin: 2px 0 4px;
-            opacity: 0.7;
-            transform: translateZ(3px);
-        }
-        .item-info .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            margin-top: 4px;
-            transform: translateZ(5px);
-        }
+        .item-info .nome { font-weight: 600; font-size: 15px; }
+        .item-info .detalhes { color: var(--cinza); font-size: 12px; line-height: 1.5; margin: 2px 0 4px; opacity: 0.7; }
+        .item-info .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 
-        .item-actions {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            transform-style: preserve-3d;
-        }
-
+        .item-actions { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
         .item-actions button {
             padding: 5px 10px;
             font-size: 13px;
             border-radius: 30px;
-            border: 1px solid var(--borda);
-            background: rgba(255, 255, 255, 0.02);
-            color: var(--cinza);
             min-width: 34px;
             justify-content: center;
-            transform: translateZ(0px);
-        }
-
-        .item-actions button:hover {
-            background: rgba(255, 255, 255, 0.06);
-            color: #fff;
-            transform: scale(1.1) translateZ(15px);
-        }
-
-        .item-actions .btn-edit:hover {
-            background: rgba(30, 184, 201, 0.15);
-            color: var(--azul-claro);
-            border-color: rgba(30, 184, 201, 0.15);
-        }
-        .item-actions .btn-share:hover {
-            background: rgba(45, 219, 122, 0.12);
-            color: var(--verde);
-            border-color: rgba(45, 219, 122, 0.12);
-        }
-        .item-actions .btn-delete:hover {
-            background: rgba(255, 107, 130, 0.12);
-            color: var(--vermelho);
-            border-color: rgba(255, 107, 130, 0.12);
         }
 
         .badge {
@@ -847,65 +421,18 @@
             border-radius: 999px;
             font-size: 11px;
             font-weight: 500;
-            letter-spacing: 0.3px;
             border: 1px solid transparent;
-            transition: var(--transition);
-            transform: translateZ(2px);
         }
 
-        .badge:hover {
-            transform: scale(1.08) translateZ(10px);
-        }
-
-        .badge-success {
-            background: rgba(45, 219, 122, 0.15);
-            color: var(--verde);
-            border-color: rgba(45, 219, 122, 0.10);
-        }
-        .badge-warning {
-            background: rgba(255, 209, 74, 0.12);
-            color: var(--amarelo);
-            border-color: rgba(255, 209, 74, 0.08);
-        }
-        .badge-danger {
-            background: rgba(255, 107, 130, 0.12);
-            color: var(--vermelho);
-            border-color: rgba(255, 107, 130, 0.08);
-        }
-        .badge-info {
-            background: rgba(30, 184, 201, 0.12);
-            color: var(--azul-claro);
-            border-color: rgba(30, 184, 201, 0.08);
-        }
-        .badge-purple {
-            background: rgba(124, 92, 191, 0.15);
-            color: var(--roxo);
-            border-color: rgba(124, 92, 191, 0.10);
-        }
-        .badge-created {
-            background: rgba(45, 219, 122, 0.15);
-            color: var(--verde);
-            border-color: rgba(45, 219, 122, 0.10);
-        }
-        .badge-pedido {
-            background: rgba(245, 166, 35, 0.15);
-            color: var(--laranja);
-            border-color: rgba(245, 166, 35, 0.10);
-        }
-
-        .badge-tempo {
-            background: rgba(255, 209, 74, 0.15);
-            color: var(--amarelo);
-            border-color: rgba(255, 209, 74, 0.10);
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .badge-tempo.urgente {
-            background: rgba(255, 107, 130, 0.2);
-            color: var(--vermelho);
-            border-color: rgba(255, 107, 130, 0.15);
-            animation: pulseBadge 1.5s ease-in-out infinite;
-        }
+        .badge-success { background: rgba(45, 219, 122, 0.15); color: var(--verde); }
+        .badge-warning { background: rgba(255, 209, 74, 0.12); color: var(--amarelo); }
+        .badge-danger { background: rgba(255, 107, 130, 0.12); color: var(--vermelho); }
+        .badge-info { background: rgba(30, 184, 201, 0.12); color: var(--azul-claro); }
+        .badge-created { background: rgba(45, 219, 122, 0.15); color: var(--verde); }
+        .badge-pedido { background: rgba(245, 166, 35, 0.15); color: var(--laranja); }
+        .badge-tempo { background: rgba(255, 209, 74, 0.15); color: var(--amarelo); font-weight: 600; }
+        .badge-tempo.urgente { background: rgba(255, 107, 130, 0.2); color: var(--vermelho); }
+        .badge-manutencao { background: rgba(255, 107, 130, 0.15); color: var(--vermelho); }
 
         dialog {
             width: min(800px, 94vw);
@@ -914,47 +441,22 @@
             border-radius: 24px;
             background: rgba(9, 23, 39, 0.97);
             backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
             color: white;
             box-shadow: 0 50px 120px rgba(0, 0, 0, 0.9);
             animation: modalBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            transform-style: preserve-3d;
-            perspective: 800px;
         }
 
         @keyframes modalBounce {
-            from {
-                opacity: 0;
-                transform: rotateX(15deg) rotateY(-10deg) scale(0.8) translateY(80px) translateZ(-80px);
-            }
-            to {
-                opacity: 1;
-                transform: rotateX(0deg) rotateY(0deg) scale(1) translateY(0) translateZ(0px);
-            }
+            from { opacity: 0; transform: scale(0.8) translateY(80px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         dialog::backdrop {
             background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            animation: backdropPop 0.5s ease-out;
         }
 
-        @keyframes backdropPop {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateZ(-100px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateZ(0px);
-            }
-        }
-
-        .modal {
-            padding: 26px 30px;
-            transform-style: preserve-3d;
-        }
+        .modal { padding: 26px 30px; }
 
         .modal h2 {
             font-size: 22px;
@@ -964,20 +466,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            transform: translateZ(15px);
-            animation: titleWiggle 4s ease-in-out infinite alternate;
-            background-size: 300% 300%;
-        }
-
-        @keyframes titleWiggle {
-            0% {
-                background-position: 0% 50%;
-                transform: translateZ(10px) rotateX(0deg);
-            }
-            100% {
-                background-position: 100% 50%;
-                transform: translateZ(20px) rotateX(2deg);
-            }
         }
 
         .modal label {
@@ -1000,7 +488,6 @@
             color: white;
             font-size: 14px;
             font-family: inherit;
-            transition: var(--transition);
             outline: none;
         }
 
@@ -1009,7 +496,6 @@
         .modal textarea:focus {
             border-color: var(--azul);
             box-shadow: 0 0 0 4px rgba(30, 184, 201, 0.08);
-            background: rgba(0, 0, 0, 0.5);
         }
 
         .modal .acoes {
@@ -1043,7 +529,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            transform: translateZ(8px);
         }
 
         .historico-item {
@@ -1053,60 +538,24 @@
             gap: 12px;
             padding: 10px 0;
             border-bottom: 1px solid var(--borda);
-            transition: var(--transition);
-            transform-style: preserve-3d;
         }
 
-        .historico-item:hover {
-            background: rgba(255, 255, 255, 0.03);
-            margin: 0 -10px;
-            padding: 10px 10px;
-            border-radius: 8px;
-            transform: translateZ(8px) scale(1.01);
-        }
+        .historico-item .acao { font-weight: 500; font-size: 14px; }
+        .historico-item .data { font-size: 11px; color: var(--cinza); opacity: 0.5; white-space: nowrap; }
 
-        .historico-item .acao {
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .historico-item .data {
-            font-size: 11px;
-            color: var(--cinza);
-            opacity: 0.5;
-            white-space: nowrap;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-        .muted {
-            color: var(--cinza);
-        }
-        .text-sm {
-            font-size: 12px;
-        }
-        .mt-10 {
-            margin-top: 10px;
-        }
-        .mt-16 {
-            margin-top: 16px;
-        }
-        .mt-20 {
-            margin-top: 20px;
-        }
-        .mb-10 {
-            margin-bottom: 10px;
-        }
+        .hidden { display: none !important; }
+        .muted { color: var(--cinza); }
+        .text-sm { font-size: 12px; }
+        .mt-10 { margin-top: 10px; }
+        .mt-16 { margin-top: 16px; }
+        .mt-20 { margin-top: 20px; }
+        .mb-10 { margin-bottom: 10px; }
         .flex-between {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 8px;
-        }
-        .text-center {
-            text-align: center;
         }
 
         .section-header {
@@ -1121,12 +570,10 @@
         .section-header h2 {
             font-weight: 700;
             font-size: 19px;
-            letter-spacing: -0.3px;
             background: linear-gradient(135deg, #fff 30%, var(--azul-claro), var(--roxo));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            transform: translateZ(5px);
         }
 
         .empty-state {
@@ -1134,45 +581,30 @@
             padding: 50px 20px;
             color: var(--cinza);
         }
+
         .empty-state .emoji {
             font-size: 52px;
             display: block;
             margin-bottom: 14px;
             opacity: 0.4;
-            animation: floatEmoji3D 4s ease-in-out infinite alternate;
-            transform-style: preserve-3d;
         }
 
         .search-bar input {
-            border-radius: 30px;
-            padding: 11px 22px;
-            background: rgba(0, 0, 0, 0.3);
-            border-color: var(--borda);
-            font-size: 13px;
-            letter-spacing: 0.3px;
             width: 100%;
-            border: 1px solid var(--borda);
+            padding: 11px 16px;
             border-radius: 12px;
             background: rgba(0, 0, 0, 0.4);
             color: white;
             outline: none;
             font-size: 14px;
-            transition: var(--transition);
-            font-family: inherit;
-            padding: 11px 16px;
+            border: 1px solid var(--borda);
             margin: 4px 0 10px;
-            transform: translateZ(5px);
+            font-family: inherit;
         }
 
         .search-bar input:focus {
             border-color: var(--azul);
-            box-shadow: 0 0 0 4px rgba(30, 184, 201, 0.08), inset 0 0 20px rgba(30, 184, 201, 0.02);
-            background: rgba(0, 0, 0, 0.5);
-            transform: translateZ(10px);
-        }
-
-        .search-bar input::placeholder {
-            color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 4px rgba(30, 184, 201, 0.08);
         }
 
         footer {
@@ -1183,17 +615,8 @@
             opacity: 0.3;
             border-top: 1px solid var(--borda);
             margin-top: 28px;
-            letter-spacing: 0.8px;
-            transition: var(--transition);
-            transform: translateZ(0px);
         }
 
-        footer:hover {
-            opacity: 0.6;
-            transform: translateZ(8px);
-        }
-
-        /* Botão instalar app */
         #btnInstalarApp {
             position: fixed;
             bottom: 20px;
@@ -1202,145 +625,83 @@
             z-index: 9999;
             background: linear-gradient(135deg, var(--azul), var(--roxo));
             color: white;
-            border: none;
             padding: 12px 28px;
             border-radius: 30px;
             font-weight: 700;
             font-size: 15px;
-            cursor: pointer;
             box-shadow: 0 8px 40px rgba(30, 184, 201, 0.4);
             animation: pulseInstalar 2s ease-in-out infinite;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         @keyframes pulseInstalar {
-            0%,
-            100% {
-                transform: translateX(-50%) scale(1);
-            }
-            50% {
-                transform: translateX(-50%) scale(1.05);
-            }
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
         }
 
-        #btnInstalarApp:hover {
-            transform: translateX(-50%) scale(1.08) translateY(-2px);
-            box-shadow: 0 12px 50px rgba(30, 184, 201, 0.6);
+        /* =====================================================
+           ÁREA DE RELATÓRIOS PDF
+        ===================================================== */
+        .pdf-panel {
+            background: linear-gradient(135deg, rgba(211, 47, 47, 0.08), rgba(255, 87, 34, 0.05));
+            border: 1px solid rgba(255, 87, 34, 0.2);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            margin-top: 16px;
+        }
+
+        .pdf-panel h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #ff5722, #ff6b9d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pdf-panel p {
+            font-size: 13px;
+            color: var(--cinza);
+            opacity: 0.7;
+            margin-bottom: 14px;
+        }
+
+        .pdf-botoes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .pdf-botoes button {
+            justify-content: center;
+            padding: 12px 18px;
+            font-size: 13px;
         }
 
         @media (max-width: 768px) {
-            .item {
-                grid-template-columns: 1fr;
-                gap: 8px;
-                text-align: center;
-            }
-            .item .imagem-mini,
-            .item .imagem-placeholder {
-                width: 100%;
-                height: 130px;
-                margin: 0 auto;
-                max-width: 200px;
-            }
-            .item-actions {
-                justify-content: center;
-                margin-top: 4px;
-            }
-            .modal {
-                padding: 16px 18px;
-            }
-            h1 {
-                font-size: 17px;
-            }
-            .logo-icon {
-                width: 38px;
-                height: 38px;
-                font-size: 20px;
-            }
-            .estatistica strong {
-                font-size: 30px;
-            }
-            .grid {
-                grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-                gap: 12px;
-            }
-            nav button {
-                font-size: 11.5px;
-                padding: 6px 12px;
-            }
-            header {
-                padding: 8px 14px 6px;
-            }
-            .container {
-                padding: 12px 14px;
-            }
-            .alarme-container {
-                top: 70px;
-                right: 10px;
-                max-width: calc(100% - 20px);
-            }
-            #statusRede {
-                font-size: 9px;
-                padding: 3px 8px;
-            }
+            .item { grid-template-columns: 1fr; gap: 8px; text-align: center; }
+            .item .imagem-mini, .item .imagem-placeholder { width: 100%; height: 130px; margin: 0 auto; max-width: 200px; }
+            .item-actions { justify-content: center; }
+            .modal { padding: 16px 18px; }
+            h1 { font-size: 17px; }
+            .logo-icon { width: 38px; height: 38px; font-size: 20px; }
+            .estatistica strong { font-size: 30px; }
+            .grid { grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 12px; }
+            nav button { font-size: 11.5px; padding: 6px 12px; }
+            .alarme-container { top: 70px; right: 10px; max-width: calc(100% - 20px); }
         }
 
-        @media (max-width: 420px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            .header-top {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .logo-area {
-                gap: 10px;
-            }
-            .estatistica strong {
-                font-size: 24px;
-            }
-            .card {
-                padding: 14px 16px;
-            }
-            .alarme-notificacao {
-                padding: 14px 16px;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--borda);
-            border-radius: 10px;
-            transition: var(--transition);
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- =====================================================
-    FUNDO ESTÁTICO PROFISSIONAL
-    ===================================================== -->
     <div class="bg-scene"></div>
-
-    <!-- =====================================================
-    ALARME - NOTIFICAÇÕES DE 24H
-    ===================================================== -->
     <div id="alarmeContainer" class="alarme-container"></div>
 
-    <!-- =====================================================
-    APP
-    ===================================================== -->
     <div class="app-wrapper">
-
-        <!-- CABEÇALHO 3D -->
         <header>
             <div class="header-top">
                 <div class="logo-area">
@@ -1355,20 +716,20 @@
             <nav>
                 <button class="ativo" data-tela="painel">📊 Painel</button>
                 <button data-tela="ferramentas" class="alarme-badge" data-count="0">🔧 Ferramentas</button>
+                <button data-tela="manutencao">🧰 Em Manutenção</button>
                 <button data-tela="ativos">🏭 Ativos</button>
-                <button data-tela="criados">🔨 Criados pela Manutenção</button>
-                <button data-tela="pedidos">📦 Pedidos de Materiais</button>
+                <button data-tela="criados">🔨 Criados</button>
+                <button data-tela="pedidos">📦 Pedidos</button>
                 <button data-tela="externa">🚚 Externa</button>
                 <button data-tela="setores">📍 Setores</button>
                 <button data-tela="historico">📋 Histórico</button>
             </nav>
         </header>
 
-        <!-- CONTEÚDO -->
         <main class="container">
 
             <!-- =============================================
-            PAINEL 3D
+            PAINEL
             ============================================= -->
             <section id="painel">
                 <div id="estatisticas" class="grid"></div>
@@ -1378,10 +739,28 @@
                     <div id="resumoEmpresa" style="display:flex;gap:24px;flex-wrap:wrap;margin-top:8px;"></div>
                 </div>
 
+                <!-- =============================================
+                PAINEL DE RELATÓRIOS PDF
+                ============================================= -->
+                <div class="pdf-panel mt-20">
+                    <h2>📄 Relatórios em PDF</h2>
+                    <p>Gere relatórios profissionais em PDF e envie diretamente pelo WhatsApp.</p>
+                    <div class="pdf-botoes">
+                        <button class="btn-pdf" onclick="gerarPDFCompleto()">📊 Relatório Geral (PDF)</button>
+                        <button class="btn-pdf" onclick="gerarPDFFerramentas()">🔧 Ferramentas (PDF)</button>
+                        <button class="btn-pdf" onclick="gerarPDFManutencao()">🧰 Em Manutenção (PDF)</button>
+                        <button class="btn-pdf" onclick="gerarPDFAtivos()">🏭 Ativos (PDF)</button>
+                        <button class="btn-pdf" onclick="gerarPDFCriados()">🔨 Criados (PDF)</button>
+                        <button class="btn-pdf" onclick="gerarPDFPedidos()">📦 Pedidos (PDF)</button>
+                        <button class="btn-pdf" onclick="gerarPDFExternas()">🚚 Externas (PDF)</button>
+                        <button class="btn-pdf" onclick="gerarPDFSetores()">📍 Setores (PDF)</button>
+                    </div>
+                </div>
+
                 <div class="card mt-16">
-                    <h2>📲 Relatórios</h2>
+                    <h2>📲 Compartilhar Relatório Rápido</h2>
                     <div class="acoes">
-                        <button class="btn-success" onclick="compartilharRelatorio()">📱 WhatsApp</button>
+                        <button class="btn-success" onclick="compartilharRelatorio()">📱 WhatsApp (texto)</button>
                         <button class="btn-outline" onclick="window.print()">🖨️ Imprimir</button>
                     </div>
                 </div>
@@ -1398,7 +777,7 @@
             ============================================= -->
             <section id="ferramentas" class="hidden">
                 <div class="flex-between">
-                    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,#fff 30%,var(--azul-claro),var(--roxo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🔧 Ferramentas</h2>
+                    <h2 style="font-weight:700;font-size:18px;">🔧 Ferramentas</h2>
                     <button class="btn-primary" onclick="abrirFerramenta()">＋ Cadastrar</button>
                 </div>
                 <div class="search-bar">
@@ -1408,11 +787,30 @@
             </section>
 
             <!-- =============================================
+            🧰 NOVA ABA — FERRAMENTAS EM MANUTENÇÃO
+            ============================================= -->
+            <section id="manutencao" class="hidden">
+                <div class="flex-between">
+                    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,#fff 30%,var(--vermelho),var(--laranja));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🧰 Ferramentas em Manutenção</h2>
+                    <button class="btn-pdf" onclick="gerarPDFManutencao()">📄 Gerar PDF</button>
+                </div>
+                <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--vermelho);">
+                    <p class="muted text-sm" style="margin:0;opacity:0.75;">
+                        🔴 Ferramentas indisponíveis — em manutenção interna ou aguardando reparo.
+                    </p>
+                </div>
+                <div class="search-bar">
+                    <input id="pesquisaManutencao" placeholder="🔎 Pesquisar ferramenta em manutenção..." oninput="mostrarFerramentasManutencao()">
+                </div>
+                <div id="listaFerramentasManutencao" class="grid"></div>
+            </section>
+
+            <!-- =============================================
             ATIVOS
             ============================================= -->
             <section id="ativos" class="hidden">
                 <div class="flex-between">
-                    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,#fff 30%,var(--roxo),var(--rosa));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🏭 Ativos da Empresa</h2>
+                    <h2 style="font-weight:700;font-size:18px;">🏭 Ativos da Empresa</h2>
                     <button class="btn-primary" onclick="abrirAtivo()">＋ Novo ativo</button>
                 </div>
                 <div class="search-bar">
@@ -1422,15 +820,12 @@
             </section>
 
             <!-- =============================================
-            ATIVOS CRIADOS PELA MANUTENÇÃO
+            CRIADOS
             ============================================= -->
             <section id="criados" class="hidden">
                 <div class="flex-between">
-                    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,#fff 30%,var(--verde),var(--azul-claro));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🔨 Ativos Criados pela Manutenção</h2>
+                    <h2 style="font-weight:700;font-size:18px;">🔨 Ativos Criados pela Manutenção</h2>
                     <button class="btn-created" onclick="abrirCriado()">＋ Criar Ativo</button>
-                </div>
-                <div class="card mb-10" style="padding:12px 18px;">
-                    <p class="muted text-sm" style="margin:0;opacity:0.6;">Ativos fabricados, montados ou recuperados pela equipe de manutenção interna.</p>
                 </div>
                 <div class="search-bar">
                     <input id="pesquisaCriado" placeholder="🔎 Pesquisar ativo, código ou responsável..." oninput="mostrarCriados()">
@@ -1439,32 +834,26 @@
             </section>
 
             <!-- =============================================
-            PEDIDOS DE MATERIAIS
+            PEDIDOS
             ============================================= -->
             <section id="pedidos" class="hidden">
                 <div class="flex-between">
-                    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,#fff 30%,var(--laranja),var(--rosa));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">📦 Pedidos de Materiais</h2>
+                    <h2 style="font-weight:700;font-size:18px;">📦 Pedidos de Materiais</h2>
                     <button class="btn-pedido" onclick="abrirPedido()">＋ Novo Pedido</button>
                 </div>
-                <div class="card mb-10" style="padding:12px 18px;">
-                    <p class="muted text-sm" style="margin:0;opacity:0.6;">Controle de pedidos de materiais, insumos e equipamentos. Marque os itens recebidos.</p>
-                </div>
                 <div class="search-bar">
-                    <input id="pesquisaPedido" placeholder="🔎 Pesquisar pedido, material, fornecedor ou responsável..." oninput="mostrarPedidos()">
+                    <input id="pesquisaPedido" placeholder="🔎 Pesquisar pedido, material, fornecedor..." oninput="mostrarPedidos()">
                 </div>
                 <div id="listaPedidos" class="grid"></div>
             </section>
 
             <!-- =============================================
-            MANUTENÇÃO EXTERNA
+            EXTERNA
             ============================================= -->
             <section id="externa" class="hidden">
                 <div class="flex-between">
-                    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,#fff 30%,var(--laranja),var(--amarelo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🚚 Manutenção Externa</h2>
+                    <h2 style="font-weight:700;font-size:18px;">🚚 Manutenção Externa</h2>
                     <button class="btn-primary" onclick="abrirManutencaoExterna()">＋ Enviar</button>
-                </div>
-                <div class="card mb-10" style="padding:12px 18px;">
-                    <p class="muted text-sm" style="margin:0;opacity:0.6;">Controle de ferramentas e ativos enviados para empresas terceirizadas.</p>
                 </div>
                 <div id="listaManutencaoExterna" class="grid"></div>
             </section>
@@ -1473,7 +862,7 @@
             SETORES
             ============================================= -->
             <section id="setores" class="hidden">
-                <h2 style="font-weight:700;font-size:19px;background:linear-gradient(135deg,#fff 30%,var(--verde),var(--azul-claro));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">📍 Mapa dos Setores</h2>
+                <h2 style="font-weight:700;font-size:19px;">📍 Mapa dos Setores</h2>
                 <div id="mapaSetores" class="grid mt-10"></div>
             </section>
 
@@ -1481,14 +870,13 @@
             HISTÓRICO
             ============================================= -->
             <section id="historico" class="hidden">
-                <h2 style="font-weight:700;font-size:19px;background:linear-gradient(135deg,#fff 30%,var(--rosa),var(--roxo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">📋 Histórico Geral</h2>
+                <h2 style="font-weight:700;font-size:19px;">📋 Histórico Geral</h2>
                 <div id="listaHistorico" class="card mt-10" style="padding:8px 16px;"></div>
             </section>
 
         </main>
 
         <footer>✦ Sistema 3D de Controle de Ferramentas e Manutenção ✦</footer>
-
     </div>
 
     <!-- =====================================================
@@ -1515,10 +903,8 @@
             <div class="acoes">
                 <button class="btn-outline" onclick="document.getElementById('entradaFoto').click()">📷 Foto</button>
                 <button class="btn-outline" onclick="abrirCamera('ferramenta')">📹 Câmera</button>
-                <button class="btn-outline" onclick="document.getElementById('entradaVideo').click()">🎬 Vídeo</button>
             </div>
             <input id="entradaFoto" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotos(this.files)">
-            <input id="entradaVideo" class="hidden" type="file" accept="video/*" capture="environment" onchange="adicionarVideo(this.files[0])">
             <div id="previewFerramenta" class="preview"></div>
             <div class="acoes" style="margin-top:18px;">
                 <button class="btn-outline" onclick="fecharFerramenta()">Cancelar</button>
@@ -1535,7 +921,7 @@
             <input id="nomeAtivo" placeholder="Ex.: Compressor">
             <label>Patrimônio / TAG</label>
             <input id="codigoAtivo" placeholder="Ex.: AT-001">
-            <label>Tipo do ativo</label>
+            <label>Tipo</label>
             <select id="tipoAtivo">
                 <option>Máquina</option>
                 <option>Equipamento</option>
@@ -1569,13 +955,13 @@
 
     <dialog id="dialogCriado">
         <div class="modal">
-            <h2>🔨 Cadastro de Ativo Criado pela Manutenção</h2>
+            <h2>🔨 Ativo Criado pela Manutenção</h2>
             <input type="hidden" id="idCriado">
             <label>Nome do ativo</label>
-            <input id="nomeCriado" placeholder="Ex.: Bancada de Solda">
-            <label>Patrimônio / Código</label>
-            <input id="codigoCriado" placeholder="Ex.: MAN-001">
-            <label>Tipo do ativo</label>
+            <input id="nomeCriado">
+            <label>Código</label>
+            <input id="codigoCriado">
+            <label>Tipo</label>
             <select id="tipoCriado">
                 <option>Máquina</option>
                 <option>Equipamento</option>
@@ -1584,8 +970,8 @@
                 <option>Estrutura</option>
                 <option>Outro</option>
             </select>
-            <label>Responsável pela criação</label>
-            <input id="responsavelCriado" placeholder="Nome do técnico responsável">
+            <label>Responsável</label>
+            <input id="responsavelCriado">
             <label>Setor</label>
             <select id="setorCriado"></select>
             <label>Data de criação</label>
@@ -1599,17 +985,9 @@
                 <option>Em manutenção</option>
             </select>
             <label>Materiais utilizados</label>
-            <textarea id="materiaisCriado" rows="3" placeholder="Lista de materiais e insumos utilizados na fabricação"></textarea>
+            <textarea id="materiaisCriado" rows="3"></textarea>
             <label>Observações</label>
-            <textarea id="obsCriado" rows="3" placeholder="Observações sobre o processo de criação"></textarea>
-            <div class="acoes">
-                <button class="btn-outline" onclick="document.getElementById('entradaFotoCriado').click()">📷 Foto</button>
-                <button class="btn-outline" onclick="abrirCamera('criado')">📹 Câmera</button>
-                <button class="btn-outline" onclick="document.getElementById('entradaVideoCriado').click()">🎬 Vídeo</button>
-            </div>
-            <input id="entradaFotoCriado" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotosCriado(this.files)">
-            <input id="entradaVideoCriado" class="hidden" type="file" accept="video/*" capture="environment" onchange="adicionarVideoCriado(this.files[0])">
-            <div id="previewCriado" class="preview"></div>
+            <textarea id="obsCriado" rows="3"></textarea>
             <div class="acoes" style="margin-top:18px;">
                 <button class="btn-outline" onclick="fecharCriado()">Cancelar</button>
                 <button class="btn-created" onclick="salvarCriado()">💾 Salvar</button>
@@ -1619,15 +997,15 @@
 
     <dialog id="dialogPedido">
         <div class="modal">
-            <h2 id="tituloPedido">📦 Cadastrar Pedido de Material</h2>
+            <h2 id="tituloPedido">📦 Pedido de Material</h2>
             <input type="hidden" id="idPedido">
             <label>Material / Insumo</label>
-            <input id="nomePedido" placeholder="Ex.: Parafusos M8, Tinta Epóxi, Lona plástica...">
+            <input id="nomePedido">
             <label>Quantidade</label>
-            <input id="quantidadePedido" placeholder="Ex.: 100 unidades, 5 litros, 20 metros...">
+            <input id="quantidadePedido">
             <label>Fornecedor</label>
-            <input id="fornecedorPedido" placeholder="Nome do fornecedor">
-            <label>Setor / Departamento</label>
+            <input id="fornecedorPedido">
+            <label>Setor</label>
             <select id="setorPedido"></select>
             <label>Data do pedido</label>
             <input id="dataPedido" type="date">
@@ -1639,20 +1017,12 @@
                 <option>Recebido</option>
                 <option>Cancelado</option>
             </select>
-            <label>Quem recebeu (para marcar quando chegar)</label>
-            <input id="recebedorPedido" placeholder="Nome de quem recebeu o material">
-            <label>Data e hora do recebimento</label>
+            <label>Quem recebeu</label>
+            <input id="recebedorPedido">
+            <label>Data/hora do recebimento</label>
             <input id="dataHoraRecebimentoPedido" type="datetime-local">
             <label>Observações</label>
-            <textarea id="obsPedido" rows="3" placeholder="Informações adicionais sobre o pedido"></textarea>
-            <div class="acoes">
-                <button class="btn-outline" onclick="document.getElementById('entradaFotoPedido').click()">📷 Foto do material</button>
-                <button class="btn-outline" onclick="abrirCamera('pedido')">📹 Câmera</button>
-                <button class="btn-outline" onclick="document.getElementById('entradaVideoPedido').click()">🎬 Vídeo</button>
-            </div>
-            <input id="entradaFotoPedido" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotosPedido(this.files)">
-            <input id="entradaVideoPedido" class="hidden" type="file" accept="video/*" capture="environment" onchange="adicionarVideoPedido(this.files[0])">
-            <div id="previewPedido" class="preview"></div>
+            <textarea id="obsPedido" rows="3"></textarea>
             <div class="acoes" style="margin-top:18px;">
                 <button class="btn-outline" onclick="fecharPedido()">Cancelar</button>
                 <button class="btn-pedido" onclick="salvarPedido()">💾 Salvar</button>
@@ -1662,7 +1032,7 @@
 
     <dialog id="dialogExterna">
         <div class="modal">
-            <h2>🚚 Manutenção Fora da Empresa</h2>
+            <h2>🚚 Manutenção Externa</h2>
             <input type="hidden" id="idExterna">
             <label>Tipo</label>
             <select id="tipoExterno">
@@ -1670,13 +1040,13 @@
                 <option>Ativo</option>
             </select>
             <label>Nome do item</label>
-            <input id="nomeExterno" placeholder="Nome da ferramenta ou ativo">
-            <label>Patrimônio / Código</label>
-            <input id="codigoExterno" placeholder="Ex.: FER-001">
-            <label>Empresa / Assistência Técnica</label>
-            <input id="empresaExterna" placeholder="Nome da empresa">
+            <input id="nomeExterno">
+            <label>Código</label>
+            <input id="codigoExterno">
+            <label>Empresa</label>
+            <input id="empresaExterna">
             <label>Responsável</label>
-            <input id="responsavelExterno" placeholder="Nome do responsável">
+            <input id="responsavelExterno">
             <label>Data de saída</label>
             <input id="dataSaida" type="date">
             <label>Previsão de retorno</label>
@@ -1691,14 +1061,7 @@
                 <option>Retornado</option>
             </select>
             <label>Descrição do serviço</label>
-            <textarea id="servicoExterno" rows="4" placeholder="Defeito apresentado, serviço solicitado, peças, orçamento etc."></textarea>
-            <div class="acoes">
-                <button class="btn-outline" onclick="document.getElementById('entradaFotoExterna').click()">📷 Foto</button>
-                <button class="btn-outline" onclick="document.getElementById('entradaVideoExterna').click()">🎬 Vídeo</button>
-            </div>
-            <input id="entradaFotoExterna" class="hidden" type="file" accept="image/*" capture="environment" onchange="adicionarFotoExterna(this.files[0])">
-            <input id="entradaVideoExterna" class="hidden" type="file" accept="video/*" capture="environment" onchange="adicionarVideoExterno(this.files[0])">
-            <div id="previewExterna" class="preview"></div>
+            <textarea id="servicoExterno" rows="4"></textarea>
             <div class="acoes" style="margin-top:18px;">
                 <button class="btn-outline" onclick="fecharExterna()">Cancelar</button>
                 <button class="btn-primary" onclick="salvarExterna()">💾 Salvar</button>
@@ -1707,9 +1070,9 @@
     </dialog>
 
     <dialog id="dialogCamera">
-        <div class="modal" style="padding:18px 20px;">
-            <h2 style="font-size:18px;">📹 Câmera</h2>
-            <video id="camera" autoplay playsinline></video>
+        <div class="modal">
+            <h2>📹 Câmera</h2>
+            <video id="camera" autoplay playsinline style="width:100%;border-radius:12px;"></video>
             <div class="acoes" style="margin-top:12px;">
                 <button class="btn-primary" onclick="tirarFoto()">📸 Capturar</button>
                 <button class="btn-outline" onclick="fecharCamera()">Fechar</button>
@@ -1718,9 +1081,6 @@
     </dialog>
 
     <script>
-        /* =====================================================
-           SETORES
-        ===================================================== */
         const SETORES = [
             "Acabamento 01", "Acabamento 02",
             "Laminação 01", "Laminação 02",
@@ -1729,9 +1089,6 @@
             "Almoxarifado", "Compras"
         ];
 
-        /* =====================================================
-           BANCO DE DADOS LOCAL
-        ===================================================== */
         let ferramentas = JSON.parse(localStorage.getItem("controleFerramentas") || "[]");
         let ativos = JSON.parse(localStorage.getItem("controleAtivos") || "[]");
         let ativosCriados = JSON.parse(localStorage.getItem("controleAtivosCriados") || "[]");
@@ -1739,11 +1096,7 @@
         let manutencoesExternas = JSON.parse(localStorage.getItem("controleManutencoesExternas") || "[]");
         let historico = JSON.parse(localStorage.getItem("controleHistorico") || "[]");
         let alarmes = JSON.parse(localStorage.getItem("controleAlarmes") || "[]");
-        let alarmesAtivos = [];
 
-        /* =====================================================
-           VARIÁVEIS
-        ===================================================== */
         let midiasFerramenta = [];
         let midiasAtivo = [];
         let midiasCriado = [];
@@ -1752,9 +1105,6 @@
         let cameraStream = null;
         let cameraDestino = "ferramenta";
 
-        /* =====================================================
-           SALVAR BANCO
-        ===================================================== */
         function salvarBanco() {
             localStorage.setItem("controleFerramentas", JSON.stringify(ferramentas));
             localStorage.setItem("controleAtivos", JSON.stringify(ativos));
@@ -1763,25 +1113,8 @@
             localStorage.setItem("controleManutencoesExternas", JSON.stringify(manutencoesExternas));
             localStorage.setItem("controleHistorico", JSON.stringify(historico));
             localStorage.setItem("controleAlarmes", JSON.stringify(alarmes));
-
-            // Marca pendência de sincronização se estiver offline
-            if (!navigator.onLine) {
-                const dados = {
-                    ferramentas,
-                    ativos,
-                    ativosCriados,
-                    pedidosMateriais,
-                    manutencoesExternas,
-                    historico,
-                    timestamp: new Date().toISOString()
-                };
-                localStorage.setItem('sincronizacaoPendente', JSON.stringify(dados));
-            }
         }
 
-        /* =====================================================
-           ESCAPAR TEXTO
-        ===================================================== */
         function escapar(texto = "") {
             return String(texto)
                 .replaceAll("&", "&amp;")
@@ -1791,28 +1124,18 @@
                 .replaceAll("'", "&#039;");
         }
 
-        /* =====================================================
-           GERAR ID
-        ===================================================== */
         function gerarId() {
             return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
         }
 
-        /* =====================================================
-           HISTÓRICO
-        ===================================================== */
         function registrarHistorico(nome, acao) {
-            historico.push({
-                nome: nome,
-                acao: acao,
-                data: new Date().toISOString()
-            });
+            historico.push({ nome, acao, data: new Date().toISOString() });
             if (historico.length > 300) historico.shift();
             salvarBanco();
         }
 
         /* =====================================================
-           SISTEMA DE ALARME - 24 HORAS
+           ALARMES - 24H
         ===================================================== */
         function iniciarAlarme(ferramenta) {
             const agora = new Date();
@@ -1822,7 +1145,7 @@
 
             alarmes = alarmes.filter(a => a.ferramentaId !== ferramenta.id);
 
-            const alarme = {
+            alarmes.push({
                 id: gerarId(),
                 ferramentaId: ferramenta.id,
                 nome: ferramenta.nome,
@@ -1835,9 +1158,8 @@
                 notificado6h: false,
                 notificado1h: false,
                 notificadoExpirado: false
-            };
+            });
 
-            alarmes.push(alarme);
             salvarBanco();
             verificarAlarmes();
         }
@@ -1846,376 +1168,466 @@
             alarmes = alarmes.filter(a => a.ferramentaId !== ferramentaId);
             salvarBanco();
             atualizarBadgeAlarme();
-            mostrarAlarmesAtivos();
         }
 
         function verificarAlarmes() {
             const agora = new Date();
-            let temAlteracao = false;
+            let alterou = false;
 
             alarmes.forEach(alarme => {
                 if (!alarme.ativo) return;
                 const dataLimite = new Date(alarme.dataLimite);
                 const diff = dataLimite.getTime() - agora.getTime();
-                const horasRestantes = diff / (1000 * 60 * 60);
+                const horas = diff / (1000 * 60 * 60);
 
                 if (diff <= 0 && !alarme.notificadoExpirado) {
-                    alarme.notificadoExpirado = true;
-                    temAlteracao = true;
+                    alarme.notificadoExpirado = true; alterou = true;
                     mostrarNotificacaoAlarme(alarme, 'expirado');
-                } else if (horasRestantes <= 1 && horasRestantes > 0 && !alarme.notificado1h) {
-                    alarme.notificado1h = true;
-                    temAlteracao = true;
+                } else if (horas <= 1 && horas > 0 && !alarme.notificado1h) {
+                    alarme.notificado1h = true; alterou = true;
                     mostrarNotificacaoAlarme(alarme, '1h');
-                } else if (horasRestantes <= 6 && horasRestantes > 1 && !alarme.notificado6h) {
-                    alarme.notificado6h = true;
-                    temAlteracao = true;
+                } else if (horas <= 6 && horas > 1 && !alarme.notificado6h) {
+                    alarme.notificado6h = true; alterou = true;
                     mostrarNotificacaoAlarme(alarme, '6h');
-                } else if (horasRestantes <= 12 && horasRestantes > 6 && !alarme.notificado12h) {
-                    alarme.notificado12h = true;
-                    temAlteracao = true;
+                } else if (horas <= 12 && horas > 6 && !alarme.notificado12h) {
+                    alarme.notificado12h = true; alterou = true;
                     mostrarNotificacaoAlarme(alarme, '12h');
-                } else if (horasRestantes <= 24 && horasRestantes > 12 && !alarme.notificado24h) {
-                    alarme.notificado24h = true;
-                    temAlteracao = true;
+                } else if (horas <= 24 && horas > 12 && !alarme.notificado24h) {
+                    alarme.notificado24h = true; alterou = true;
                     mostrarNotificacaoAlarme(alarme, '24h');
                 }
             });
 
-            if (temAlteracao) {
-                salvarBanco();
-            }
-
+            if (alterou) salvarBanco();
             atualizarBadgeAlarme();
-            mostrarAlarmesAtivos();
         }
 
         function mostrarNotificacaoAlarme(alarme, tipo) {
             const container = document.getElementById('alarmeContainer');
-            const notificacao = document.createElement('div');
-            notificacao.className = 'alarme-notificacao';
-            if (tipo === 'expirado') {
-                notificacao.classList.add('urgente');
-            }
+            const n = document.createElement('div');
+            n.className = 'alarme-notificacao';
+            if (tipo === 'expirado') n.classList.add('urgente');
 
-            const mensagens = {
+            const msgs = {
                 '24h': '⏰ Prazo de 24h para devolução!',
-                '12h': '⏰ Restam 12 horas para devolução!',
-                '6h': '⚠️ Restam 6 horas para devolução!',
-                '1h': '🚨 URGENTE: Resta 1 hora para devolução!',
-                'expirado': '❌ PRAZO EXPIRADO! Devolução atrasada!'
+                '12h': '⏰ Restam 12 horas!',
+                '6h': '⚠️ Restam 6 horas!',
+                '1h': '🚨 URGENTE: Resta 1 hora!',
+                'expirado': '❌ PRAZO EXPIRADO!'
             };
 
-            const emojis = {
-                '24h': '⏰',
-                '12h': '⏰',
-                '6h': '⚠️',
-                '1h': '🚨',
-                'expirado': '❌'
-            };
+            const emojis = { '24h': '⏰', '12h': '⏰', '6h': '⚠️', '1h': '🚨', 'expirado': '❌' };
 
-            const tempoRestante = tipo === 'expirado' ? 'Atrasado!' :
-                tipo === '1h' ? 'Menos de 1 hora' :
-                tipo === '6h' ? '6 horas' :
-                tipo === '12h' ? '12 horas' :
-                tipo === '24h' ? '24 horas' : '';
-
-            notificacao.innerHTML = `
+            n.innerHTML = `
                 <div class="alarme-header">
                     <div>
-                        <div class="alarme-titulo">
-                            ${emojis[tipo] || '🔔'} ${mensagens[tipo] || 'Alerta!'}
-                        </div>
+                        <div class="alarme-titulo">${emojis[tipo]} ${msgs[tipo]}</div>
                         <div class="alarme-detalhes">
                             <strong>${escapar(alarme.nome)}</strong>
                             ${alarme.codigo ? ` (${escapar(alarme.codigo)})` : ''}
-                            <br>Emprestado em: ${new Date(alarme.dataEmprestimo).toLocaleString('pt-BR')}
                             <br>Prazo: ${new Date(alarme.dataLimite).toLocaleString('pt-BR')}
-                            ${tipo !== 'expirado' ? `<br>⏱️ Restam: ${tempoRestante}` : ''}
                         </div>
-                    </div>
-                    <div class="alarme-tempo">
-                        ${tipo === 'expirado' ? '🔴' : '⏱️'}
                     </div>
                 </div>
                 <div class="alarme-acoes">
-                    <button onclick="visualizarFerramenta('${alarme.ferramentaId}')">🔍 Ver</button>
                     <button onclick="devolverFerramenta('${alarme.ferramentaId}')">✅ Devolver</button>
-                    <button class="btn-fechar-alarme" onclick="fecharNotificacao(this)">✕</button>
+                    <button onclick="this.closest('.alarme-notificacao').remove()">✕ Fechar</button>
                 </div>
             `;
 
-            container.appendChild(notificacao);
+            container.appendChild(n);
 
             if (tipo !== 'expirado') {
                 setTimeout(() => {
-                    if (notificacao.parentNode) {
-                        notificacao.style.opacity = '0';
-                        notificacao.style.transition = 'opacity 0.5s';
-                        setTimeout(() => {
-                            if (notificacao.parentNode) {
-                                notificacao.remove();
-                            }
-                        }, 500);
-                    }
+                    if (n.parentNode) n.remove();
                 }, 30000);
             }
         }
 
-        function fecharNotificacao(elemento) {
-            const notificacao = elemento.closest('.alarme-notificacao');
-            if (notificacao) {
-                notificacao.style.opacity = '0';
-                notificacao.style.transition = 'opacity 0.3s';
-                setTimeout(() => {
-                    if (notificacao.parentNode) {
-                        notificacao.remove();
-                    }
-                }, 300);
-            }
-        }
-
-        function visualizarFerramenta(id) {
-            const ferramenta = ferramentas.find(f => f.id === id);
-            if (ferramenta) {
-                document.querySelectorAll('nav button').forEach(b => b.classList.remove('ativo'));
-                document.querySelector('[data-tela="ferramentas"]').classList.add('ativo');
-                document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
-                document.getElementById('ferramentas').classList.remove('hidden');
-                mostrarFerramentas();
-
-                setTimeout(() => {
-                    const cards = document.querySelectorAll('#listaFerramentas .card');
-                    cards.forEach(card => {
-                        if (card.textContent.includes(ferramenta.nome)) {
-                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            card.style.borderColor = 'var(--vermelho)';
-                            card.style.boxShadow = '0 0 40px rgba(255,107,130,0.3)';
-                            setTimeout(() => {
-                                card.style.borderColor = '';
-                                card.style.boxShadow = '';
-                            }, 3000);
-                        }
-                    });
-                }, 100);
-            }
-        }
-
         function devolverFerramenta(id) {
-            const ferramenta = ferramentas.find(f => f.id === id);
-            if (!ferramenta) return;
-
-            if (confirm(`Devolver a ferramenta "${ferramenta.nome}"?`)) {
-                ferramenta.status = 'Disponível';
-                ferramenta.dataEmprestimo = null;
+            const f = ferramentas.find(x => x.id === id);
+            if (!f) return;
+            if (confirm(`Devolver a ferramenta "${f.nome}"?`)) {
+                f.status = 'Disponível';
+                f.dataEmprestimo = null;
                 salvarBanco();
                 pararAlarme(id);
-                registrarHistorico(ferramenta.nome, '✅ Ferramenta devolvida');
+                registrarHistorico(f.nome, '✅ Ferramenta devolvida');
                 mostrarTudo();
-
-                document.querySelectorAll('.alarme-notificacao').forEach(n => {
-                    n.style.opacity = '0';
-                    setTimeout(() => {
-                        if (n.parentNode) n.remove();
-                    }, 300);
-                });
-
-                alert(`✅ Ferramenta "${ferramenta.nome}" devolvida com sucesso!`);
+                document.querySelectorAll('.alarme-notificacao').forEach(n => n.remove());
             }
-        }
-
-        function mostrarAlarmesAtivos() {
-            const alarmesAtivosLista = alarmes.filter(a => a.ativo);
-            alarmesAtivos = alarmesAtivosLista;
-
-            ferramentas.forEach(f => {
-                if (f.status === 'Emprestada') {
-                    const alarme = alarmes.find(a => a.ferramentaId === f.id);
-                    if (alarme) {
-                        f.tempoRestante = calcularTempoRestante(alarme.dataLimite);
-                    }
-                }
-            });
-        }
-
-        function calcularTempoRestante(dataLimite) {
-            const agora = new Date();
-            const limite = new Date(dataLimite);
-            const diff = limite.getTime() - agora.getTime();
-
-            if (diff <= 0) return 'Atrasado!';
-
-            const horas = Math.floor(diff / (1000 * 60 * 60));
-            const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-            if (horas > 0) {
-                return `${horas}h ${minutos}min`;
-            }
-            return `${minutos}min`;
         }
 
         function atualizarBadgeAlarme() {
-            const alarmesAtivosLista = alarmes.filter(a => a.ativo);
-            const count = alarmesAtivosLista.length;
-
-            const btnFerramentas = document.querySelector('[data-tela="ferramentas"]');
-            if (btnFerramentas) {
+            const count = alarmes.filter(a => a.ativo).length;
+            const btn = document.querySelector('[data-tela="ferramentas"]');
+            if (btn) {
                 if (count > 0) {
-                    btnFerramentas.classList.add('alarme-badge');
-                    btnFerramentas.dataset.count = count;
+                    btn.classList.add('alarme-badge');
+                    btn.dataset.count = count;
                 } else {
-                    btnFerramentas.classList.remove('alarme-badge');
-                    btnFerramentas.dataset.count = '0';
+                    btn.classList.remove('alarme-badge');
+                    btn.dataset.count = '0';
                 }
             }
         }
 
         /* =====================================================
-           OFFLINE / INSTALAÇÃO PWA
+           PDF — GERAÇÃO DE RELATÓRIOS
         ===================================================== */
+        const { jsPDF } = window.jspdf;
 
-        // Detecta se está online/offline
-        function atualizarStatusRede() {
-            const online = navigator.onLine;
-            const badge = document.getElementById('statusRede');
-            if (badge) {
-                badge.textContent = online ? '🟢 Online' : '🔴 Offline';
-                badge.style.color = online ? 'var(--verde)' : 'var(--vermelho)';
-                badge.style.borderColor = online ? 'rgba(45,219,122,0.3)' : 'rgba(255,107,130,0.3)';
+        function criarCabecalhoPDF(doc, titulo, subtitulo = '') {
+            const larguraPagina = doc.internal.pageSize.getWidth();
+
+            // Fundo do cabeçalho
+            doc.setFillColor(13, 42, 61);
+            doc.rect(0, 0, larguraPagina, 35, 'F');
+
+            // Linha decorativa
+            doc.setFillColor(30, 184, 201);
+            doc.rect(0, 33, larguraPagina, 2, 'F');
+
+            // Título
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(20);
+            doc.setFont(undefined, 'bold');
+            doc.text(titulo, 14, 18);
+
+            // Subtítulo
+            if (subtitulo) {
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(176, 200, 217);
+                doc.text(subtitulo, 14, 27);
             }
+
+            // Data/hora
+            doc.setFontSize(9);
+            doc.setTextColor(176, 200, 217);
+            doc.text(
+                `Gerado em: ${new Date().toLocaleString('pt-BR')}`,
+                larguraPagina - 14, 18, { align: 'right' }
+            );
+
+            // Rodapé
+            const alturaPagina = doc.internal.pageSize.getHeight();
+            doc.setDrawColor(200, 200, 200);
+            doc.line(14, alturaPagina - 15, larguraPagina - 14, alturaPagina - 15);
+            doc.setFontSize(8);
+            doc.setTextColor(120, 120, 120);
+            doc.text('Sistema Controle 3D — Ferramentas e Manutenção', 14, alturaPagina - 8);
+            doc.text(
+                `Página ${doc.internal.getCurrentPageInfo().pageNumber}`,
+                larguraPagina - 14, alturaPagina - 8, { align: 'right' }
+            );
         }
 
-        // Eventos de rede
-        window.addEventListener('online', () => {
-            atualizarStatusRede();
-            mostrarToast('🟢 Conexão restabelecida!', 'success');
-            sincronizarDadosPendentes();
-        });
+        function salvarPDF(doc, nomeArquivo) {
+            doc.save(nomeArquivo);
 
-        window.addEventListener('offline', () => {
-            atualizarStatusRede();
-            mostrarToast('🔴 Você está offline. Os dados serão salvos localmente.', 'warning');
-        });
+            // Pergunta se quer enviar via WhatsApp
+            setTimeout(() => {
+                if (confirm('✅ PDF gerado com sucesso!\n\nDeseja enviar o relatório via WhatsApp agora?')) {
+                    const texto = `📄 *${nomeArquivo}*\n\nSegue o relatório gerado pelo Sistema de Controle de Ferramentas 3D.\n\n_Arquivo salvo em seu dispositivo. Anexe-o manualmente na conversa._`;
+                    window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
+                }
+            }, 500);
+        }
 
-        // Sistema de TOAST (notificações visuais)
-        function mostrarToast(mensagem, tipo = 'info') {
-            const cores = {
-                info: 'var(--azul-claro)',
-                success: 'var(--verde)',
-                warning: 'var(--amarelo)',
-                error: 'var(--vermelho)'
-            };
+        /* ---------- PDF: Relatório GERAL ---------- */
+        function gerarPDFCompleto() {
+            const doc = new jsPDF();
+            criarCabecalhoPDF(doc, 'RELATÓRIO GERAL', 'Controle de Ferramentas, Ativos e Manutenção');
 
-            const toast = document.createElement('div');
-            toast.textContent = mensagem;
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 80px;
-                left: 50%;
-                transform: translateX(-50%) translateY(20px);
-                background: rgba(0,0,0,0.9);
-                color: ${cores[tipo] || '#fff'};
-                padding: 12px 24px;
-                border-radius: 16px;
-                font-weight: 600;
-                font-size: 14px;
-                z-index: 10000;
-                border: 1px solid ${cores[tipo] || 'var(--borda)'};
-                backdrop-filter: blur(20px);
-                box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-                opacity: 0;
-                transition: all 0.4s ease;
-                max-width: 90%;
-                text-align: center;
-            `;
-            document.body.appendChild(toast);
+            let y = 45;
 
-            requestAnimationFrame(() => {
-                toast.style.opacity = '1';
-                toast.style.transform = 'translateX(-50%) translateY(0)';
+            // Resumo
+            const resumo = [
+                ['Ferramentas cadastradas', ferramentas.length],
+                ['Ferramentas disponíveis', ferramentas.filter(f => f.status === 'Disponível').length],
+                ['Ferramentas emprestadas', ferramentas.filter(f => f.status === 'Emprestada').length],
+                ['Ferramentas em manutenção', ferramentas.filter(f => f.status === 'Manutenção').length],
+                ['Alarmes ativos', alarmes.filter(a => a.ativo).length],
+                ['Ativos cadastrados', ativos.length],
+                ['Ativos criados pela manutenção', ativosCriados.length],
+                ['Pedidos de materiais', pedidosMateriais.length],
+                ['Manutenções externas', manutencoesExternas.length]
+            ];
+
+            doc.setFontSize(13);
+            doc.setTextColor(13, 42, 61);
+            doc.setFont(undefined, 'bold');
+            doc.text('📊 Resumo Geral', 14, y);
+            y += 6;
+
+            doc.autoTable({
+                startY: y,
+                head: [['Indicador', 'Quantidade']],
+                body: resumo,
+                theme: 'grid',
+                headStyles: { fillColor: [30, 184, 201], textColor: 255, fontStyle: 'bold' },
+                styles: { fontSize: 10, cellPadding: 3 },
+                alternateRowStyles: { fillColor: [245, 250, 252] },
+                margin: { left: 14, right: 14 }
             });
 
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(-50%) translateY(20px)';
-                setTimeout(() => {
-                    if (toast.parentNode) toast.remove();
-                }, 400);
-            }, 4000);
-        }
+            y = doc.lastAutoTable.finalY + 10;
 
-        // Sincronização de dados pendentes
-        function sincronizarDadosPendentes() {
-            const sincronizacao = localStorage.getItem('sincronizacaoPendente');
-            if (sincronizacao) {
-                try {
-                    const dados = JSON.parse(sincronizacao);
-                    console.log('🔄 Sincronizando dados pendentes...', dados);
+            // Ferramentas em manutenção
+            const emManut = ferramentas.filter(f => f.status === 'Manutenção');
+            if (emManut.length > 0) {
+                doc.setFontSize(13);
+                doc.setTextColor(211, 47, 47);
+                doc.setFont(undefined, 'bold');
+                doc.text('🧰 Ferramentas em Manutenção', 14, y);
+                y += 6;
 
-                    // Aqui você pode enviar os dados para um backend
-                    // Exemplo: fetch('/api/sync', { method: 'POST', body: JSON.stringify(dados) })
+                doc.autoTable({
+                    startY: y,
+                    head: [['Nome', 'Código', 'Setor', 'Observações']],
+                    body: emManut.map(f => [f.nome, f.codigo || '-', f.setor, f.observacoes || '-']),
+                    theme: 'grid',
+                    headStyles: { fillColor: [211, 47, 47], textColor: 255 },
+                    styles: { fontSize: 9, cellPadding: 2 },
+                    margin: { left: 14, right: 14 }
+                });
 
-                    localStorage.removeItem('sincronizacaoPendente');
-                    mostrarToast('✅ Dados sincronizados com sucesso!', 'success');
-                } catch (e) {
-                    console.error('Erro ao sincronizar:', e);
-                }
+                y = doc.lastAutoTable.finalY + 10;
             }
+
+            // Ferramentas emprestadas
+            const emp = ferramentas.filter(f => f.status === 'Emprestada');
+            if (emp.length > 0) {
+                if (y > 240) { doc.addPage(); y = 20; }
+                doc.setFontSize(13);
+                doc.setTextColor(245, 166, 35);
+                doc.setFont(undefined, 'bold');
+                doc.text('📤 Ferramentas Emprestadas', 14, y);
+                y += 6;
+
+                doc.autoTable({
+                    startY: y,
+                    head: [['Nome', 'Código', 'Setor', 'Data Empréstimo']],
+                    body: emp.map(f => [
+                        f.nome,
+                        f.codigo || '-',
+                        f.setor,
+                        f.dataEmprestimo ? new Date(f.dataEmprestimo).toLocaleString('pt-BR') : '-'
+                    ]),
+                    theme: 'grid',
+                    headStyles: { fillColor: [245, 166, 35], textColor: 255 },
+                    styles: { fontSize: 9, cellPadding: 2 },
+                    margin: { left: 14, right: 14 }
+                });
+            }
+
+            salvarPDF(doc, `Relatorio_Geral_${new Date().toISOString().slice(0,10)}.pdf`);
         }
 
-        // Instalação do app (PWA)
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
+        /* ---------- PDF: Ferramentas ---------- */
+        function gerarPDFFerramentas() {
+            const doc = new jsPDF();
+            criarCabecalhoPDF(doc, '🔧 RELATÓRIO DE FERRAMENTAS', `Total: ${ferramentas.length} ferramentas`);
 
-            // Remove botão existente se houver
-            const btnExistente = document.getElementById('btnInstalarApp');
-            if (btnExistente) btnExistente.remove();
+            doc.autoTable({
+                startY: 45,
+                head: [['Nome', 'Código', 'Setor', 'Status', 'Data Empréstimo']],
+                body: ferramentas.map(f => [
+                    f.nome,
+                    f.codigo || '-',
+                    f.setor,
+                    f.status,
+                    f.dataEmprestimo ? new Date(f.dataEmprestimo).toLocaleString('pt-BR') : '-'
+                ]),
+                theme: 'grid',
+                headStyles: { fillColor: [30, 184, 201], textColor: 255 },
+                styles: { fontSize: 9, cellPadding: 2 },
+                alternateRowStyles: { fillColor: [245, 250, 252] },
+                margin: { left: 14, right: 14 }
+            });
 
-            // Cria botão de instalação flutuante
-            const btnInstalar = document.createElement('button');
-            btnInstalar.id = 'btnInstalarApp';
-            btnInstalar.innerHTML = '📲 Instalar App';
-            document.body.appendChild(btnInstalar);
+            salvarPDF(doc, `Ferramentas_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
 
-            btnInstalar.onclick = async () => {
-                if (deferredPrompt) {
-                    const result = await deferredPrompt.prompt();
-                    deferredPrompt = null;
-                    btnInstalar.remove();
-                    if (result.outcome === 'accepted') {
-                        mostrarToast('✅ App instalado com sucesso!', 'success');
-                    }
-                }
-            };
-        });
+        /* ---------- PDF: Em Manutenção ---------- */
+        function gerarPDFManutencao() {
+            const emManut = ferramentas.filter(f => f.status === 'Manutenção');
+            const doc = new jsPDF();
+            criarCabecalhoPDF(doc, '🧰 FERRAMENTAS EM MANUTENÇÃO', `Total: ${emManut.length} ferramentas em manutenção`);
 
-        window.addEventListener('appinstalled', () => {
-            const btn = document.getElementById('btnInstalarApp');
-            if (btn) btn.remove();
-            mostrarToast('✅ App instalado com sucesso!', 'success');
-        });
+            if (emManut.length === 0) {
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text('Nenhuma ferramenta em manutenção no momento.', 14, 55);
+            } else {
+                doc.autoTable({
+                    startY: 45,
+                    head: [['Nome', 'Código', 'Setor', 'Observações']],
+                    body: emManut.map(f => [f.nome, f.codigo || '-', f.setor, f.observacoes || '-']),
+                    theme: 'grid',
+                    headStyles: { fillColor: [211, 47, 47], textColor: 255 },
+                    styles: { fontSize: 9, cellPadding: 2 },
+                    alternateRowStyles: { fillColor: [255, 240, 240] },
+                    margin: { left: 14, right: 14 }
+                });
+            }
+
+            salvarPDF(doc, `Ferramentas_Manutencao_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        /* ---------- PDF: Ativos ---------- */
+        function gerarPDFAtivos() {
+            const doc = new jsPDF();
+            criarCabecalhoPDF(doc, '🏭 RELATÓRIO DE ATIVOS', `Total: ${ativos.length} ativos`);
+
+            if (ativos.length === 0) {
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text('Nenhum ativo cadastrado.', 14, 55);
+            } else {
+                doc.autoTable({
+                    startY: 45,
+                    head: [['Nome', 'TAG', 'Tipo', 'Setor', 'Status']],
+                    body: ativos.map(a => [a.nome, a.codigo || '-', a.tipo, a.setor, a.status]),
+                    theme: 'grid',
+                    headStyles: { fillColor: [124, 92, 191], textColor: 255 },
+                    styles: { fontSize: 9, cellPadding: 2 },
+                    alternateRowStyles: { fillColor: [248, 245, 255] },
+                    margin: { left: 14, right: 14 }
+                });
+            }
+
+            salvarPDF(doc, `Ativos_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        /* ---------- PDF: Criados ---------- */
+        function gerarPDFCriados() {
+            const doc = new jsPDF();
+            criarCabecalhoPDF(doc, '🔨 ATIVOS CRIADOS PELA MANUTENÇÃO', `Total: ${ativosCriados.length} ativos`);
+
+            if (ativosCriados.length === 0) {
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text('Nenhum ativo criado pela manutenção.', 14, 55);
+            } else {
+                doc.autoTable({
+                    startY: 45,
+                    head: [['Nome', 'Código', 'Tipo', 'Responsável', 'Setor', 'Status']],
+                    body: ativosCriados.map(a => [
+                        a.nome, a.codigo || '-', a.tipo, a.responsavel || '-', a.setor, a.status
+                    ]),
+                    theme: 'grid',
+                    headStyles: { fillColor: [45, 219, 122], textColor: 255 },
+                    styles: { fontSize: 9, cellPadding: 2 },
+                    alternateRowStyles: { fillColor: [240, 255, 245] },
+                    margin: { left: 14, right: 14 }
+                });
+            }
+
+            salvarPDF(doc, `Ativos_Criados_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        /* ---------- PDF: Pedidos ---------- */
+        function gerarPDFPedidos() {
+            const doc = new jsPDF();
+            criarCabecalhoPDF(doc, '📦 PEDIDOS DE MATERIAIS', `Total: ${pedidosMateriais.length} pedidos`);
+
+            if (pedidosMateriais.length === 0) {
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text('Nenhum pedido cadastrado.', 14, 55);
+            } else {
+                doc.autoTable({
+                    startY: 45,
+                    head: [['Material', 'Qtd', 'Fornecedor', 'Setor', 'Status', 'Recebedor']],
+                    body: pedidosMateriais.map(p => [
+                        p.nome, p.quantidade || '-', p.fornecedor || '-', p.setor, p.status, p.recebedor || '-'
+                    ]),
+                    theme: 'grid',
+                    headStyles: { fillColor: [245, 166, 35], textColor: 255 },
+                    styles: { fontSize: 9, cellPadding: 2 },
+                    alternateRowStyles: { fillColor: [255, 250, 240] },
+                    margin: { left: 14, right: 14 }
+                });
+            }
+
+            salvarPDF(doc, `Pedidos_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        /* ---------- PDF: Externas ---------- */
+        function gerarPDFExternas() {
+            const doc = new jsPDF();
+            criarCabecalhoPDF(doc, '🚚 MANUTENÇÃO EXTERNA', `Total: ${manutencoesExternas.length} itens`);
+
+            if (manutencoesExternas.length === 0) {
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text('Nenhum item em manutenção externa.', 14, 55);
+            } else {
+                doc.autoTable({
+                    startY: 45,
+                    head: [['Item', 'Tipo', 'Empresa', 'Responsável', 'Status']],
+                    body: manutencoesExternas.map(m => [
+                        m.nome, m.tipo, m.empresa || '-', m.responsavel || '-', m.status
+                    ]),
+                    theme: 'grid',
+                    headStyles: { fillColor: [255, 107, 157], textColor: 255 },
+                    styles: { fontSize: 9, cellPadding: 2 },
+                    alternateRowStyles: { fillColor: [255, 245, 250] },
+                    margin: { left: 14, right: 14 }
+                });
+            }
+
+            salvarPDF(doc, `Manutencao_Externa_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        /* ---------- PDF: Setores ---------- */
+        function gerarPDFSetores() {
+            const doc = new jsPDF();
+            criarCabecalhoPDF(doc, '📍 MAPA DOS SETORES', `Total: ${SETORES.length} setores`);
+
+            const dados = SETORES.map(setor => {
+                const ferr = ferramentas.filter(f => f.setor === setor);
+                const ativ = ativos.filter(a => a.setor === setor);
+                const cri = ativosCriados.filter(c => c.setor === setor);
+                const ped = pedidosMateriais.filter(p => p.setor === setor);
+                return [
+                    setor,
+                    ferr.length,
+                    ferr.filter(f => f.status === 'Disponível').length,
+                    ferr.filter(f => f.status === 'Emprestada').length,
+                    ferr.filter(f => f.status === 'Manutenção').length,
+                    ativ.length + cri.length + ped.length
+                ];
+            });
+
+            doc.autoTable({
+                startY: 45,
+                head: [['Setor', 'Ferramentas', 'Disponíveis', 'Emprestadas', 'Manutenção', 'Outros']],
+                body: dados,
+                theme: 'grid',
+                headStyles: { fillColor: [45, 219, 122], textColor: 255 },
+                styles: { fontSize: 9, cellPadding: 2 },
+                alternateRowStyles: { fillColor: [240, 255, 245] },
+                margin: { left: 14, right: 14 }
+            });
+
+            salvarPDF(doc, `Setores_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
 
         /* =====================================================
-           INICIALIZAÇÃO
+           NAVEGAÇÃO
         ===================================================== */
         function iniciar() {
-            // Popula selects
-            document.getElementById("setorFerramenta").innerHTML =
-                SETORES.map(s => `<option>${s}</option>`).join("");
-            document.getElementById("setorAtivo").innerHTML =
-                SETORES.map(s => `<option>${s}</option>`).join("");
-            document.getElementById("setorCriado").innerHTML =
-                SETORES.map(s => `<option>${s}</option>`).join("");
-            document.getElementById("setorPedido").innerHTML =
-                SETORES.map(s => `<option>${s}</option>`).join("");
+            document.getElementById("setorFerramenta").innerHTML = SETORES.map(s => `<option>${s}</option>`).join("");
+            document.getElementById("setorAtivo").innerHTML = SETORES.map(s => `<option>${s}</option>`).join("");
+            document.getElementById("setorCriado").innerHTML = SETORES.map(s => `<option>${s}</option>`).join("");
+            document.getElementById("setorPedido").innerHTML = SETORES.map(s => `<option>${s}</option>`).join("");
 
-            // Data atual nos campos
             document.getElementById("dataPedido").value = new Date().toISOString().substring(0, 10);
             document.getElementById("dataCriado").value = new Date().toISOString().substring(0, 10);
 
-            // Navegação
             document.querySelectorAll("nav button").forEach(botao => {
                 botao.onclick = function() {
                     document.querySelectorAll("nav button").forEach(b => b.classList.remove("ativo"));
@@ -2226,32 +1638,22 @@
                 };
             });
 
-            // Status de rede inicial
             atualizarStatusRede();
-
-            // Verifica alarmes a cada 30 segundos
             setInterval(verificarAlarmes, 30000);
             setTimeout(verificarAlarmes, 1000);
-
-            // Verifica dados pendentes
-            setTimeout(sincronizarDadosPendentes, 1000);
-
             mostrarTudo();
         }
 
-        /* =====================================================
-           MOSTRAR TUDO
-        ===================================================== */
         function mostrarTudo() {
             mostrarEstatisticas();
             mostrarSetores();
             mostrarFerramentas();
+            mostrarFerramentasManutencao();
             mostrarAtivos();
             mostrarCriados();
             mostrarPedidos();
             mostrarManutencoesExternas();
             mostrarHistorico();
-            mostrarAlarmesAtivos();
             atualizarBadgeAlarme();
         }
 
@@ -2259,74 +1661,38 @@
            ESTATÍSTICAS
         ===================================================== */
         function mostrarEstatisticas() {
-            const totalFerramentas = ferramentas.length;
-            const disponiveis = ferramentas.filter(x => x.status === "Disponível").length;
-            const emprestadas = ferramentas.filter(x => x.status === "Emprestada").length;
-            const totalAtivos = ativos.length;
-            const totalCriados = ativosCriados.length;
-            const totalPedidos = pedidosMateriais.length;
-            const pedidosPendentes = pedidosMateriais.filter(x => x.status === "Pendente" || x.status ===
-                "Parcialmente recebido").length;
-            const ativosManutencao = ativos.filter(x => x.status === "Manutenção" || x.status === "Manutenção Externa")
-                .length;
-            const externasPendentes = manutencoesExternas.filter(x => x.status !== "Retornado").length;
-            const alarmesAtivosLista = alarmes.filter(a => a.ativo).length;
+            const total = ferramentas.length;
+            const disp = ferramentas.filter(x => x.status === "Disponível").length;
+            const emp = ferramentas.filter(x => x.status === "Emprestada").length;
+            const manut = ferramentas.filter(x => x.status === "Manutenção").length;
+            const ativosTotal = ativos.length;
+            const criadosTotal = ativosCriados.length;
+            const pedidosTotal = pedidosMateriais.length;
+            const pedidosPend = pedidosMateriais.filter(x => x.status === "Pendente" || x.status === "Parcialmente recebido").length;
+            const externasPend = manutencoesExternas.filter(x => x.status !== "Retornado").length;
+            const alarmesAtivos = alarmes.filter(a => a.ativo).length;
 
             document.getElementById("estatisticas").innerHTML = `
-                <div class="card estatistica">
-                    <span class="icon">🔧</span>
-                    <span class="label">Ferramentas</span>
-                    <strong>${totalFerramentas}</strong>
-                </div>
-                <div class="card estatistica">
-                    <span class="icon">🟢</span>
-                    <span class="label">Disponíveis</span>
-                    <strong>${disponiveis}</strong>
-                </div>
-                <div class="card estatistica">
-                    <span class="icon">📤</span>
-                    <span class="label">Emprestadas</span>
-                    <strong>${emprestadas}</strong>
-                </div>
-                <div class="card estatistica">
-                    <span class="icon">⏰</span>
-                    <span class="label">Alarmes ativos</span>
-                    <strong>${alarmesAtivosLista}</strong>
-                </div>
-                <div class="card estatistica">
-                    <span class="icon">📦</span>
-                    <span class="label">Pedidos</span>
-                    <strong>${totalPedidos}</strong>
-                </div>
-                <div class="card estatistica">
-                    <span class="icon">⏳</span>
-                    <span class="label">Pedidos pendentes</span>
-                    <strong>${pedidosPendentes}</strong>
-                </div>
-                <div class="card estatistica">
-                    <span class="icon">🏭</span>
-                    <span class="label">Ativos</span>
-                    <strong>${totalAtivos}</strong>
-                </div>
-                <div class="card estatistica">
-                    <span class="icon">🔨</span>
-                    <span class="label">Criados pela Manut.</span>
-                    <strong>${totalCriados}</strong>
-                </div>
-                <div class="card estatistica">
-                    <span class="icon">🚚</span>
-                    <span class="label">Manutenção externa</span>
-                    <strong>${externasPendentes}</strong>
-                </div>
+                <div class="card estatistica"><span class="icon">🔧</span><span class="label">Ferramentas</span><strong>${total}</strong></div>
+                <div class="card estatistica"><span class="icon">🟢</span><span class="label">Disponíveis</span><strong>${disp}</strong></div>
+                <div class="card estatistica"><span class="icon">📤</span><span class="label">Emprestadas</span><strong>${emp}</strong></div>
+                <div class="card estatistica"><span class="icon">🧰</span><span class="label">Em Manutenção</span><strong>${manut}</strong></div>
+                <div class="card estatistica"><span class="icon">⏰</span><span class="label">Alarmes Ativos</span><strong>${alarmesAtivos}</strong></div>
+                <div class="card estatistica"><span class="icon">📦</span><span class="label">Pedidos</span><strong>${pedidosTotal}</strong></div>
+                <div class="card estatistica"><span class="icon">⏳</span><span class="label">Pedidos Pendentes</span><strong>${pedidosPend}</strong></div>
+                <div class="card estatistica"><span class="icon">🏭</span><span class="label">Ativos</span><strong>${ativosTotal}</strong></div>
+                <div class="card estatistica"><span class="icon">🔨</span><span class="label">Criados</span><strong>${criadosTotal}</strong></div>
+                <div class="card estatistica"><span class="icon">🚚</span><span class="label">Ext. Pendentes</span><strong>${externasPend}</strong></div>
             `;
 
             document.getElementById("resumoEmpresa").innerHTML = `
-                <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:18px;">🔧</span> <span class="muted text-sm">Ferramentas:</span> <strong style="font-size:18px;">${totalFerramentas}</strong></div>
-                <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:18px;">📤</span> <span class="muted text-sm">Emprestadas:</span> <strong style="font-size:18px;">${emprestadas}</strong></div>
-                <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:18px;">⏰</span> <span class="muted text-sm">Alarmes:</span> <strong style="font-size:18px;">${alarmesAtivosLista}</strong></div>
-                <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:18px;">📦</span> <span class="muted text-sm">Pedidos:</span> <strong style="font-size:18px;">${totalPedidos}</strong></div>
-                <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:18px;">🏭</span> <span class="muted text-sm">Ativos:</span> <strong style="font-size:18px;">${totalAtivos}</strong></div>
-                <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:18px;">🔨</span> <span class="muted text-sm">Criados pela Manut.:</span> <strong style="font-size:18px;">${totalCriados}</strong></div>
+                <div><span class="muted text-sm">🔧 Ferramentas:</span> <strong>${total}</strong></div>
+                <div><span class="muted text-sm">📤 Emprestadas:</span> <strong>${emp}</strong></div>
+                <div><span class="muted text-sm">🧰 Manutenção:</span> <strong>${manut}</strong></div>
+                <div><span class="muted text-sm">⏰ Alarmes:</span> <strong>${alarmesAtivos}</strong></div>
+                <div><span class="muted text-sm">📦 Pedidos:</span> <strong>${pedidosTotal}</strong></div>
+                <div><span class="muted text-sm">🏭 Ativos:</span> <strong>${ativosTotal}</strong></div>
+                <div><span class="muted text-sm">🔨 Criados:</span> <strong>${criadosTotal}</strong></div>
             `;
         }
 
@@ -2334,31 +1700,27 @@
            SETORES
         ===================================================== */
         function gerarSetores() {
-            let html = "";
-            SETORES.forEach(setor => {
-                const lista = ferramentas.filter(x => x.setor === setor);
-                const ativosSetor = ativos.filter(x => x.setor === setor);
-                const criadosSetor = ativosCriados.filter(x => x.setor === setor);
-                const pedidosSetor = pedidosMateriais.filter(x => x.setor === setor);
-                const emprestadasSetor = lista.filter(x => x.status === "Emprestada").length;
-
-                html += `
+            return SETORES.map(setor => {
+                const ferr = ferramentas.filter(x => x.setor === setor);
+                const ativ = ativos.filter(x => x.setor === setor);
+                const cri = ativosCriados.filter(x => x.setor === setor);
+                const ped = pedidosMateriais.filter(x => x.setor === setor);
+                return `
                     <div class="card setor-card">
                         <h3>📍 ${escapar(setor)}</h3>
-                        <div class="count">${lista.length + ativosSetor.length + criadosSetor.length + pedidosSetor.length}</div>
-                        <div style="font-size:12px;color:var(--cinza);opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">itens no total</div>
-                        <div class="stats">
-                            <span class="badge badge-success">🟢 ${lista.filter(x => x.status === "Disponível").length}</span>
-                            <span class="badge badge-warning">📤 ${emprestadasSetor}</span>
-                            <span class="badge badge-danger">🧰 ${lista.filter(x => x.status === "Manutenção").length}</span>
-                            <span class="badge badge-info">🏭 ${ativosSetor.length}</span>
-                            <span class="badge badge-created">🔨 ${criadosSetor.length}</span>
-                            <span class="badge badge-pedido">📦 ${pedidosSetor.length}</span>
+                        <div class="count">${ferr.length + ativ.length + cri.length + ped.length}</div>
+                        <div style="font-size:12px;color:var(--cinza);opacity:0.5;text-transform:uppercase;">itens no total</div>
+                        <div class="tags" style="margin-top:8px;">
+                            <span class="badge badge-success">🟢 ${ferr.filter(x => x.status === "Disponível").length}</span>
+                            <span class="badge badge-warning">📤 ${ferr.filter(x => x.status === "Emprestada").length}</span>
+                            <span class="badge badge-manutencao">🧰 ${ferr.filter(x => x.status === "Manutenção").length}</span>
+                            <span class="badge badge-info">🏭 ${ativ.length}</span>
+                            <span class="badge badge-created">🔨 ${cri.length}</span>
+                            <span class="badge badge-pedido">📦 ${ped.length}</span>
                         </div>
                     </div>
                 `;
-            });
-            return html;
+            }).join("");
         }
 
         function mostrarSetores() {
@@ -2380,63 +1742,123 @@
                 document.getElementById("listaFerramentas").innerHTML = `
                     <div class="card empty-state">
                         <span class="emoji">🔍</span>
-                        <span class="text">Nenhuma ferramenta encontrada.</span>
+                        <span>Nenhuma ferramenta encontrada.</span>
                     </div>
                 `;
                 return;
             }
 
-            document.getElementById("listaFerramentas").innerHTML =
-                lista.map(x => {
-                    const statusClass = x.status === "Disponível" ? "badge-success" :
-                        x.status === "Emprestada" ? "badge-warning" : "badge-danger";
+            document.getElementById("listaFerramentas").innerHTML = lista.map(x => {
+                const statusClass = x.status === "Disponível" ? "badge-success" :
+                    x.status === "Emprestada" ? "badge-warning" : "badge-manutencao";
 
-                    const alarme = alarmes.find(a => a.ferramentaId === x.id && a.ativo);
-                    let tempoRestante = '';
-                    let tempoClass = '';
+                const alarme = alarmes.find(a => a.ferramentaId === x.id && a.ativo);
+                let tempoRestante = '';
+                let tempoClass = '';
 
-                    if (alarme) {
-                        const diff = new Date(alarme.dataLimite).getTime() - new Date().getTime();
-                        if (diff <= 0) {
-                            tempoRestante = '🔴 Atrasado!';
-                            tempoClass = 'badge-tempo urgente';
-                        } else {
-                            const horas = Math.floor(diff / (1000 * 60 * 60));
-                            const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                            tempoRestante = `⏱️ ${horas}h ${minutos}min`;
-                            tempoClass = horas < 6 ? 'badge-tempo urgente' : 'badge-tempo';
-                        }
+                if (alarme) {
+                    const diff = new Date(alarme.dataLimite).getTime() - new Date().getTime();
+                    if (diff <= 0) {
+                        tempoRestante = '🔴 Atrasado!';
+                        tempoClass = 'badge-tempo urgente';
+                    } else {
+                        const horas = Math.floor(diff / (1000 * 60 * 60));
+                        const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        tempoRestante = `⏱️ ${horas}h ${minutos}min`;
+                        tempoClass = horas < 6 ? 'badge-tempo urgente' : 'badge-tempo';
                     }
+                }
 
-                    const fotoHtml = x.fotos?.[0] ?
-                        `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
-                        `<div class="imagem-placeholder">🔧</div>`;
+                const fotoHtml = x.fotos?.[0] ?
+                    `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
+                    `<div class="imagem-placeholder">🔧</div>`;
 
-                    return `
-                        <div class="card item" style="${alarme && new Date(alarme.dataLimite).getTime() <= new Date().getTime() ? 'border-color: var(--vermelho);' : ''}">
-                            ${fotoHtml}
-                            <div class="item-info">
-                                <div class="nome">${escapar(x.nome)}</div>
-                                <div class="detalhes">
-                                    Código: ${escapar(x.codigo || "-")}<br>
-                                    Setor: ${escapar(x.setor)}
-                                    ${x.dataEmprestimo ? `<br>📅 Emprestado: ${new Date(x.dataEmprestimo).toLocaleString('pt-BR')}` : ''}
-                                </div>
-                                <div class="tags">
-                                    <span class="badge ${statusClass}">${escapar(x.status)}</span>
-                                    ${x.video ? `<span class="badge badge-info">🎬 Vídeo</span>` : ""}
-                                    ${alarme ? `<span class="badge ${tempoClass}">${tempoRestante}</span>` : ''}
-                                </div>
+                return `
+                    <div class="card item">
+                        ${fotoHtml}
+                        <div class="item-info">
+                            <div class="nome">${escapar(x.nome)}</div>
+                            <div class="detalhes">
+                                Código: ${escapar(x.codigo || "-")}<br>
+                                Setor: ${escapar(x.setor)}
+                                ${x.dataEmprestimo ? `<br>📅 Emprestado: ${new Date(x.dataEmprestimo).toLocaleString('pt-BR')}` : ''}
                             </div>
-                            <div class="item-actions">
-                                <button class="btn-edit" onclick="abrirFerramenta('${x.id}')" title="Editar">✏️</button>
-                                <button class="btn-share" onclick="compartilharFerramenta('${x.id}')" title="WhatsApp">📲</button>
-                                ${x.status === 'Emprestada' ? `<button class="btn-success" onclick="devolverFerramenta('${x.id}')" title="Devolver">✅</button>` : ''}
-                                <button class="btn-delete" onclick="excluirFerramenta('${x.id}')" title="Excluir">🗑️</button>
+                            <div class="tags">
+                                <span class="badge ${statusClass}">${escapar(x.status)}</span>
+                                ${alarme ? `<span class="badge ${tempoClass}">${tempoRestante}</span>` : ''}
                             </div>
                         </div>
-                    `;
-                }).join("");
+                        <div class="item-actions">
+                            <button onclick="abrirFerramenta('${x.id}')">✏️</button>
+                            <button onclick="compartilharFerramenta('${x.id}')">📲</button>
+                            ${x.status === 'Emprestada' ? `<button onclick="devolverFerramenta('${x.id}')">✅</button>` : ''}
+                            <button onclick="excluirFerramenta('${x.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        /* =====================================================
+           🧰 FERRAMENTAS EM MANUTENÇÃO — NOVA ABA
+        ===================================================== */
+        function mostrarFerramentasManutencao() {
+            const pesquisa = (document.getElementById("pesquisaManutencao")?.value || "").toLowerCase();
+            const lista = ferramentas.filter(x =>
+                x.status === "Manutenção" &&
+                (x.nome + " " + x.codigo + " " + x.setor).toLowerCase().includes(pesquisa)
+            );
+
+            if (!lista.length) {
+                document.getElementById("listaFerramentasManutencao").innerHTML = `
+                    <div class="card empty-state">
+                        <span class="emoji">🧰</span>
+                        <span>Nenhuma ferramenta em manutenção no momento.</span>
+                        <p class="muted text-sm mt-10">Todas as ferramentas estão disponíveis ou emprestadas. 🎉</p>
+                    </div>
+                `;
+                return;
+            }
+
+            document.getElementById("listaFerramentasManutencao").innerHTML = lista.map(x => {
+                const fotoHtml = x.fotos?.[0] ?
+                    `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
+                    `<div class="imagem-placeholder">🧰</div>`;
+
+                return `
+                    <div class="card item" style="border-color: rgba(255,107,130,0.3); background: linear-gradient(135deg, rgba(255,107,130,0.05), transparent);">
+                        ${fotoHtml}
+                        <div class="item-info">
+                            <div class="nome">🧰 ${escapar(x.nome)}</div>
+                            <div class="detalhes">
+                                Código: ${escapar(x.codigo || "-")}<br>
+                                Setor: ${escapar(x.setor)}<br>
+                                ${x.observacoes ? `📝 ${escapar(x.observacoes)}` : ''}
+                            </div>
+                            <div class="tags">
+                                <span class="badge badge-manutencao">🔴 Em Manutenção</span>
+                            </div>
+                        </div>
+                        <div class="item-actions">
+                            <button onclick="abrirFerramenta('${x.id}')" title="Editar">✏️</button>
+                            <button onclick="marcarDisponivel('${x.id}')" title="Marcar como Disponível">✅</button>
+                            <button onclick="compartilharFerramenta('${x.id}')">📲</button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function marcarDisponivel(id) {
+            const f = ferramentas.find(x => x.id === id);
+            if (!f) return;
+            if (confirm(`Marcar a ferramenta "${f.nome}" como Disponível?`)) {
+                f.status = 'Disponível';
+                f.dataEmprestimo = null;
+                registrarHistorico(f.nome, '✅ Ferramenta liberada da manutenção');
+                salvarBanco();
+                mostrarTudo();
+            }
         }
 
         /* =====================================================
@@ -2449,20 +1871,13 @@
             if (id) {
                 const x = ferramentas.find(f => f.id === id);
                 if (!x) return;
-
                 document.getElementById("tituloFerramenta").textContent = "✏️ Editar ferramenta";
                 document.getElementById("nomeFerramenta").value = x.nome;
                 document.getElementById("codigoFerramenta").value = x.codigo || "";
                 document.getElementById("setorFerramenta").value = x.setor;
                 document.getElementById("statusFerramenta").value = x.status;
                 document.getElementById("obsFerramenta").value = x.observacoes || "";
-
-                (x.fotos || []).forEach(foto => {
-                    midiasFerramenta.push({ tipo: "foto", src: foto });
-                });
-                if (x.video) {
-                    midiasFerramenta.push({ tipo: "video", src: x.video });
-                }
+                (x.fotos || []).forEach(foto => midiasFerramenta.push({ tipo: "foto", src: foto }));
             } else {
                 document.getElementById("tituloFerramenta").textContent = "📦 Cadastrar ferramenta";
                 document.getElementById("nomeFerramenta").value = "";
@@ -2476,60 +1891,48 @@
             document.getElementById("dialogFerramenta").showModal();
         }
 
-        function fecharFerramenta() {
-            document.getElementById("dialogFerramenta").close();
-        }
+        function fecharFerramenta() { document.getElementById("dialogFerramenta").close(); }
 
-        /* =====================================================
-           SALVAR FERRAMENTA - COM ALARME AUTOMÁTICO
-        ===================================================== */
         function salvarFerramenta() {
             const nome = document.getElementById("nomeFerramenta").value.trim();
-            if (!nome) {
-                alert("Digite o nome da ferramenta.");
-                return;
-            }
+            if (!nome) { alert("Digite o nome da ferramenta."); return; }
 
             const id = document.getElementById("idFerramenta").value || gerarId();
             const status = document.getElementById("statusFerramenta").value;
-            const setor = document.getElementById("setorFerramenta").value;
             const statusAnterior = ferramentas.find(f => f.id === id)?.status;
 
             const ferramenta = {
-                id: id,
-                nome: nome,
+                id,
+                nome,
                 codigo: document.getElementById("codigoFerramenta").value.trim(),
-                setor: setor,
-                status: status,
+                setor: document.getElementById("setorFerramenta").value,
+                status,
                 observacoes: document.getElementById("obsFerramenta").value.trim(),
                 fotos: midiasFerramenta.filter(m => m.tipo === "foto").map(m => m.src),
-                video: midiasFerramenta.find(m => m.tipo === "video")?.src || null,
                 dataEmprestimo: status === "Emprestada" ? new Date().toISOString() : null,
                 dataCriacao: new Date().toISOString()
             };
 
             const existe = ferramentas.find(f => f.id === id);
-
             if (existe) {
                 ferramentas = ferramentas.map(f => f.id === id ? ferramenta : f);
                 registrarHistorico(nome, "✏️ Ferramenta atualizada");
 
                 if (status === "Emprestada" && statusAnterior !== "Emprestada") {
                     iniciarAlarme(ferramenta);
-                    registrarHistorico(nome, "⏰ Alarme de 24h ativado para devolução");
+                    registrarHistorico(nome, "⏰ Alarme de 24h ativado");
                 }
                 if (status !== "Emprestada" && statusAnterior === "Emprestada") {
                     pararAlarme(id);
-                    registrarHistorico(nome, "✅ Alarme desativado (ferramenta devolvida)");
+                }
+                if (status === "Manutenção" && statusAnterior !== "Manutenção") {
+                    registrarHistorico(nome, "🧰 Ferramenta enviada para manutenção");
                 }
             } else {
                 ferramentas.push(ferramenta);
                 registrarHistorico(nome, "🔧 Ferramenta cadastrada");
-
-                if (status === "Emprestada") {
-                    iniciarAlarme(ferramenta);
-                    registrarHistorico(nome, "⏰ Alarme de 24h ativado para devolução");
-                }
+                if (status === "Emprestada") iniciarAlarme(ferramenta);
+                if (status === "Manutenção") registrarHistorico(nome, "🧰 Ferramenta em manutenção");
             }
 
             salvarBanco();
@@ -2537,16 +1940,11 @@
             mostrarTudo();
         }
 
-        /* =====================================================
-           EXCLUIR FERRAMENTA
-        ===================================================== */
         function excluirFerramenta(id) {
             const x = ferramentas.find(f => f.id === id);
             if (!x) return;
             if (confirm(`Excluir a ferramenta "${x.nome}"?`)) {
-                if (x.status === "Emprestada") {
-                    pararAlarme(id);
-                }
+                if (x.status === "Emprestada") pararAlarme(id);
                 ferramentas = ferramentas.filter(f => f.id !== id);
                 registrarHistorico(x.nome, "🗑️ Ferramenta excluída");
                 salvarBanco();
@@ -2554,9 +1952,6 @@
             }
         }
 
-        /* =====================================================
-           FOTOS / VÍDEOS - FERRAMENTA
-        ===================================================== */
         function adicionarFotos(arquivos) {
             [...arquivos].forEach(arquivo => {
                 const leitor = new FileReader();
@@ -2568,24 +1963,10 @@
             });
         }
 
-        function adicionarVideo(arquivo) {
-            if (!arquivo) return;
-            const leitor = new FileReader();
-            leitor.onload = function() {
-                midiasFerramenta = midiasFerramenta.filter(m => m.tipo !== "video");
-                midiasFerramenta.push({ tipo: "video", src: this.result });
-                mostrarPreviewFerramenta();
-            };
-            leitor.readAsDataURL(arquivo);
-        }
-
         function mostrarPreviewFerramenta() {
             document.getElementById("previewFerramenta").innerHTML =
-                midiasFerramenta.map(m =>
-                    m.tipo === "foto" ?
-                    `<img src="${m.src}" alt="Preview">` :
-                    `<video src="${m.src}" controls></video>`
-                ).join("");
+                midiasFerramenta.map(m => m.tipo === "foto" ?
+                    `<img src="${m.src}">` : `<video src="${m.src}" controls></video>`).join("");
         }
 
         /* =====================================================
@@ -2604,9 +1985,7 @@
                 document.getElementById("setorAtivo").value = x.setor;
                 document.getElementById("statusAtivo").value = x.status;
                 document.getElementById("obsAtivo").value = x.observacoes || "";
-                if (x.fotos?.[0]) {
-                    midiasAtivo = [{ tipo: "foto", src: x.fotos[0] }];
-                }
+                if (x.fotos?.[0]) midiasAtivo = [{ tipo: "foto", src: x.fotos[0] }];
             } else {
                 document.getElementById("nomeAtivo").value = "";
                 document.getElementById("codigoAtivo").value = "";
@@ -2620,21 +1999,15 @@
             document.getElementById("dialogAtivo").showModal();
         }
 
-        function fecharAtivo() {
-            document.getElementById("dialogAtivo").close();
-        }
+        function fecharAtivo() { document.getElementById("dialogAtivo").close(); }
 
         function salvarAtivo() {
             const nome = document.getElementById("nomeAtivo").value.trim();
-            if (!nome) {
-                alert("Digite o nome do ativo.");
-                return;
-            }
+            if (!nome) { alert("Digite o nome do ativo."); return; }
 
             const id = document.getElementById("idAtivo").value || gerarId();
             const ativo = {
-                id: id,
-                nome: nome,
+                id, nome,
                 codigo: document.getElementById("codigoAtivo").value.trim(),
                 tipo: document.getElementById("tipoAtivo").value,
                 setor: document.getElementById("setorAtivo").value,
@@ -2666,47 +2039,40 @@
 
             if (!lista.length) {
                 document.getElementById("listaAtivos").innerHTML = `
-                    <div class="card empty-state">
-                        <span class="emoji">🏭</span>
-                        <span class="text">Nenhum ativo encontrado.</span>
-                    </div>
+                    <div class="card empty-state"><span class="emoji">🏭</span><span>Nenhum ativo encontrado.</span></div>
                 `;
                 return;
             }
 
-            document.getElementById("listaAtivos").innerHTML =
-                lista.map(x => {
-                    const statusClass = x.status === "Operando" ? "badge-success" :
-                        x.status === "Parado" ? "badge-warning" :
-                        x.status === "Manutenção" ? "badge-danger" :
-                        x.status === "Manutenção Externa" ? "badge-info" : "badge-warning";
+            document.getElementById("listaAtivos").innerHTML = lista.map(x => {
+                const statusClass = x.status === "Operando" ? "badge-success" :
+                    x.status === "Parado" ? "badge-warning" :
+                    x.status === "Manutenção" ? "badge-danger" : "badge-info";
 
-                    const fotoHtml = x.fotos?.[0] ?
-                        `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
-                        `<div class="imagem-placeholder">🏭</div>`;
+                const fotoHtml = x.fotos?.[0] ?
+                    `<img class="imagem-mini" src="${x.fotos[0]}">` :
+                    `<div class="imagem-placeholder">🏭</div>`;
 
-                    return `
-                        <div class="card item">
-                            ${fotoHtml}
-                            <div class="item-info">
-                                <div class="nome">${escapar(x.nome)}</div>
-                                <div class="detalhes">
-                                    TAG: ${escapar(x.codigo || "-")}<br>
-                                    Tipo: ${escapar(x.tipo)}<br>
-                                    Setor: ${escapar(x.setor)}
-                                </div>
-                                <div class="tags">
-                                    <span class="badge ${statusClass}">${escapar(x.status)}</span>
-                                </div>
+                return `
+                    <div class="card item">
+                        ${fotoHtml}
+                        <div class="item-info">
+                            <div class="nome">${escapar(x.nome)}</div>
+                            <div class="detalhes">
+                                TAG: ${escapar(x.codigo || "-")}<br>
+                                Tipo: ${escapar(x.tipo)}<br>
+                                Setor: ${escapar(x.setor)}
                             </div>
-                            <div class="item-actions">
-                                <button class="btn-edit" onclick="abrirAtivo('${x.id}')" title="Editar">✏️</button>
-                                <button class="btn-share" onclick="compartilharAtivo('${x.id}')" title="WhatsApp">📲</button>
-                                <button class="btn-delete" onclick="excluirAtivo('${x.id}')" title="Excluir">🗑️</button>
-                            </div>
+                            <div class="tags"><span class="badge ${statusClass}">${escapar(x.status)}</span></div>
                         </div>
-                    `;
-                }).join("");
+                        <div class="item-actions">
+                            <button onclick="abrirAtivo('${x.id}')">✏️</button>
+                            <button onclick="compartilharAtivo('${x.id}')">📲</button>
+                            <button onclick="excluirAtivo('${x.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
         }
 
         function excluirAtivo(id) {
@@ -2732,20 +2098,14 @@
 
         function mostrarPreviewAtivo() {
             document.getElementById("previewAtivo").innerHTML =
-                midiasAtivo.map(m =>
-                    m.tipo === "foto" ?
-                    `<img src="${m.src}" alt="Preview">` :
-                    `<video src="${m.src}" controls></video>`
-                ).join("");
+                midiasAtivo.map(m => `<img src="${m.src}">`).join("");
         }
 
         /* =====================================================
-           ATIVOS CRIADOS PELA MANUTENÇÃO
+           CRIADOS
         ===================================================== */
         function abrirCriado(id = null) {
-            midiasCriado = [];
             document.getElementById("idCriado").value = id || "";
-
             if (id) {
                 const x = ativosCriados.find(a => a.id === id);
                 if (!x) return;
@@ -2758,12 +2118,6 @@
                 document.getElementById("statusCriado").value = x.status;
                 document.getElementById("materiaisCriado").value = x.materiais || "";
                 document.getElementById("obsCriado").value = x.observacoes || "";
-                (x.fotos || []).forEach(foto => {
-                    midiasCriado.push({ tipo: "foto", src: foto });
-                });
-                if (x.video) {
-                    midiasCriado.push({ tipo: "video", src: x.video });
-                }
             } else {
                 document.getElementById("nomeCriado").value = "";
                 document.getElementById("codigoCriado").value = "";
@@ -2775,26 +2129,18 @@
                 document.getElementById("materiaisCriado").value = "";
                 document.getElementById("obsCriado").value = "";
             }
-
-            mostrarPreviewCriado();
             document.getElementById("dialogCriado").showModal();
         }
 
-        function fecharCriado() {
-            document.getElementById("dialogCriado").close();
-        }
+        function fecharCriado() { document.getElementById("dialogCriado").close(); }
 
         function salvarCriado() {
             const nome = document.getElementById("nomeCriado").value.trim();
-            if (!nome) {
-                alert("Digite o nome do ativo.");
-                return;
-            }
+            if (!nome) { alert("Digite o nome do ativo."); return; }
 
             const id = document.getElementById("idCriado").value || gerarId();
             const criado = {
-                id: id,
-                nome: nome,
+                id, nome,
                 codigo: document.getElementById("codigoCriado").value.trim(),
                 tipo: document.getElementById("tipoCriado").value,
                 responsavel: document.getElementById("responsavelCriado").value.trim(),
@@ -2803,8 +2149,6 @@
                 status: document.getElementById("statusCriado").value,
                 materiais: document.getElementById("materiaisCriado").value.trim(),
                 observacoes: document.getElementById("obsCriado").value.trim(),
-                fotos: midiasCriado.filter(m => m.tipo === "foto").map(m => m.src),
-                video: midiasCriado.find(m => m.tipo === "video")?.src || null,
                 dataCadastro: new Date().toISOString()
             };
 
@@ -2814,7 +2158,7 @@
                 registrarHistorico(nome, "✏️ Ativo criado atualizado");
             } else {
                 ativosCriados.push(criado);
-                registrarHistorico(nome, "🔨 Ativo criado pela manutenção cadastrado");
+                registrarHistorico(nome, "🔨 Ativo criado cadastrado");
             }
 
             salvarBanco();
@@ -2830,56 +2174,42 @@
 
             if (!lista.length) {
                 document.getElementById("listaCriados").innerHTML = `
-                    <div class="card empty-state">
-                        <span class="emoji">🔨</span>
-                        <span class="text">Nenhum ativo criado encontrado.</span>
-                    </div>
+                    <div class="card empty-state"><span class="emoji">🔨</span><span>Nenhum ativo criado.</span></div>
                 `;
                 return;
             }
 
-            document.getElementById("listaCriados").innerHTML =
-                lista.map(x => {
-                    const statusClass = x.status === "Finalizado" || x.status === "Instalado" ? "badge-success" :
-                        x.status === "Em produção" ? "badge-warning" :
-                        x.status === "Em teste" ? "badge-info" :
-                        x.status === "Em manutenção" ? "badge-danger" : "badge-warning";
+            document.getElementById("listaCriados").innerHTML = lista.map(x => {
+                const statusClass = x.status === "Finalizado" || x.status === "Instalado" ? "badge-success" :
+                    x.status === "Em produção" ? "badge-warning" :
+                    x.status === "Em teste" ? "badge-info" : "badge-danger";
 
-                    const fotoHtml = x.fotos?.[0] ?
-                        `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
-                        `<div class="imagem-placeholder">🔨</div>`;
-
-                    return `
-                        <div class="card item">
-                            ${fotoHtml}
-                            <div class="item-info">
-                                <div class="nome">${escapar(x.nome)}</div>
-                                <div class="detalhes">
-                                    Código: ${escapar(x.codigo || "-")}<br>
-                                    Tipo: ${escapar(x.tipo)}<br>
-                                    Setor: ${escapar(x.setor)}<br>
-                                    Responsável: ${escapar(x.responsavel || "-")}
-                                    ${x.dataCriado ? `<br>📅 Criação: ${new Date(x.dataCriado).toLocaleDateString('pt-BR')}` : ''}
-                                </div>
-                                <div class="tags">
-                                    <span class="badge ${statusClass}">${escapar(x.status)}</span>
-                                    ${x.video ? `<span class="badge badge-info">🎬 Vídeo</span>` : ""}
-                                </div>
+                return `
+                    <div class="card item">
+                        <div class="imagem-placeholder">🔨</div>
+                        <div class="item-info">
+                            <div class="nome">${escapar(x.nome)}</div>
+                            <div class="detalhes">
+                                Código: ${escapar(x.codigo || "-")}<br>
+                                Tipo: ${escapar(x.tipo)}<br>
+                                Setor: ${escapar(x.setor)}<br>
+                                Responsável: ${escapar(x.responsavel || "-")}
                             </div>
-                            <div class="item-actions">
-                                <button class="btn-edit" onclick="abrirCriado('${x.id}')" title="Editar">✏️</button>
-                                <button class="btn-share" onclick="compartilharCriado('${x.id}')" title="WhatsApp">📲</button>
-                                <button class="btn-delete" onclick="excluirCriado('${x.id}')" title="Excluir">🗑️</button>
-                            </div>
+                            <div class="tags"><span class="badge ${statusClass}">${escapar(x.status)}</span></div>
                         </div>
-                    `;
-                }).join("");
+                        <div class="item-actions">
+                            <button onclick="abrirCriado('${x.id}')">✏️</button>
+                            <button onclick="excluirCriado('${x.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
         }
 
         function excluirCriado(id) {
             const x = ativosCriados.find(a => a.id === id);
             if (!x) return;
-            if (confirm(`Excluir o ativo criado "${x.nome}"?`)) {
+            if (confirm(`Excluir "${x.nome}"?`)) {
                 ativosCriados = ativosCriados.filter(a => a.id !== id);
                 registrarHistorico(x.nome, "🗑️ Ativo criado excluído");
                 salvarBanco();
@@ -2887,49 +2217,15 @@
             }
         }
 
-        function adicionarFotosCriado(arquivos) {
-            [...arquivos].forEach(arquivo => {
-                const leitor = new FileReader();
-                leitor.onload = function() {
-                    midiasCriado.push({ tipo: "foto", src: this.result });
-                    mostrarPreviewCriado();
-                };
-                leitor.readAsDataURL(arquivo);
-            });
-        }
-
-        function adicionarVideoCriado(arquivo) {
-            if (!arquivo) return;
-            const leitor = new FileReader();
-            leitor.onload = function() {
-                midiasCriado = midiasCriado.filter(m => m.tipo !== "video");
-                midiasCriado.push({ tipo: "video", src: this.result });
-                mostrarPreviewCriado();
-            };
-            leitor.readAsDataURL(arquivo);
-        }
-
-        function mostrarPreviewCriado() {
-            document.getElementById("previewCriado").innerHTML =
-                midiasCriado.map(m =>
-                    m.tipo === "foto" ?
-                    `<img src="${m.src}" alt="Preview">` :
-                    `<video src="${m.src}" controls></video>`
-                ).join("");
-        }
-
         /* =====================================================
-           PEDIDOS DE MATERIAIS
+           PEDIDOS
         ===================================================== */
         function abrirPedido(id = null) {
-            midiasPedido = [];
             document.getElementById("idPedido").value = id || "";
-
             if (id) {
                 const x = pedidosMateriais.find(p => p.id === id);
                 if (!x) return;
-
-                document.getElementById("tituloPedido").textContent = "✏️ Editar Pedido de Material";
+                document.getElementById("tituloPedido").textContent = "✏️ Editar Pedido";
                 document.getElementById("nomePedido").value = x.nome;
                 document.getElementById("quantidadePedido").value = x.quantidade || "";
                 document.getElementById("fornecedorPedido").value = x.fornecedor || "";
@@ -2939,15 +2235,8 @@
                 document.getElementById("recebedorPedido").value = x.recebedor || "";
                 document.getElementById("dataHoraRecebimentoPedido").value = x.dataHoraRecebimento || "";
                 document.getElementById("obsPedido").value = x.observacoes || "";
-
-                (x.fotos || []).forEach(foto => {
-                    midiasPedido.push({ tipo: "foto", src: foto });
-                });
-                if (x.video) {
-                    midiasPedido.push({ tipo: "video", src: x.video });
-                }
             } else {
-                document.getElementById("tituloPedido").textContent = "📦 Cadastrar Pedido de Material";
+                document.getElementById("tituloPedido").textContent = "📦 Novo Pedido";
                 document.getElementById("nomePedido").value = "";
                 document.getElementById("quantidadePedido").value = "";
                 document.getElementById("fornecedorPedido").value = "";
@@ -2958,50 +2247,36 @@
                 document.getElementById("dataHoraRecebimentoPedido").value = "";
                 document.getElementById("obsPedido").value = "";
             }
-
-            mostrarPreviewPedido();
             document.getElementById("dialogPedido").showModal();
         }
 
-        function fecharPedido() {
-            document.getElementById("dialogPedido").close();
-        }
+        function fecharPedido() { document.getElementById("dialogPedido").close(); }
 
         function salvarPedido() {
             const nome = document.getElementById("nomePedido").value.trim();
-            if (!nome) {
-                alert("Digite o nome do material/insumo.");
-                return;
-            }
+            if (!nome) { alert("Digite o nome do material."); return; }
 
             const id = document.getElementById("idPedido").value || gerarId();
-            const status = document.getElementById("statusPedido").value;
-            const recebedor = document.getElementById("recebedorPedido").value.trim();
-            const dataHoraRecebimento = document.getElementById("dataHoraRecebimentoPedido").value;
-
             const pedido = {
-                id: id,
-                nome: nome,
+                id, nome,
                 quantidade: document.getElementById("quantidadePedido").value.trim(),
                 fornecedor: document.getElementById("fornecedorPedido").value.trim(),
                 setor: document.getElementById("setorPedido").value,
                 dataPedido: document.getElementById("dataPedido").value,
-                status: status,
-                recebedor: recebedor,
-                dataHoraRecebimento: dataHoraRecebimento,
+                status: document.getElementById("statusPedido").value,
+                recebedor: document.getElementById("recebedorPedido").value.trim(),
+                dataHoraRecebimento: document.getElementById("dataHoraRecebimentoPedido").value,
                 observacoes: document.getElementById("obsPedido").value.trim(),
-                fotos: midiasPedido.filter(m => m.tipo === "foto").map(m => m.src),
-                video: midiasPedido.find(m => m.tipo === "video")?.src || null,
                 data: new Date().toISOString()
             };
 
             const existe = pedidosMateriais.find(x => x.id === id);
             if (existe) {
                 pedidosMateriais = pedidosMateriais.map(x => x.id === id ? pedido : x);
-                registrarHistorico(nome, "✏️ Pedido de material atualizado");
+                registrarHistorico(nome, "✏️ Pedido atualizado");
             } else {
                 pedidosMateriais.push(pedido);
-                registrarHistorico(nome, "📦 Pedido de material cadastrado");
+                registrarHistorico(nome, "📦 Pedido cadastrado");
             }
 
             salvarBanco();
@@ -3012,141 +2287,79 @@
         function mostrarPedidos() {
             const pesquisa = (document.getElementById("pesquisaPedido")?.value || "").toLowerCase();
             const lista = pedidosMateriais.filter(x =>
-                (x.nome + " " + x.quantidade + " " + x.fornecedor + " " + x.setor + " " + x.recebedor).toLowerCase()
-                .includes(pesquisa)
+                (x.nome + " " + x.fornecedor + " " + x.setor + " " + (x.recebedor||"")).toLowerCase().includes(pesquisa)
             );
 
             if (!lista.length) {
                 document.getElementById("listaPedidos").innerHTML = `
-                    <div class="card empty-state">
-                        <span class="emoji">📦</span>
-                        <span class="text">Nenhum pedido de material encontrado.</span>
-                    </div>
+                    <div class="card empty-state"><span class="emoji">📦</span><span>Nenhum pedido.</span></div>
                 `;
                 return;
             }
 
-            document.getElementById("listaPedidos").innerHTML =
-                lista.slice().reverse().map(x => {
-                    const statusClass = x.status === "Recebido" ? "badge-success" :
-                        x.status === "Comprado" ? "badge-info" :
-                        x.status === "Parcialmente recebido" ? "badge-warning" :
-                        x.status === "Cancelado" ? "badge-danger" : "badge-warning";
+            document.getElementById("listaPedidos").innerHTML = lista.slice().reverse().map(x => {
+                const statusClass = x.status === "Recebido" ? "badge-success" :
+                    x.status === "Comprado" ? "badge-info" :
+                    x.status === "Parcialmente recebido" ? "badge-warning" :
+                    x.status === "Cancelado" ? "badge-danger" : "badge-warning";
 
-                    const statusIcon = x.status === "Recebido" ? "✅" :
-                        x.status === "Comprado" ? "🛒" :
-                        x.status === "Parcialmente recebido" ? "⏳" :
-                        x.status === "Cancelado" ? "❌" : "⏰";
+                const recebidoInfo = x.recebedor ? `<br>👤 Recebido por: ${escapar(x.recebedor)}` : '';
 
-                    const fotoHtml = x.fotos?.[0] ?
-                        `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
-                        `<div class="imagem-placeholder">📦</div>`;
-
-                    const recebidoInfo = x.recebedor ?
-                        `<br>👤 Recebido por: ${escapar(x.recebedor)}` : '';
-                    const dataRecebimentoInfo = x.dataHoraRecebimento ?
-                        `<br>📅 Recebido em: ${new Date(x.dataHoraRecebimento).toLocaleString('pt-BR')}` : '';
-
-                    return `
-                        <div class="card item">
-                            ${fotoHtml}
-                            <div class="item-info">
-                                <div class="nome">${escapar(x.nome)}</div>
-                                <div class="detalhes">
-                                    Quantidade: ${escapar(x.quantidade || "-")}<br>
-                                    Fornecedor: ${escapar(x.fornecedor || "-")}<br>
-                                    Setor: ${escapar(x.setor)}<br>
-                                    Data do pedido: ${x.dataPedido ? new Date(x.dataPedido).toLocaleDateString('pt-BR') : "-"}
-                                    ${recebidoInfo}
-                                    ${dataRecebimentoInfo}
-                                </div>
-                                <div class="tags">
-                                    <span class="badge ${statusClass}">${statusIcon} ${escapar(x.status)}</span>
-                                    ${x.video ? `<span class="badge badge-info">🎬 Vídeo</span>` : ""}
-                                </div>
+                return `
+                    <div class="card item">
+                        <div class="imagem-placeholder">📦</div>
+                        <div class="item-info">
+                            <div class="nome">${escapar(x.nome)}</div>
+                            <div class="detalhes">
+                                Qtd: ${escapar(x.quantidade || "-")}<br>
+                                Fornecedor: ${escapar(x.fornecedor || "-")}<br>
+                                Setor: ${escapar(x.setor)}
+                                ${recebidoInfo}
                             </div>
-                            <div class="item-actions">
-                                <button class="btn-edit" onclick="abrirPedido('${x.id}')" title="Editar">✏️</button>
-                                ${x.status !== 'Recebido' && x.status !== 'Cancelado' ? 
-                                    `<button class="btn-success" onclick="marcarRecebido('${x.id}')" title="Marcar como recebido">✅</button>` : ''}
-                                <button class="btn-share" onclick="compartilharPedido('${x.id}')" title="WhatsApp">📲</button>
-                                <button class="btn-delete" onclick="excluirPedido('${x.id}')" title="Excluir">🗑️</button>
-                            </div>
+                            <div class="tags"><span class="badge ${statusClass}">${escapar(x.status)}</span></div>
                         </div>
-                    `;
-                }).join("");
+                        <div class="item-actions">
+                            <button onclick="abrirPedido('${x.id}')">✏️</button>
+                            ${x.status !== 'Recebido' && x.status !== 'Cancelado' ? 
+                                `<button onclick="marcarRecebido('${x.id}')">✅</button>` : ''}
+                            <button onclick="excluirPedido('${x.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
         }
 
         function marcarRecebido(id) {
             const pedido = pedidosMateriais.find(p => p.id === id);
             if (!pedido) return;
-
-            const recebedor = prompt("Digite o nome de quem está recebendo o material:", pedido.recebedor || "");
+            const recebedor = prompt("Nome de quem recebeu:", pedido.recebedor || "");
             if (recebedor === null) return;
-
-            const agora = new Date();
-            const dataHora = agora.toISOString().slice(0, 16);
 
             pedido.status = "Recebido";
             pedido.recebedor = recebedor.trim() || "Não informado";
-            pedido.dataHoraRecebimento = dataHora;
+            pedido.dataHoraRecebimento = new Date().toISOString().slice(0, 16);
 
             salvarBanco();
             registrarHistorico(pedido.nome, `✅ Material recebido por ${pedido.recebedor}`);
             mostrarTudo();
-
-            alert(`✅ Material "${pedido.nome}" marcado como recebido por ${pedido.recebedor}!`);
         }
 
         function excluirPedido(id) {
             const x = pedidosMateriais.find(p => p.id === id);
             if (!x) return;
-            if (confirm(`Excluir o pedido "${x.nome}"?`)) {
+            if (confirm(`Excluir "${x.nome}"?`)) {
                 pedidosMateriais = pedidosMateriais.filter(p => p.id !== id);
-                registrarHistorico(x.nome, "🗑️ Pedido de material excluído");
+                registrarHistorico(x.nome, "🗑️ Pedido excluído");
                 salvarBanco();
                 mostrarTudo();
             }
         }
 
-        function adicionarFotosPedido(arquivos) {
-            [...arquivos].forEach(arquivo => {
-                const leitor = new FileReader();
-                leitor.onload = function() {
-                    midiasPedido.push({ tipo: "foto", src: this.result });
-                    mostrarPreviewPedido();
-                };
-                leitor.readAsDataURL(arquivo);
-            });
-        }
-
-        function adicionarVideoPedido(arquivo) {
-            if (!arquivo) return;
-            const leitor = new FileReader();
-            leitor.onload = function() {
-                midiasPedido = midiasPedido.filter(m => m.tipo !== "video");
-                midiasPedido.push({ tipo: "video", src: this.result });
-                mostrarPreviewPedido();
-            };
-            leitor.readAsDataURL(arquivo);
-        }
-
-        function mostrarPreviewPedido() {
-            document.getElementById("previewPedido").innerHTML =
-                midiasPedido.map(m =>
-                    m.tipo === "foto" ?
-                    `<img src="${m.src}" alt="Preview">` :
-                    `<video src="${m.src}" controls></video>`
-                ).join("");
-        }
-
         /* =====================================================
-           MANUTENÇÃO EXTERNA
+           EXTERNAS
         ===================================================== */
         function abrirManutencaoExterna(id = null) {
-            midiasExterna = [];
             document.getElementById("idExterna").value = id || "";
-
             if (id) {
                 const x = manutencoesExternas.find(m => m.id === id);
                 if (!x) return;
@@ -3159,12 +2372,6 @@
                 document.getElementById("dataRetorno").value = x.dataRetorno || "";
                 document.getElementById("statusExterno").value = x.status;
                 document.getElementById("servicoExterno").value = x.servico || "";
-                if (x.fotos?.[0]) {
-                    midiasExterna = [{ tipo: "foto", src: x.fotos[0] }];
-                }
-                if (x.video) {
-                    midiasExterna.push({ tipo: "video", src: x.video });
-                }
             } else {
                 document.getElementById("tipoExterno").value = "Ferramenta";
                 document.getElementById("nomeExterno").value = "";
@@ -3176,27 +2383,20 @@
                 document.getElementById("statusExterno").value = "Enviado";
                 document.getElementById("servicoExterno").value = "";
             }
-
-            mostrarPreviewExterna();
             document.getElementById("dialogExterna").showModal();
         }
 
-        function fecharExterna() {
-            document.getElementById("dialogExterna").close();
-        }
+        function fecharExterna() { document.getElementById("dialogExterna").close(); }
 
         function salvarExterna() {
             const nome = document.getElementById("nomeExterno").value.trim();
-            if (!nome) {
-                alert("Digite o nome do item.");
-                return;
-            }
+            if (!nome) { alert("Digite o nome do item."); return; }
 
             const id = document.getElementById("idExterna").value || gerarId();
             const externo = {
-                id: id,
+                id,
                 tipo: document.getElementById("tipoExterno").value,
-                nome: nome,
+                nome,
                 codigo: document.getElementById("codigoExterno").value.trim(),
                 empresa: document.getElementById("empresaExterna").value.trim(),
                 responsavel: document.getElementById("responsavelExterno").value.trim(),
@@ -3204,8 +2404,6 @@
                 dataRetorno: document.getElementById("dataRetorno").value,
                 status: document.getElementById("statusExterno").value,
                 servico: document.getElementById("servicoExterno").value.trim(),
-                fotos: midiasExterna.filter(m => m.tipo === "foto").map(m => m.src),
-                video: midiasExterna.find(m => m.tipo === "video")?.src || null,
                 dataCadastro: new Date().toISOString()
             };
 
@@ -3228,95 +2426,48 @@
 
             if (!lista.length) {
                 document.getElementById("listaManutencaoExterna").innerHTML = `
-                    <div class="card empty-state">
-                        <span class="emoji">🚚</span>
-                        <span class="text">Nenhum item em manutenção externa.</span>
-                    </div>
+                    <div class="card empty-state"><span class="emoji">🚚</span><span>Nenhum item em manutenção externa.</span></div>
                 `;
                 return;
             }
 
-            document.getElementById("listaManutencaoExterna").innerHTML =
-                lista.slice().reverse().map(x => {
-                    const statusClass = x.status === "Retornado" ? "badge-success" :
-                        x.status === "Enviado" ? "badge-info" :
-                        x.status === "Em manutenção" ? "badge-warning" :
-                        x.status === "Aguardando orçamento" ? "badge-warning" :
-                        x.status === "Aguardando peça" ? "badge-danger" :
-                        x.status === "Pronto para retorno" ? "badge-info" : "badge-warning";
+            document.getElementById("listaManutencaoExterna").innerHTML = lista.slice().reverse().map(x => {
+                const statusClass = x.status === "Retornado" ? "badge-success" :
+                    x.status === "Enviado" ? "badge-info" :
+                    x.status === "Em manutenção" ? "badge-warning" :
+                    x.status === "Aguardando peça" ? "badge-danger" : "badge-warning";
 
-                    const fotoHtml = x.fotos?.[0] ?
-                        `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
-                        `<div class="imagem-placeholder">🚚</div>`;
-
-                    return `
-                        <div class="card item">
-                            ${fotoHtml}
-                            <div class="item-info">
-                                <div class="nome">${escapar(x.nome)}</div>
-                                <div class="detalhes">
-                                    Tipo: ${escapar(x.tipo)}<br>
-                                    Código: ${escapar(x.codigo || "-")}<br>
-                                    Empresa: ${escapar(x.empresa || "-")}<br>
-                                    Responsável: ${escapar(x.responsavel || "-")}
-                                    ${x.dataSaida ? `<br>📅 Saída: ${new Date(x.dataSaida).toLocaleDateString('pt-BR')}` : ''}
-                                    ${x.dataRetorno ? `<br>📅 Previsão: ${new Date(x.dataRetorno).toLocaleDateString('pt-BR')}` : ''}
-                                </div>
-                                <div class="tags">
-                                    <span class="badge ${statusClass}">${escapar(x.status)}</span>
-                                    ${x.video ? `<span class="badge badge-info">🎬 Vídeo</span>` : ""}
-                                </div>
+                return `
+                    <div class="card item">
+                        <div class="imagem-placeholder">🚚</div>
+                        <div class="item-info">
+                            <div class="nome">${escapar(x.nome)}</div>
+                            <div class="detalhes">
+                                Tipo: ${escapar(x.tipo)}<br>
+                                Empresa: ${escapar(x.empresa || "-")}<br>
+                                Responsável: ${escapar(x.responsavel || "-")}
+                                ${x.dataSaida ? `<br>📅 Saída: ${new Date(x.dataSaida).toLocaleDateString('pt-BR')}` : ''}
                             </div>
-                            <div class="item-actions">
-                                <button class="btn-edit" onclick="abrirManutencaoExterna('${x.id}')" title="Editar">✏️</button>
-                                <button class="btn-share" onclick="compartilharManutencao('${x.id}')" title="WhatsApp">📲</button>
-                                <button class="btn-delete" onclick="excluirManutencao('${x.id}')" title="Excluir">🗑️</button>
-                            </div>
+                            <div class="tags"><span class="badge ${statusClass}">${escapar(x.status)}</span></div>
                         </div>
-                    `;
-                }).join("");
+                        <div class="item-actions">
+                            <button onclick="abrirManutencaoExterna('${x.id}')">✏️</button>
+                            <button onclick="excluirManutencao('${x.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
         }
 
         function excluirManutencao(id) {
             const x = manutencoesExternas.find(m => m.id === id);
             if (!x) return;
-            if (confirm(`Excluir o item "${x.nome}"?`)) {
+            if (confirm(`Excluir "${x.nome}"?`)) {
                 manutencoesExternas = manutencoesExternas.filter(m => m.id !== id);
                 registrarHistorico(x.nome, "🗑️ Manutenção externa excluída");
                 salvarBanco();
                 mostrarTudo();
             }
-        }
-
-        function adicionarFotoExterna(arquivo) {
-            if (!arquivo) return;
-            const leitor = new FileReader();
-            leitor.onload = function() {
-                midiasExterna = midiasExterna.filter(m => m.tipo !== "foto");
-                midiasExterna.push({ tipo: "foto", src: this.result });
-                mostrarPreviewExterna();
-            };
-            leitor.readAsDataURL(arquivo);
-        }
-
-        function adicionarVideoExterno(arquivo) {
-            if (!arquivo) return;
-            const leitor = new FileReader();
-            leitor.onload = function() {
-                midiasExterna = midiasExterna.filter(m => m.tipo !== "video");
-                midiasExterna.push({ tipo: "video", src: this.result });
-                mostrarPreviewExterna();
-            };
-            leitor.readAsDataURL(arquivo);
-        }
-
-        function mostrarPreviewExterna() {
-            document.getElementById("previewExterna").innerHTML =
-                midiasExterna.map(m =>
-                    m.tipo === "foto" ?
-                    `<img src="${m.src}" alt="Preview">` :
-                    `<video src="${m.src}" controls></video>`
-                ).join("");
         }
 
         /* =====================================================
@@ -3326,13 +2477,12 @@
             cameraDestino = destino;
             try {
                 cameraStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "environment" },
-                    audio: false
+                    video: { facingMode: "environment" }, audio: false
                 });
                 document.getElementById("camera").srcObject = cameraStream;
                 document.getElementById("dialogCamera").showModal();
             } catch (e) {
-                alert("Não foi possível acessar a câmera. Verifique as permissões.");
+                alert("Não foi possível acessar a câmera.");
             }
         }
 
@@ -3358,14 +2508,7 @@
             } else if (cameraDestino === "ativo") {
                 midiasAtivo = [{ tipo: "foto", src: imagem }];
                 mostrarPreviewAtivo();
-            } else if (cameraDestino === "criado") {
-                midiasCriado.push({ tipo: "foto", src: imagem });
-                mostrarPreviewCriado();
-            } else if (cameraDestino === "pedido") {
-                midiasPedido.push({ tipo: "foto", src: imagem });
-                mostrarPreviewPedido();
             }
-
             fecharCamera();
         }
 
@@ -3377,7 +2520,7 @@
                 document.getElementById("listaHistorico").innerHTML = `
                     <div class="empty-state" style="padding:20px;">
                         <span class="emoji" style="font-size:32px;">📭</span>
-                        <span class="text">Nenhum registro no histórico.</span>
+                        <span>Nenhum registro.</span>
                     </div>
                 `;
                 return;
@@ -3396,7 +2539,7 @@
         }
 
         /* =====================================================
-           WHATSAPP - COMPARTILHAMENTOS
+           WHATSAPP
         ===================================================== */
         function abrirWhatsApp(texto) {
             window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
@@ -3405,79 +2548,72 @@
         function compartilharFerramenta(id) {
             const x = ferramentas.find(f => f.id === id);
             if (!x) return;
-            let texto =
-                `🛠️ *Ferramenta*\nNome: ${x.nome}\nCódigo: ${x.codigo || "-"}\nSetor: ${x.setor}\nStatus: ${x.status}\nObs: ${x.observacoes || "-"}`;
-            if (x.status === "Emprestada" && x.dataEmprestimo) {
-                const alarme = alarmes.find(a => a.ferramentaId === x.id);
-                if (alarme) {
-                    texto += `\n📅 Emprestado: ${new Date(x.dataEmprestimo).toLocaleString('pt-BR')}`;
-                    texto += `\n⏰ Prazo: ${new Date(alarme.dataLimite).toLocaleString('pt-BR')}`;
-                }
-            }
-            abrirWhatsApp(texto);
+            abrirWhatsApp(`🛠️ *Ferramenta*\nNome: ${x.nome}\nCódigo: ${x.codigo || "-"}\nSetor: ${x.setor}\nStatus: ${x.status}\nObs: ${x.observacoes || "-"}`);
         }
 
         function compartilharAtivo(id) {
             const x = ativos.find(a => a.id === id);
             if (!x) return;
-            const texto =
-                `🏭 *Ativo*\nNome: ${x.nome}\nTAG: ${x.codigo || "-"}\nTipo: ${x.tipo}\nSetor: ${x.setor}\nStatus: ${x.status}\nObs: ${x.observacoes || "-"}`;
-            abrirWhatsApp(texto);
-        }
-
-        function compartilharCriado(id) {
-            const x = ativosCriados.find(a => a.id === id);
-            if (!x) return;
-            const texto =
-                `🔨 *Ativo Criado pela Manutenção*\nNome: ${x.nome}\nCódigo: ${x.codigo || "-"}\nTipo: ${x.tipo}\nSetor: ${x.setor}\nResponsável: ${x.responsavel || "-"}\nStatus: ${x.status}\nMateriais: ${x.materiais || "-"}\nObs: ${x.observacoes || "-"}`;
-            abrirWhatsApp(texto);
-        }
-
-        function compartilharPedido(id) {
-            const x = pedidosMateriais.find(p => p.id === id);
-            if (!x) return;
-            const texto =
-                `📦 *Pedido de Material*\nMaterial: ${x.nome}\nQuantidade: ${x.quantidade || "-"}\nFornecedor: ${x.fornecedor || "-"}\nSetor: ${x.setor}\nData: ${x.dataPedido ? new Date(x.dataPedido).toLocaleDateString('pt-BR') : "-"}\nStatus: ${x.status}\nRecebedor: ${x.recebedor || "Não recebido"}\nObs: ${x.observacoes || "-"}`;
-            abrirWhatsApp(texto);
-        }
-
-        function compartilharManutencao(id) {
-            const x = manutencoesExternas.find(m => m.id === id);
-            if (!x) return;
-            const texto =
-                `🚚 *Manutenção Externa*\nItem: ${x.nome}\nTipo: ${x.tipo}\nCódigo: ${x.codigo || "-"}\nEmpresa: ${x.empresa || "-"}\nResponsável: ${x.responsavel || "-"}\nSaída: ${x.dataSaida || "-"}\nRetorno: ${x.dataRetorno || "-"}\nStatus: ${x.status}\nServiço: ${x.servico || "-"}`;
-            abrirWhatsApp(texto);
+            abrirWhatsApp(`🏭 *Ativo*\nNome: ${x.nome}\nTAG: ${x.codigo || "-"}\nTipo: ${x.tipo}\nSetor: ${x.setor}\nStatus: ${x.status}`);
         }
 
         function compartilharRelatorio() {
             let texto = `📊 *RELATÓRIO DE CONTROLE*\n\n`;
-            texto += `🔧 *Ferramentas*\nTotal: ${ferramentas.length}\nDisponíveis: ${ferramentas.filter(x => x.status === "Disponível").length}\nEmprestadas: ${ferramentas.filter(x => x.status === "Emprestada").length}\n\n`;
-            texto += `⏰ *Alarmes Ativos*\n${alarmes.filter(a => a.ativo).length} ferramentas com prazo de devolução\n\n`;
-            texto +=
-                `📦 *Pedidos de Materiais*\nTotal: ${pedidosMateriais.length}\nPendentes: ${pedidosMateriais.filter(x => x.status === "Pendente" || x.status === "Parcialmente recebido").length}\nRecebidos: ${pedidosMateriais.filter(x => x.status === "Recebido").length}\n\n`;
-            texto += `🏭 *Ativos*\nTotal: ${ativos.length}\nEm manutenção: ${ativos.filter(x => x.status === "Manutenção" || x.status === "Manutenção Externa").length}\n\n`;
-            texto += `🔨 *Ativos Criados pela Manutenção*\nTotal: ${ativosCriados.length}\n\n`;
-            texto += `🚚 *Manutenção Externa*\nItens fora: ${manutencoesExternas.filter(x => x.status !== "Retornado").length}\n\n`;
-            texto += `📍 *Setores*\n`;
-            SETORES.forEach(setor => {
-                const qtd = ferramentas.filter(x => x.setor === setor).length;
-                texto += `${setor}: ${qtd} ferramentas\n`;
-            });
-
-            const pendentes = pedidosMateriais.filter(x => x.status === "Pendente" || x.status ===
-            "Parcialmente recebido");
-            if (pendentes.length > 0) {
-                texto += `\n⏳ *Pedidos Pendentes*\n`;
-                pendentes.forEach(p => {
-                    texto += `- ${p.nome} (${p.setor})\n`;
-                });
-            }
-
+            texto += `🔧 Ferramentas: ${ferramentas.length}\n`;
+            texto += `🟢 Disponíveis: ${ferramentas.filter(x => x.status === "Disponível").length}\n`;
+            texto += `📤 Emprestadas: ${ferramentas.filter(x => x.status === "Emprestada").length}\n`;
+            texto += `🧰 Em manutenção: ${ferramentas.filter(x => x.status === "Manutenção").length}\n`;
+            texto += `⏰ Alarmes ativos: ${alarmes.filter(a => a.ativo).length}\n\n`;
+            texto += `📦 Pedidos: ${pedidosMateriais.length}\n`;
+            texto += `🏭 Ativos: ${ativos.length}\n`;
+            texto += `🔨 Criados: ${ativosCriados.length}\n`;
+            texto += `🚚 Externas: ${manutencoesExternas.length}\n\n`;
+            texto += `_Use o botão de PDF para relatórios completos._`;
             abrirWhatsApp(texto);
         }
 
         /* =====================================================
-           INICIAR APLICAÇÃO
+           REDE
+        ===================================================== */
+        function atualizarStatusRede() {
+            const online = navigator.onLine;
+            const badge = document.getElementById('statusRede');
+            if (badge) {
+                badge.textContent = online ? '🟢 Online' : '🔴 Offline';
+                badge.style.color = online ? 'var(--verde)' : 'var(--vermelho)';
+            }
+        }
+
+        window.addEventListener('online', atualizarStatusRede);
+        window.addEventListener('offline', atualizarStatusRede);
+
+        /* =====================================================
+           PWA — INSTALAÇÃO
+        ===================================================== */
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.createElement('button');
+            btn.id = 'btnInstalarApp';
+            btn.innerHTML = '📲 Instalar App';
+            document.body.appendChild(btn);
+            btn.onclick = async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt = null;
+                    btn.remove();
+                }
+            };
+        });
+
+        window.addEventListener('appinstalled', () => {
+            const b = document.getElementById('btnInstalarApp');
+            if (b) b.remove();
+        });
+
+        /* =====================================================
+           INICIAR
         ===================================================== */
         document.addEventListener("DOMContentLoaded", iniciar);
     </script>
