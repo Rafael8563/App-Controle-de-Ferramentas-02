@@ -1,2621 +1,562 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Ferramentas 3D</title>
-    
-    <link rel="manifest" href="./manifest.json">
-
-    <!-- jsPDF + AutoTable para gerar PDFs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(() => console.log('✅ Service Worker registrado!'))
-                    .catch((e) => console.log('❌ Falha SW:', e));
-            });
-        }
-    </script>
-
-    <style>
-        :root {
-            --fundo1: #060d17;
-            --fundo2: #0a1a2e;
-            --fundo3: #0d2a3d;
-            --card: rgba(255, 255, 255, 0.06);
-            --borda: rgba(255, 255, 255, 0.10);
-            --texto: #ffffff;
-            --cinza: #b0c8d9;
-            --verde: #2ddb7a;
-            --amarelo: #ffd14a;
-            --vermelho: #ff6b82;
-            --azul: #1eb8c9;
-            --azul-claro: #6ae2ef;
-            --roxo: #7c5cbf;
-            --laranja: #f5a623;
-            --rosa: #ff6b9d;
-            --sombra: 0 15px 50px rgba(0, 0, 0, 0.5);
-            --radius: 16px;
-            --transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            color: var(--texto);
-            min-height: 100vh;
-            overflow-x: hidden;
-            background: var(--fundo1);
-            position: relative;
-            perspective: 1400px;
-        }
-
-        .bg-scene {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            overflow: hidden;
-            background:
-                radial-gradient(ellipse at 20% 50%, rgba(30, 184, 201, 0.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 20%, rgba(124, 92, 191, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 80%, rgba(255, 107, 157, 0.05) 0%, transparent 50%),
-                linear-gradient(180deg, #060d17 0%, #0a1a2e 40%, #0d2a3d 100%);
-        }
-
-        .app-wrapper { position: relative; z-index: 1; transform-style: preserve-3d; }
-
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            padding: 12px 20px 8px;
-            background: rgba(3, 10, 20, 0.92);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border-bottom: 1px solid var(--borda);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            transform-style: preserve-3d;
-            transition: transform 0.5s ease;
-        }
-
-        .header-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .logo-area { display: flex; align-items: center; gap: 14px; }
-
-        .logo-icon {
-            width: 48px; height: 48px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, var(--azul), var(--roxo), var(--rosa), var(--amarelo));
-            background-size: 300% 300%;
-            display: grid; place-items: center;
-            font-size: 24px;
-            box-shadow: 0 4px 30px rgba(30, 184, 201, 0.3);
-            animation: logoSpin3D 6s ease-in-out infinite alternate;
-            position: relative;
-        }
-
-        @keyframes logoSpin3D {
-            0% { background-position: 0% 50%; transform: rotateY(0deg); }
-            50% { transform: rotateY(180deg); }
-            100% { background-position: 100% 50%; transform: rotateY(360deg); }
-        }
-
-        .logo-text h1 {
-            font-size: 22px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff 30%, var(--azul-claro), var(--roxo), var(--rosa));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            background-size: 300% 300%;
-            animation: textWiggle 6s ease-in-out infinite alternate;
-        }
-
-        @keyframes textWiggle {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-
-        .subtitulo { font-size: 12px; color: var(--cinza); opacity: 0.7; }
-
-        #statusRede {
-            font-size: 11px; font-weight: 600;
-            padding: 4px 12px;
-            border-radius: 20px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--borda);
-            white-space: nowrap;
-        }
-
-        .alarme-container {
-            position: fixed;
-            top: 80px; right: 20px;
-            z-index: 1000;
-            max-width: 400px;
-            width: 100%;
-            pointer-events: none;
-        }
-
-        .alarme-notificacao {
-            background: rgba(255, 107, 130, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 107, 130, 0.3);
-            border-radius: 16px;
-            padding: 18px 20px;
-            margin-bottom: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-            animation: slideInAlarme 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: auto;
-        }
-
-        .alarme-notificacao.urgente {
-            background: rgba(255, 0, 0, 0.9);
-            animation: pulseAlarme 1s ease-in-out infinite alternate;
-        }
-
-        @keyframes slideInAlarme {
-            from { opacity: 0; transform: translateX(100px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes pulseAlarme {
-            0% { transform: scale(1); box-shadow: 0 20px 60px rgba(255,0,0,0.4); }
-            100% { transform: scale(1.02); box-shadow: 0 20px 80px rgba(255,0,0,0.6); }
-        }
-
-        .alarme-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-        .alarme-titulo { font-weight: 700; font-size: 16px; }
-        .alarme-tempo { font-size: 20px; font-weight: 800; }
-        .alarme-detalhes { font-size: 13px; margin-top: 6px; line-height: 1.4; }
-        .alarme-acoes { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
-        .alarme-acoes button {
-            padding: 6px 16px; font-size: 12px;
-            border: none; border-radius: 20px;
-            cursor: pointer; font-weight: 600;
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-
-        nav {
-            display: flex; gap: 5px;
-            overflow-x: auto;
-            padding-top: 10px;
-            scrollbar-width: thin;
-        }
-
-        nav button {
-            white-space: nowrap;
-            border: none;
-            background: transparent;
-            color: var(--cinza);
-            border-radius: 30px;
-            padding: 8px 18px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        nav button:hover {
-            color: #fff;
-            background: var(--card);
-            transform: translateY(-3px);
-        }
-
-        nav button.ativo {
-            color: #fff;
-            background: linear-gradient(135deg, var(--azul), var(--roxo), var(--rosa));
-            background-size: 200% 200%;
-            animation: btnGradient 3s ease-in-out infinite alternate;
-            box-shadow: 0 4px 35px rgba(30, 184, 201, 0.3);
-        }
-
-        @keyframes btnGradient {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-
-        nav button.alarme-badge::after {
-            content: attr(data-count);
-            position: absolute;
-            top: -4px; right: -4px;
-            background: var(--vermelho);
-            color: #fff;
-            font-size: 10px;
-            font-weight: 700;
-            width: 20px; height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .container {
-            max-width: 1260px;
-            margin: auto;
-            padding: 18px 20px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--card);
-            border: 1px solid var(--borda);
-            border-radius: var(--radius);
-            padding: 22px 24px;
-            box-shadow: var(--sombra);
-            backdrop-filter: blur(16px);
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
-        }
-
-        .card h2, .card h3 { margin-top: 0; font-weight: 600; }
-        .card h3 {
-            font-size: 13px;
-            color: var(--cinza);
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            font-weight: 500;
-            opacity: 0.7;
-        }
-
-        .estatistica { text-align: center; padding: 4px 2px; }
-        .estatistica .icon { font-size: 34px; display: block; margin-bottom: 2px; }
-        .estatistica .label {
-            font-size: 11px;
-            color: var(--cinza);
-            opacity: 0.7;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        .estatistica strong {
-            display: block;
-            font-size: 40px;
-            font-weight: 800;
-            margin-top: 2px;
-            background: linear-gradient(135deg, #fff 20%, var(--azul-claro), var(--roxo), var(--rosa));
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.1;
-            animation: counterRainbow 4s ease-in-out infinite alternate;
-        }
-
-        @keyframes counterRainbow {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-
-        button {
-            border: none;
-            background: var(--card);
-            color: white;
-            border-radius: 30px;
-            padding: 9px 22px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid var(--borda);
-        }
-
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--azul), var(--roxo));
-            border-color: transparent;
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #1a8a5a, #2ddb7a);
-            border-color: transparent;
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #a82f4a, #ff6b82);
-            border-color: transparent;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border-color: var(--borda);
-        }
-
-        .btn-pdf {
-            background: linear-gradient(135deg, #d32f2f, #ff5722);
-            border-color: transparent;
-            box-shadow: 0 4px 20px rgba(211, 47, 47, 0.3);
-        }
-
-        .btn-pdf:hover {
-            box-shadow: 0 8px 40px rgba(211, 47, 47, 0.5);
-        }
-
-        .btn-created {
-            background: linear-gradient(135deg, #2ddb7a, #1eb8c9);
-            border-color: transparent;
-        }
-
-        .btn-pedido {
-            background: linear-gradient(135deg, #f5a623, #ff6b9d);
-            border-color: transparent;
-        }
-
-        .item {
-            display: grid;
-            grid-template-columns: 90px 1fr auto;
-            gap: 14px;
-            align-items: center;
-            padding: 8px 10px;
-        }
-
-        .imagem-mini {
-            width: 90px; height: 72px;
-            object-fit: cover;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--borda);
-        }
-
-        .imagem-placeholder {
-            width: 90px; height: 72px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px dashed var(--borda);
-            display: grid; place-items: center;
-            font-size: 32px;
-            color: var(--cinza);
-            opacity: 0.5;
-        }
-
-        .item-info .nome { font-weight: 600; font-size: 15px; }
-        .item-info .detalhes { color: var(--cinza); font-size: 12px; line-height: 1.5; margin: 2px 0 4px; opacity: 0.7; }
-        .item-info .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-
-        .item-actions { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
-        .item-actions button {
-            padding: 5px 10px;
-            font-size: 13px;
-            border-radius: 30px;
-            min-width: 34px;
-            justify-content: center;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 3px 12px;
-            margin: 2px 2px 2px 0;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 500;
-            border: 1px solid transparent;
-        }
-
-        .badge-success { background: rgba(45, 219, 122, 0.15); color: var(--verde); }
-        .badge-warning { background: rgba(255, 209, 74, 0.12); color: var(--amarelo); }
-        .badge-danger { background: rgba(255, 107, 130, 0.12); color: var(--vermelho); }
-        .badge-info { background: rgba(30, 184, 201, 0.12); color: var(--azul-claro); }
-        .badge-created { background: rgba(45, 219, 122, 0.15); color: var(--verde); }
-        .badge-pedido { background: rgba(245, 166, 35, 0.15); color: var(--laranja); }
-        .badge-tempo { background: rgba(255, 209, 74, 0.15); color: var(--amarelo); font-weight: 600; }
-        .badge-tempo.urgente { background: rgba(255, 107, 130, 0.2); color: var(--vermelho); }
-        .badge-manutencao { background: rgba(255, 107, 130, 0.15); color: var(--vermelho); }
-
-        dialog {
-            width: min(800px, 94vw);
-            padding: 0;
-            border: 1px solid var(--borda);
-            border-radius: 24px;
-            background: rgba(9, 23, 39, 0.97);
-            backdrop-filter: blur(40px);
-            color: white;
-            box-shadow: 0 50px 120px rgba(0, 0, 0, 0.9);
-            animation: modalBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes modalBounce {
-            from { opacity: 0; transform: scale(0.8) translateY(80px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        dialog::backdrop {
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(12px);
-        }
-
-        .modal { padding: 26px 30px; }
-
-        .modal h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 18px;
-            background: linear-gradient(135deg, #fff 30%, var(--azul-claro), var(--roxo), var(--rosa));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .modal label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            margin: 12px 0 4px;
-            color: var(--cinza);
-            opacity: 0.7;
-        }
-
-        .modal input,
-        .modal select,
-        .modal textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1px solid var(--borda);
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            font-size: 14px;
-            font-family: inherit;
-            outline: none;
-        }
-
-        .modal input:focus,
-        .modal select:focus,
-        .modal textarea:focus {
-            border-color: var(--azul);
-            box-shadow: 0 0 0 4px rgba(30, 184, 201, 0.08);
-        }
-
-        .modal .acoes {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-
-        .modal .preview {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .modal .preview img,
-        .modal .preview video {
-            max-width: 150px;
-            max-height: 150px;
-            border-radius: 12px;
-            border: 1px solid var(--borda);
-            object-fit: cover;
-        }
-
-        .setor-card .count {
-            font-size: 28px;
-            font-weight: 700;
-            margin: 2px 0;
-            background: linear-gradient(135deg, #fff 30%, var(--azul-claro), var(--amarelo));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .historico-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--borda);
-        }
-
-        .historico-item .acao { font-weight: 500; font-size: 14px; }
-        .historico-item .data { font-size: 11px; color: var(--cinza); opacity: 0.5; white-space: nowrap; }
-
-        .hidden { display: none !important; }
-        .muted { color: var(--cinza); }
-        .text-sm { font-size: 12px; }
-        .mt-10 { margin-top: 10px; }
-        .mt-16 { margin-top: 16px; }
-        .mt-20 { margin-top: 20px; }
-        .mb-10 { margin-bottom: 10px; }
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 22px 0 16px;
-        }
-
-        .section-header h2 {
-            font-weight: 700;
-            font-size: 19px;
-            background: linear-gradient(135deg, #fff 30%, var(--azul-claro), var(--roxo));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--cinza);
-        }
-
-        .empty-state .emoji {
-            font-size: 52px;
-            display: block;
-            margin-bottom: 14px;
-            opacity: 0.4;
-        }
-
-        .search-bar input {
-            width: 100%;
-            padding: 11px 16px;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.4);
-            color: white;
-            outline: none;
-            font-size: 14px;
-            border: 1px solid var(--borda);
-            margin: 4px 0 10px;
-            font-family: inherit;
-        }
-
-        .search-bar input:focus {
-            border-color: var(--azul);
-            box-shadow: 0 0 0 4px rgba(30, 184, 201, 0.08);
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px 20px;
-            font-size: 12px;
-            color: var(--cinza);
-            opacity: 0.3;
-            border-top: 1px solid var(--borda);
-            margin-top: 28px;
-        }
-
-        #btnInstalarApp {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            background: linear-gradient(135deg, var(--azul), var(--roxo));
-            color: white;
-            padding: 12px 28px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 15px;
-            box-shadow: 0 8px 40px rgba(30, 184, 201, 0.4);
-            animation: pulseInstalar 2s ease-in-out infinite;
-        }
-
-        @keyframes pulseInstalar {
-            0%, 100% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.05); }
-        }
-
-        /* =====================================================
-           ÁREA DE RELATÓRIOS PDF
-        ===================================================== */
-        .pdf-panel {
-            background: linear-gradient(135deg, rgba(211, 47, 47, 0.08), rgba(255, 87, 34, 0.05));
-            border: 1px solid rgba(255, 87, 34, 0.2);
-            border-radius: var(--radius);
-            padding: 22px 24px;
-            margin-top: 16px;
-        }
-
-        .pdf-panel h2 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            background: linear-gradient(135deg, #ff5722, #ff6b9d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .pdf-panel p {
-            font-size: 13px;
-            color: var(--cinza);
-            opacity: 0.7;
-            margin-bottom: 14px;
-        }
-
-        .pdf-botoes {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-        }
-
-        .pdf-botoes button {
-            justify-content: center;
-            padding: 12px 18px;
-            font-size: 13px;
-        }
-
-        @media (max-width: 768px) {
-            .item { grid-template-columns: 1fr; gap: 8px; text-align: center; }
-            .item .imagem-mini, .item .imagem-placeholder { width: 100%; height: 130px; margin: 0 auto; max-width: 200px; }
-            .item-actions { justify-content: center; }
-            .modal { padding: 16px 18px; }
-            h1 { font-size: 17px; }
-            .logo-icon { width: 38px; height: 38px; font-size: 20px; }
-            .estatistica strong { font-size: 30px; }
-            .grid { grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 12px; }
-            nav button { font-size: 11.5px; padding: 6px 12px; }
-            .alarme-container { top: 70px; right: 10px; max-width: calc(100% - 20px); }
-        }
-
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 10px; }
-    </style>
-</head>
-<body>
-
-    <div class="bg-scene"></div>
-    <div id="alarmeContainer" class="alarme-container"></div>
-
-    <div class="app-wrapper">
-        <header>
-            <div class="header-top">
-                <div class="logo-area">
-                    <div class="logo-icon">🛠</div>
-                    <div class="logo-text">
-                        <h1>Controle 3D</h1>
-                        <div class="subtitulo">Ferramentas • Ativos • Manutenção</div>
-                    </div>
-                </div>
-                <div id="statusRede">🟢 Online</div>
-            </div>
-            <nav>
-                <button class="ativo" data-tela="painel">📊 Painel</button>
-                <button data-tela="ferramentas" class="alarme-badge" data-count="0">🔧 Ferramentas</button>
-                <button data-tela="manutencao">🧰 Em Manutenção</button>
-                <button data-tela="ativos">🏭 Ativos</button>
-                <button data-tela="criados">🔨 Criados</button>
-                <button data-tela="pedidos">📦 Pedidos</button>
-                <button data-tela="externa">🚚 Externa</button>
-                <button data-tela="setores">📍 Setores</button>
-                <button data-tela="historico">📋 Histórico</button>
-            </nav>
-        </header>
-
-        <main class="container">
-
-            <!-- =============================================
-            PAINEL
-            ============================================= -->
-            <section id="painel">
-                <div id="estatisticas" class="grid"></div>
-
-                <div class="card mt-20">
-                    <h2>🏭 Resumo da Empresa</h2>
-                    <div id="resumoEmpresa" style="display:flex;gap:24px;flex-wrap:wrap;margin-top:8px;"></div>
-                </div>
-
-                <!-- =============================================
-                PAINEL DE RELATÓRIOS PDF
-                ============================================= -->
-                <div class="pdf-panel mt-20">
-                    <h2>📄 Relatórios em PDF</h2>
-                    <p>Gere relatórios profissionais em PDF e envie diretamente pelo WhatsApp.</p>
-                    <div class="pdf-botoes">
-                        <button class="btn-pdf" onclick="gerarPDFCompleto()">📊 Relatório Geral (PDF)</button>
-                        <button class="btn-pdf" onclick="gerarPDFFerramentas()">🔧 Ferramentas (PDF)</button>
-                        <button class="btn-pdf" onclick="gerarPDFManutencao()">🧰 Em Manutenção (PDF)</button>
-                        <button class="btn-pdf" onclick="gerarPDFAtivos()">🏭 Ativos (PDF)</button>
-                        <button class="btn-pdf" onclick="gerarPDFCriados()">🔨 Criados (PDF)</button>
-                        <button class="btn-pdf" onclick="gerarPDFPedidos()">📦 Pedidos (PDF)</button>
-                        <button class="btn-pdf" onclick="gerarPDFExternas()">🚚 Externas (PDF)</button>
-                        <button class="btn-pdf" onclick="gerarPDFSetores()">📍 Setores (PDF)</button>
-                    </div>
-                </div>
-
-                <div class="card mt-16">
-                    <h2>📲 Compartilhar Relatório Rápido</h2>
-                    <div class="acoes">
-                        <button class="btn-success" onclick="compartilharRelatorio()">📱 WhatsApp (texto)</button>
-                        <button class="btn-outline" onclick="window.print()">🖨️ Imprimir</button>
-                    </div>
-                </div>
-
-                <div class="section-header">
-                    <h2>📍 Setores</h2>
-                    <button class="btn-primary" onclick="abrirFerramenta()">＋ Nova ferramenta</button>
-                </div>
-                <div id="cartoesSetores" class="grid"></div>
-            </section>
-
-            <!-- =============================================
-            FERRAMENTAS
-            ============================================= -->
-            <section id="ferramentas" class="hidden">
-                <div class="flex-between">
-                    <h2 style="font-weight:700;font-size:18px;">🔧 Ferramentas</h2>
-                    <button class="btn-primary" onclick="abrirFerramenta()">＋ Cadastrar</button>
-                </div>
-                <div class="search-bar">
-                    <input id="pesquisaFerramenta" placeholder="🔎 Pesquisar ferramenta, código ou setor..." oninput="mostrarFerramentas()">
-                </div>
-                <div id="listaFerramentas" class="grid"></div>
-            </section>
-
-            <!-- =============================================
-            🧰 NOVA ABA — FERRAMENTAS EM MANUTENÇÃO
-            ============================================= -->
-            <section id="manutencao" class="hidden">
-                <div class="flex-between">
-                    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,#fff 30%,var(--vermelho),var(--laranja));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🧰 Ferramentas em Manutenção</h2>
-                    <button class="btn-pdf" onclick="gerarPDFManutencao()">📄 Gerar PDF</button>
-                </div>
-                <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--vermelho);">
-                    <p class="muted text-sm" style="margin:0;opacity:0.75;">
-                        🔴 Ferramentas indisponíveis — em manutenção interna ou aguardando reparo.
-                    </p>
-                </div>
-                <div class="search-bar">
-                    <input id="pesquisaManutencao" placeholder="🔎 Pesquisar ferramenta em manutenção..." oninput="mostrarFerramentasManutencao()">
-                </div>
-                <div id="listaFerramentasManutencao" class="grid"></div>
-            </section>
-
-            <!-- =============================================
-            ATIVOS
-            ============================================= -->
-            <section id="ativos" class="hidden">
-                <div class="flex-between">
-                    <h2 style="font-weight:700;font-size:18px;">🏭 Ativos da Empresa</h2>
-                    <button class="btn-primary" onclick="abrirAtivo()">＋ Novo ativo</button>
-                </div>
-                <div class="search-bar">
-                    <input id="pesquisaAtivo" placeholder="🔎 Pesquisar ativo, patrimônio ou setor..." oninput="mostrarAtivos()">
-                </div>
-                <div id="listaAtivos" class="grid"></div>
-            </section>
-
-            <!-- =============================================
-            CRIADOS
-            ============================================= -->
-            <section id="criados" class="hidden">
-                <div class="flex-between">
-                    <h2 style="font-weight:700;font-size:18px;">🔨 Ativos Criados pela Manutenção</h2>
-                    <button class="btn-created" onclick="abrirCriado()">＋ Criar Ativo</button>
-                </div>
-                <div class="search-bar">
-                    <input id="pesquisaCriado" placeholder="🔎 Pesquisar ativo, código ou responsável..." oninput="mostrarCriados()">
-                </div>
-                <div id="listaCriados" class="grid"></div>
-            </section>
-
-            <!-- =============================================
-            PEDIDOS
-            ============================================= -->
-            <section id="pedidos" class="hidden">
-                <div class="flex-between">
-                    <h2 style="font-weight:700;font-size:18px;">📦 Pedidos de Materiais</h2>
-                    <button class="btn-pedido" onclick="abrirPedido()">＋ Novo Pedido</button>
-                </div>
-                <div class="search-bar">
-                    <input id="pesquisaPedido" placeholder="🔎 Pesquisar pedido, material, fornecedor..." oninput="mostrarPedidos()">
-                </div>
-                <div id="listaPedidos" class="grid"></div>
-            </section>
-
-            <!-- =============================================
-            EXTERNA
-            ============================================= -->
-            <section id="externa" class="hidden">
-                <div class="flex-between">
-                    <h2 style="font-weight:700;font-size:18px;">🚚 Manutenção Externa</h2>
-                    <button class="btn-primary" onclick="abrirManutencaoExterna()">＋ Enviar</button>
-                </div>
-                <div id="listaManutencaoExterna" class="grid"></div>
-            </section>
-
-            <!-- =============================================
-            SETORES
-            ============================================= -->
-            <section id="setores" class="hidden">
-                <h2 style="font-weight:700;font-size:19px;">📍 Mapa dos Setores</h2>
-                <div id="mapaSetores" class="grid mt-10"></div>
-            </section>
-
-            <!-- =============================================
-            HISTÓRICO
-            ============================================= -->
-            <section id="historico" class="hidden">
-                <h2 style="font-weight:700;font-size:19px;">📋 Histórico Geral</h2>
-                <div id="listaHistorico" class="card mt-10" style="padding:8px 16px;"></div>
-            </section>
-
-        </main>
-
-        <footer>✦ Sistema 3D de Controle de Ferramentas e Manutenção ✦</footer>
-    </div>
-
-    <!-- =====================================================
-    MODAIS
-    ===================================================== -->
-    <dialog id="dialogFerramenta">
-        <div class="modal">
-            <h2 id="tituloFerramenta">Cadastrar ferramenta</h2>
-            <input type="hidden" id="idFerramenta">
-            <label>Nome da ferramenta</label>
-            <input id="nomeFerramenta" placeholder="Ex.: Furadeira">
-            <label>Patrimônio / Código</label>
-            <input id="codigoFerramenta" placeholder="Ex.: FER-001">
-            <label>Setor</label>
-            <select id="setorFerramenta"></select>
-            <label>Status</label>
-            <select id="statusFerramenta">
-                <option>Disponível</option>
-                <option>Emprestada</option>
-                <option>Manutenção</option>
-            </select>
-            <label>Observações</label>
-            <textarea id="obsFerramenta" rows="3"></textarea>
-            <div class="acoes">
-                <button class="btn-outline" onclick="document.getElementById('entradaFoto').click()">📷 Foto</button>
-                <button class="btn-outline" onclick="abrirCamera('ferramenta')">📹 Câmera</button>
-            </div>
-            <input id="entradaFoto" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotos(this.files)">
-            <div id="previewFerramenta" class="preview"></div>
-            <div class="acoes" style="margin-top:18px;">
-                <button class="btn-outline" onclick="fecharFerramenta()">Cancelar</button>
-                <button class="btn-primary" onclick="salvarFerramenta()">💾 Salvar</button>
-            </div>
-        </div>
-    </dialog>
-
-    <dialog id="dialogAtivo">
-        <div class="modal">
-            <h2>🏭 Cadastro de Ativo</h2>
-            <input type="hidden" id="idAtivo">
-            <label>Nome do ativo</label>
-            <input id="nomeAtivo" placeholder="Ex.: Compressor">
-            <label>Patrimônio / TAG</label>
-            <input id="codigoAtivo" placeholder="Ex.: AT-001">
-            <label>Tipo</label>
-            <select id="tipoAtivo">
-                <option>Máquina</option>
-                <option>Equipamento</option>
-                <option>Veículo</option>
-                <option>Instalação</option>
-                <option>Outro</option>
-            </select>
-            <label>Setor</label>
-            <select id="setorAtivo"></select>
-            <label>Status</label>
-            <select id="statusAtivo">
-                <option>Operando</option>
-                <option>Parado</option>
-                <option>Manutenção</option>
-                <option>Manutenção Externa</option>
-            </select>
-            <label>Observações</label>
-            <textarea id="obsAtivo" rows="3"></textarea>
-            <div class="acoes">
-                <button class="btn-outline" onclick="document.getElementById('entradaFotoAtivo').click()">📷 Foto</button>
-                <button class="btn-outline" onclick="abrirCamera('ativo')">📹 Câmera</button>
-            </div>
-            <input id="entradaFotoAtivo" class="hidden" type="file" accept="image/*" capture="environment" onchange="adicionarFotoAtivo(this.files[0])">
-            <div id="previewAtivo" class="preview"></div>
-            <div class="acoes" style="margin-top:18px;">
-                <button class="btn-outline" onclick="fecharAtivo()">Cancelar</button>
-                <button class="btn-primary" onclick="salvarAtivo()">💾 Salvar</button>
-            </div>
-        </div>
-    </dialog>
-
-    <dialog id="dialogCriado">
-        <div class="modal">
-            <h2>🔨 Ativo Criado pela Manutenção</h2>
-            <input type="hidden" id="idCriado">
-            <label>Nome do ativo</label>
-            <input id="nomeCriado">
-            <label>Código</label>
-            <input id="codigoCriado">
-            <label>Tipo</label>
-            <select id="tipoCriado">
-                <option>Máquina</option>
-                <option>Equipamento</option>
-                <option>Ferramenta</option>
-                <option>Instalação</option>
-                <option>Estrutura</option>
-                <option>Outro</option>
-            </select>
-            <label>Responsável</label>
-            <input id="responsavelCriado">
-            <label>Setor</label>
-            <select id="setorCriado"></select>
-            <label>Data de criação</label>
-            <input id="dataCriado" type="date">
-            <label>Status</label>
-            <select id="statusCriado">
-                <option>Em produção</option>
-                <option>Finalizado</option>
-                <option>Instalado</option>
-                <option>Em teste</option>
-                <option>Em manutenção</option>
-            </select>
-            <label>Materiais utilizados</label>
-            <textarea id="materiaisCriado" rows="3"></textarea>
-            <label>Observações</label>
-            <textarea id="obsCriado" rows="3"></textarea>
-            <div class="acoes" style="margin-top:18px;">
-                <button class="btn-outline" onclick="fecharCriado()">Cancelar</button>
-                <button class="btn-created" onclick="salvarCriado()">💾 Salvar</button>
-            </div>
-        </div>
-    </dialog>
-
-    <dialog id="dialogPedido">
-        <div class="modal">
-            <h2 id="tituloPedido">📦 Pedido de Material</h2>
-            <input type="hidden" id="idPedido">
-            <label>Material / Insumo</label>
-            <input id="nomePedido">
-            <label>Quantidade</label>
-            <input id="quantidadePedido">
-            <label>Fornecedor</label>
-            <input id="fornecedorPedido">
-            <label>Setor</label>
-            <select id="setorPedido"></select>
-            <label>Data do pedido</label>
-            <input id="dataPedido" type="date">
-            <label>Status</label>
-            <select id="statusPedido">
-                <option>Pendente</option>
-                <option>Comprado</option>
-                <option>Parcialmente recebido</option>
-                <option>Recebido</option>
-                <option>Cancelado</option>
-            </select>
-            <label>Quem recebeu</label>
-            <input id="recebedorPedido">
-            <label>Data/hora do recebimento</label>
-            <input id="dataHoraRecebimentoPedido" type="datetime-local">
-            <label>Observações</label>
-            <textarea id="obsPedido" rows="3"></textarea>
-            <div class="acoes" style="margin-top:18px;">
-                <button class="btn-outline" onclick="fecharPedido()">Cancelar</button>
-                <button class="btn-pedido" onclick="salvarPedido()">💾 Salvar</button>
-            </div>
-        </div>
-    </dialog>
-
-    <dialog id="dialogExterna">
-        <div class="modal">
-            <h2>🚚 Manutenção Externa</h2>
-            <input type="hidden" id="idExterna">
-            <label>Tipo</label>
-            <select id="tipoExterno">
-                <option>Ferramenta</option>
-                <option>Ativo</option>
-            </select>
-            <label>Nome do item</label>
-            <input id="nomeExterno">
-            <label>Código</label>
-            <input id="codigoExterno">
-            <label>Empresa</label>
-            <input id="empresaExterna">
-            <label>Responsável</label>
-            <input id="responsavelExterno">
-            <label>Data de saída</label>
-            <input id="dataSaida" type="date">
-            <label>Previsão de retorno</label>
-            <input id="dataRetorno" type="date">
-            <label>Status</label>
-            <select id="statusExterno">
-                <option>Enviado</option>
-                <option>Em manutenção</option>
-                <option>Aguardando orçamento</option>
-                <option>Aguardando peça</option>
-                <option>Pronto para retorno</option>
-                <option>Retornado</option>
-            </select>
-            <label>Descrição do serviço</label>
-            <textarea id="servicoExterno" rows="4"></textarea>
-            <div class="acoes" style="margin-top:18px;">
-                <button class="btn-outline" onclick="fecharExterna()">Cancelar</button>
-                <button class="btn-primary" onclick="salvarExterna()">💾 Salvar</button>
-            </div>
-        </div>
-    </dialog>
-
-    <dialog id="dialogCamera">
-        <div class="modal">
-            <h2>📹 Câmera</h2>
-            <video id="camera" autoplay playsinline style="width:100%;border-radius:12px;"></video>
-            <div class="acoes" style="margin-top:12px;">
-                <button class="btn-primary" onclick="tirarFoto()">📸 Capturar</button>
-                <button class="btn-outline" onclick="fecharCamera()">Fechar</button>
-            </div>
-        </div>
-    </dialog>
-
-    <script>
-        const SETORES = [
-            "Acabamento 01", "Acabamento 02",
-            "Laminação 01", "Laminação 02",
-            "Marcenaria", "CNC",
-            "Tecelagem", "Manutenção",
-            "Almoxarifado", "Compras"
-        ];
-
-        let ferramentas = JSON.parse(localStorage.getItem("controleFerramentas") || "[]");
-        let ativos = JSON.parse(localStorage.getItem("controleAtivos") || "[]");
-        let ativosCriados = JSON.parse(localStorage.getItem("controleAtivosCriados") || "[]");
-        let pedidosMateriais = JSON.parse(localStorage.getItem("controlePedidosMateriais") || "[]");
-        let manutencoesExternas = JSON.parse(localStorage.getItem("controleManutencoesExternas") || "[]");
-        let historico = JSON.parse(localStorage.getItem("controleHistorico") || "[]");
-        let alarmes = JSON.parse(localStorage.getItem("controleAlarmes") || "[]");
-
-        let midiasFerramenta = [];
-        let midiasAtivo = [];
-        let midiasCriado = [];
-        let midiasPedido = [];
-        let midiasExterna = [];
-        let cameraStream = null;
-        let cameraDestino = "ferramenta";
-
-        function salvarBanco() {
-            localStorage.setItem("controleFerramentas", JSON.stringify(ferramentas));
-            localStorage.setItem("controleAtivos", JSON.stringify(ativos));
-            localStorage.setItem("controleAtivosCriados", JSON.stringify(ativosCriados));
-            localStorage.setItem("controlePedidosMateriais", JSON.stringify(pedidosMateriais));
-            localStorage.setItem("controleManutencoesExternas", JSON.stringify(manutencoesExternas));
-            localStorage.setItem("controleHistorico", JSON.stringify(historico));
-            localStorage.setItem("controleAlarmes", JSON.stringify(alarmes));
-        }
-
-        function escapar(texto = "") {
-            return String(texto)
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
-
-        function gerarId() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
-        }
-
-        function registrarHistorico(nome, acao) {
-            historico.push({ nome, acao, data: new Date().toISOString() });
-            if (historico.length > 300) historico.shift();
-            salvarBanco();
-        }
-
-        /* =====================================================
-           ALARMES - 24H
-        ===================================================== */
-        function iniciarAlarme(ferramenta) {
-            const agora = new Date();
-            const tempoLimite = 24 * 60 * 60 * 1000;
-            const dataEmprestimo = new Date(ferramenta.dataEmprestimo || agora);
-            const dataLimite = new Date(dataEmprestimo.getTime() + tempoLimite);
-
-            alarmes = alarmes.filter(a => a.ferramentaId !== ferramenta.id);
-
-            alarmes.push({
-                id: gerarId(),
-                ferramentaId: ferramenta.id,
-                nome: ferramenta.nome,
-                codigo: ferramenta.codigo,
-                dataEmprestimo: dataEmprestimo.toISOString(),
-                dataLimite: dataLimite.toISOString(),
-                ativo: true,
-                notificado24h: false,
-                notificado12h: false,
-                notificado6h: false,
-                notificado1h: false,
-                notificadoExpirado: false
-            });
-
-            salvarBanco();
-            verificarAlarmes();
-        }
-
-        function pararAlarme(ferramentaId) {
-            alarmes = alarmes.filter(a => a.ferramentaId !== ferramentaId);
-            salvarBanco();
-            atualizarBadgeAlarme();
-        }
-
-        function verificarAlarmes() {
-            const agora = new Date();
-            let alterou = false;
-
-            alarmes.forEach(alarme => {
-                if (!alarme.ativo) return;
-                const dataLimite = new Date(alarme.dataLimite);
-                const diff = dataLimite.getTime() - agora.getTime();
-                const horas = diff / (1000 * 60 * 60);
-
-                if (diff <= 0 && !alarme.notificadoExpirado) {
-                    alarme.notificadoExpirado = true; alterou = true;
-                    mostrarNotificacaoAlarme(alarme, 'expirado');
-                } else if (horas <= 1 && horas > 0 && !alarme.notificado1h) {
-                    alarme.notificado1h = true; alterou = true;
-                    mostrarNotificacaoAlarme(alarme, '1h');
-                } else if (horas <= 6 && horas > 1 && !alarme.notificado6h) {
-                    alarme.notificado6h = true; alterou = true;
-                    mostrarNotificacaoAlarme(alarme, '6h');
-                } else if (horas <= 12 && horas > 6 && !alarme.notificado12h) {
-                    alarme.notificado12h = true; alterou = true;
-                    mostrarNotificacaoAlarme(alarme, '12h');
-                } else if (horas <= 24 && horas > 12 && !alarme.notificado24h) {
-                    alarme.notificado24h = true; alterou = true;
-                    mostrarNotificacaoAlarme(alarme, '24h');
-                }
-            });
-
-            if (alterou) salvarBanco();
-            atualizarBadgeAlarme();
-        }
-
-        function mostrarNotificacaoAlarme(alarme, tipo) {
-            const container = document.getElementById('alarmeContainer');
-            const n = document.createElement('div');
-            n.className = 'alarme-notificacao';
-            if (tipo === 'expirado') n.classList.add('urgente');
-
-            const msgs = {
-                '24h': '⏰ Prazo de 24h para devolução!',
-                '12h': '⏰ Restam 12 horas!',
-                '6h': '⚠️ Restam 6 horas!',
-                '1h': '🚨 URGENTE: Resta 1 hora!',
-                'expirado': '❌ PRAZO EXPIRADO!'
-            };
-
-            const emojis = { '24h': '⏰', '12h': '⏰', '6h': '⚠️', '1h': '🚨', 'expirado': '❌' };
-
-            n.innerHTML = `
-                <div class="alarme-header">
-                    <div>
-                        <div class="alarme-titulo">${emojis[tipo]} ${msgs[tipo]}</div>
-                        <div class="alarme-detalhes">
-                            <strong>${escapar(alarme.nome)}</strong>
-                            ${alarme.codigo ? ` (${escapar(alarme.codigo)})` : ''}
-                            <br>Prazo: ${new Date(alarme.dataLimite).toLocaleString('pt-BR')}
-                        </div>
-                    </div>
-                </div>
-                <div class="alarme-acoes">
-                    <button onclick="devolverFerramenta('${alarme.ferramentaId}')">✅ Devolver</button>
-                    <button onclick="this.closest('.alarme-notificacao').remove()">✕ Fechar</button>
-                </div>
-            `;
-
-            container.appendChild(n);
-
-            if (tipo !== 'expirado') {
-                setTimeout(() => {
-                    if (n.parentNode) n.remove();
-                }, 30000);
-            }
-        }
-
-        function devolverFerramenta(id) {
-            const f = ferramentas.find(x => x.id === id);
-            if (!f) return;
-            if (confirm(`Devolver a ferramenta "${f.nome}"?`)) {
-                f.status = 'Disponível';
-                f.dataEmprestimo = null;
-                salvarBanco();
-                pararAlarme(id);
-                registrarHistorico(f.nome, '✅ Ferramenta devolvida');
-                mostrarTudo();
-                document.querySelectorAll('.alarme-notificacao').forEach(n => n.remove());
-            }
-        }
-
-        function atualizarBadgeAlarme() {
-            const count = alarmes.filter(a => a.ativo).length;
-            const btn = document.querySelector('[data-tela="ferramentas"]');
-            if (btn) {
-                if (count > 0) {
-                    btn.classList.add('alarme-badge');
-                    btn.dataset.count = count;
-                } else {
-                    btn.classList.remove('alarme-badge');
-                    btn.dataset.count = '0';
-                }
-            }
-        }
-
-        /* =====================================================
-           PDF — GERAÇÃO DE RELATÓRIOS
-        ===================================================== */
-        const { jsPDF } = window.jspdf;
-
-        function criarCabecalhoPDF(doc, titulo, subtitulo = '') {
-            const larguraPagina = doc.internal.pageSize.getWidth();
-
-            // Fundo do cabeçalho
-            doc.setFillColor(13, 42, 61);
-            doc.rect(0, 0, larguraPagina, 35, 'F');
-
-            // Linha decorativa
-            doc.setFillColor(30, 184, 201);
-            doc.rect(0, 33, larguraPagina, 2, 'F');
-
-            // Título
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(20);
-            doc.setFont(undefined, 'bold');
-            doc.text(titulo, 14, 18);
-
-            // Subtítulo
-            if (subtitulo) {
-                doc.setFontSize(10);
-                doc.setFont(undefined, 'normal');
-                doc.setTextColor(176, 200, 217);
-                doc.text(subtitulo, 14, 27);
-            }
-
-            // Data/hora
-            doc.setFontSize(9);
-            doc.setTextColor(176, 200, 217);
-            doc.text(
-                `Gerado em: ${new Date().toLocaleString('pt-BR')}`,
-                larguraPagina - 14, 18, { align: 'right' }
-            );
-
-            // Rodapé
-            const alturaPagina = doc.internal.pageSize.getHeight();
-            doc.setDrawColor(200, 200, 200);
-            doc.line(14, alturaPagina - 15, larguraPagina - 14, alturaPagina - 15);
-            doc.setFontSize(8);
-            doc.setTextColor(120, 120, 120);
-            doc.text('Sistema Controle 3D — Ferramentas e Manutenção', 14, alturaPagina - 8);
-            doc.text(
-                `Página ${doc.internal.getCurrentPageInfo().pageNumber}`,
-                larguraPagina - 14, alturaPagina - 8, { align: 'right' }
-            );
-        }
-
-        function salvarPDF(doc, nomeArquivo) {
-            doc.save(nomeArquivo);
-
-            // Pergunta se quer enviar via WhatsApp
-            setTimeout(() => {
-                if (confirm('✅ PDF gerado com sucesso!\n\nDeseja enviar o relatório via WhatsApp agora?')) {
-                    const texto = `📄 *${nomeArquivo}*\n\nSegue o relatório gerado pelo Sistema de Controle de Ferramentas 3D.\n\n_Arquivo salvo em seu dispositivo. Anexe-o manualmente na conversa._`;
-                    window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
-                }
-            }, 500);
-        }
-
-        /* ---------- PDF: Relatório GERAL ---------- */
-        function gerarPDFCompleto() {
-            const doc = new jsPDF();
-            criarCabecalhoPDF(doc, 'RELATÓRIO GERAL', 'Controle de Ferramentas, Ativos e Manutenção');
-
-            let y = 45;
-
-            // Resumo
-            const resumo = [
-                ['Ferramentas cadastradas', ferramentas.length],
-                ['Ferramentas disponíveis', ferramentas.filter(f => f.status === 'Disponível').length],
-                ['Ferramentas emprestadas', ferramentas.filter(f => f.status === 'Emprestada').length],
-                ['Ferramentas em manutenção', ferramentas.filter(f => f.status === 'Manutenção').length],
-                ['Alarmes ativos', alarmes.filter(a => a.ativo).length],
-                ['Ativos cadastrados', ativos.length],
-                ['Ativos criados pela manutenção', ativosCriados.length],
-                ['Pedidos de materiais', pedidosMateriais.length],
-                ['Manutenções externas', manutencoesExternas.length]
-            ];
-
-            doc.setFontSize(13);
-            doc.setTextColor(13, 42, 61);
-            doc.setFont(undefined, 'bold');
-            doc.text('📊 Resumo Geral', 14, y);
-            y += 6;
-
-            doc.autoTable({
-                startY: y,
-                head: [['Indicador', 'Quantidade']],
-                body: resumo,
-                theme: 'grid',
-                headStyles: { fillColor: [30, 184, 201], textColor: 255, fontStyle: 'bold' },
-                styles: { fontSize: 10, cellPadding: 3 },
-                alternateRowStyles: { fillColor: [245, 250, 252] },
-                margin: { left: 14, right: 14 }
-            });
-
-            y = doc.lastAutoTable.finalY + 10;
-
-            // Ferramentas em manutenção
-            const emManut = ferramentas.filter(f => f.status === 'Manutenção');
-            if (emManut.length > 0) {
-                doc.setFontSize(13);
-                doc.setTextColor(211, 47, 47);
-                doc.setFont(undefined, 'bold');
-                doc.text('🧰 Ferramentas em Manutenção', 14, y);
-                y += 6;
-
-                doc.autoTable({
-                    startY: y,
-                    head: [['Nome', 'Código', 'Setor', 'Observações']],
-                    body: emManut.map(f => [f.nome, f.codigo || '-', f.setor, f.observacoes || '-']),
-                    theme: 'grid',
-                    headStyles: { fillColor: [211, 47, 47], textColor: 255 },
-                    styles: { fontSize: 9, cellPadding: 2 },
-                    margin: { left: 14, right: 14 }
-                });
-
-                y = doc.lastAutoTable.finalY + 10;
-            }
-
-            // Ferramentas emprestadas
-            const emp = ferramentas.filter(f => f.status === 'Emprestada');
-            if (emp.length > 0) {
-                if (y > 240) { doc.addPage(); y = 20; }
-                doc.setFontSize(13);
-                doc.setTextColor(245, 166, 35);
-                doc.setFont(undefined, 'bold');
-                doc.text('📤 Ferramentas Emprestadas', 14, y);
-                y += 6;
-
-                doc.autoTable({
-                    startY: y,
-                    head: [['Nome', 'Código', 'Setor', 'Data Empréstimo']],
-                    body: emp.map(f => [
-                        f.nome,
-                        f.codigo || '-',
-                        f.setor,
-                        f.dataEmprestimo ? new Date(f.dataEmprestimo).toLocaleString('pt-BR') : '-'
-                    ]),
-                    theme: 'grid',
-                    headStyles: { fillColor: [245, 166, 35], textColor: 255 },
-                    styles: { fontSize: 9, cellPadding: 2 },
-                    margin: { left: 14, right: 14 }
-                });
-            }
-
-            salvarPDF(doc, `Relatorio_Geral_${new Date().toISOString().slice(0,10)}.pdf`);
-        }
-
-        /* ---------- PDF: Ferramentas ---------- */
-        function gerarPDFFerramentas() {
-            const doc = new jsPDF();
-            criarCabecalhoPDF(doc, '🔧 RELATÓRIO DE FERRAMENTAS', `Total: ${ferramentas.length} ferramentas`);
-
-            doc.autoTable({
-                startY: 45,
-                head: [['Nome', 'Código', 'Setor', 'Status', 'Data Empréstimo']],
-                body: ferramentas.map(f => [
-                    f.nome,
-                    f.codigo || '-',
-                    f.setor,
-                    f.status,
-                    f.dataEmprestimo ? new Date(f.dataEmprestimo).toLocaleString('pt-BR') : '-'
-                ]),
-                theme: 'grid',
-                headStyles: { fillColor: [30, 184, 201], textColor: 255 },
-                styles: { fontSize: 9, cellPadding: 2 },
-                alternateRowStyles: { fillColor: [245, 250, 252] },
-                margin: { left: 14, right: 14 }
-            });
-
-            salvarPDF(doc, `Ferramentas_${new Date().toISOString().slice(0,10)}.pdf`);
-        }
-
-        /* ---------- PDF: Em Manutenção ---------- */
-        function gerarPDFManutencao() {
-            const emManut = ferramentas.filter(f => f.status === 'Manutenção');
-            const doc = new jsPDF();
-            criarCabecalhoPDF(doc, '🧰 FERRAMENTAS EM MANUTENÇÃO', `Total: ${emManut.length} ferramentas em manutenção`);
-
-            if (emManut.length === 0) {
-                doc.setFontSize(12);
-                doc.setTextColor(100, 100, 100);
-                doc.text('Nenhuma ferramenta em manutenção no momento.', 14, 55);
-            } else {
-                doc.autoTable({
-                    startY: 45,
-                    head: [['Nome', 'Código', 'Setor', 'Observações']],
-                    body: emManut.map(f => [f.nome, f.codigo || '-', f.setor, f.observacoes || '-']),
-                    theme: 'grid',
-                    headStyles: { fillColor: [211, 47, 47], textColor: 255 },
-                    styles: { fontSize: 9, cellPadding: 2 },
-                    alternateRowStyles: { fillColor: [255, 240, 240] },
-                    margin: { left: 14, right: 14 }
-                });
-            }
-
-            salvarPDF(doc, `Ferramentas_Manutencao_${new Date().toISOString().slice(0,10)}.pdf`);
-        }
-
-        /* ---------- PDF: Ativos ---------- */
-        function gerarPDFAtivos() {
-            const doc = new jsPDF();
-            criarCabecalhoPDF(doc, '🏭 RELATÓRIO DE ATIVOS', `Total: ${ativos.length} ativos`);
-
-            if (ativos.length === 0) {
-                doc.setFontSize(12);
-                doc.setTextColor(100, 100, 100);
-                doc.text('Nenhum ativo cadastrado.', 14, 55);
-            } else {
-                doc.autoTable({
-                    startY: 45,
-                    head: [['Nome', 'TAG', 'Tipo', 'Setor', 'Status']],
-                    body: ativos.map(a => [a.nome, a.codigo || '-', a.tipo, a.setor, a.status]),
-                    theme: 'grid',
-                    headStyles: { fillColor: [124, 92, 191], textColor: 255 },
-                    styles: { fontSize: 9, cellPadding: 2 },
-                    alternateRowStyles: { fillColor: [248, 245, 255] },
-                    margin: { left: 14, right: 14 }
-                });
-            }
-
-            salvarPDF(doc, `Ativos_${new Date().toISOString().slice(0,10)}.pdf`);
-        }
-
-        /* ---------- PDF: Criados ---------- */
-        function gerarPDFCriados() {
-            const doc = new jsPDF();
-            criarCabecalhoPDF(doc, '🔨 ATIVOS CRIADOS PELA MANUTENÇÃO', `Total: ${ativosCriados.length} ativos`);
-
-            if (ativosCriados.length === 0) {
-                doc.setFontSize(12);
-                doc.setTextColor(100, 100, 100);
-                doc.text('Nenhum ativo criado pela manutenção.', 14, 55);
-            } else {
-                doc.autoTable({
-                    startY: 45,
-                    head: [['Nome', 'Código', 'Tipo', 'Responsável', 'Setor', 'Status']],
-                    body: ativosCriados.map(a => [
-                        a.nome, a.codigo || '-', a.tipo, a.responsavel || '-', a.setor, a.status
-                    ]),
-                    theme: 'grid',
-                    headStyles: { fillColor: [45, 219, 122], textColor: 255 },
-                    styles: { fontSize: 9, cellPadding: 2 },
-                    alternateRowStyles: { fillColor: [240, 255, 245] },
-                    margin: { left: 14, right: 14 }
-                });
-            }
-
-            salvarPDF(doc, `Ativos_Criados_${new Date().toISOString().slice(0,10)}.pdf`);
-        }
-
-        /* ---------- PDF: Pedidos ---------- */
-        function gerarPDFPedidos() {
-            const doc = new jsPDF();
-            criarCabecalhoPDF(doc, '📦 PEDIDOS DE MATERIAIS', `Total: ${pedidosMateriais.length} pedidos`);
-
-            if (pedidosMateriais.length === 0) {
-                doc.setFontSize(12);
-                doc.setTextColor(100, 100, 100);
-                doc.text('Nenhum pedido cadastrado.', 14, 55);
-            } else {
-                doc.autoTable({
-                    startY: 45,
-                    head: [['Material', 'Qtd', 'Fornecedor', 'Setor', 'Status', 'Recebedor']],
-                    body: pedidosMateriais.map(p => [
-                        p.nome, p.quantidade || '-', p.fornecedor || '-', p.setor, p.status, p.recebedor || '-'
-                    ]),
-                    theme: 'grid',
-                    headStyles: { fillColor: [245, 166, 35], textColor: 255 },
-                    styles: { fontSize: 9, cellPadding: 2 },
-                    alternateRowStyles: { fillColor: [255, 250, 240] },
-                    margin: { left: 14, right: 14 }
-                });
-            }
-
-            salvarPDF(doc, `Pedidos_${new Date().toISOString().slice(0,10)}.pdf`);
-        }
-
-        /* ---------- PDF: Externas ---------- */
-        function gerarPDFExternas() {
-            const doc = new jsPDF();
-            criarCabecalhoPDF(doc, '🚚 MANUTENÇÃO EXTERNA', `Total: ${manutencoesExternas.length} itens`);
-
-            if (manutencoesExternas.length === 0) {
-                doc.setFontSize(12);
-                doc.setTextColor(100, 100, 100);
-                doc.text('Nenhum item em manutenção externa.', 14, 55);
-            } else {
-                doc.autoTable({
-                    startY: 45,
-                    head: [['Item', 'Tipo', 'Empresa', 'Responsável', 'Status']],
-                    body: manutencoesExternas.map(m => [
-                        m.nome, m.tipo, m.empresa || '-', m.responsavel || '-', m.status
-                    ]),
-                    theme: 'grid',
-                    headStyles: { fillColor: [255, 107, 157], textColor: 255 },
-                    styles: { fontSize: 9, cellPadding: 2 },
-                    alternateRowStyles: { fillColor: [255, 245, 250] },
-                    margin: { left: 14, right: 14 }
-                });
-            }
-
-            salvarPDF(doc, `Manutencao_Externa_${new Date().toISOString().slice(0,10)}.pdf`);
-        }
-
-        /* ---------- PDF: Setores ---------- */
-        function gerarPDFSetores() {
-            const doc = new jsPDF();
-            criarCabecalhoPDF(doc, '📍 MAPA DOS SETORES', `Total: ${SETORES.length} setores`);
-
-            const dados = SETORES.map(setor => {
-                const ferr = ferramentas.filter(f => f.setor === setor);
-                const ativ = ativos.filter(a => a.setor === setor);
-                const cri = ativosCriados.filter(c => c.setor === setor);
-                const ped = pedidosMateriais.filter(p => p.setor === setor);
-                return [
-                    setor,
-                    ferr.length,
-                    ferr.filter(f => f.status === 'Disponível').length,
-                    ferr.filter(f => f.status === 'Emprestada').length,
-                    ferr.filter(f => f.status === 'Manutenção').length,
-                    ativ.length + cri.length + ped.length
-                ];
-            });
-
-            doc.autoTable({
-                startY: 45,
-                head: [['Setor', 'Ferramentas', 'Disponíveis', 'Emprestadas', 'Manutenção', 'Outros']],
-                body: dados,
-                theme: 'grid',
-                headStyles: { fillColor: [45, 219, 122], textColor: 255 },
-                styles: { fontSize: 9, cellPadding: 2 },
-                alternateRowStyles: { fillColor: [240, 255, 245] },
-                margin: { left: 14, right: 14 }
-            });
-
-            salvarPDF(doc, `Setores_${new Date().toISOString().slice(0,10)}.pdf`);
-        }
-
-        /* =====================================================
-           NAVEGAÇÃO
-        ===================================================== */
-        function iniciar() {
-            document.getElementById("setorFerramenta").innerHTML = SETORES.map(s => `<option>${s}</option>`).join("");
-            document.getElementById("setorAtivo").innerHTML = SETORES.map(s => `<option>${s}</option>`).join("");
-            document.getElementById("setorCriado").innerHTML = SETORES.map(s => `<option>${s}</option>`).join("");
-            document.getElementById("setorPedido").innerHTML = SETORES.map(s => `<option>${s}</option>`).join("");
-
-            document.getElementById("dataPedido").value = new Date().toISOString().substring(0, 10);
-            document.getElementById("dataCriado").value = new Date().toISOString().substring(0, 10);
-
-            document.querySelectorAll("nav button").forEach(botao => {
-                botao.onclick = function() {
-                    document.querySelectorAll("nav button").forEach(b => b.classList.remove("ativo"));
-                    this.classList.add("ativo");
-                    document.querySelectorAll("main section").forEach(s => s.classList.add("hidden"));
-                    document.getElementById(this.dataset.tela).classList.remove("hidden");
-                    mostrarTudo();
-                };
-            });
-
-            atualizarStatusRede();
-            setInterval(verificarAlarmes, 30000);
-            setTimeout(verificarAlarmes, 1000);
-            mostrarTudo();
-        }
-
-        function mostrarTudo() {
-            mostrarEstatisticas();
-            mostrarSetores();
-            mostrarFerramentas();
-            mostrarFerramentasManutencao();
-            mostrarAtivos();
-            mostrarCriados();
-            mostrarPedidos();
-            mostrarManutencoesExternas();
-            mostrarHistorico();
-            atualizarBadgeAlarme();
-        }
-
-        /* =====================================================
-           ESTATÍSTICAS
-        ===================================================== */
-        function mostrarEstatisticas() {
-            const total = ferramentas.length;
-            const disp = ferramentas.filter(x => x.status === "Disponível").length;
-            const emp = ferramentas.filter(x => x.status === "Emprestada").length;
-            const manut = ferramentas.filter(x => x.status === "Manutenção").length;
-            const ativosTotal = ativos.length;
-            const criadosTotal = ativosCriados.length;
-            const pedidosTotal = pedidosMateriais.length;
-            const pedidosPend = pedidosMateriais.filter(x => x.status === "Pendente" || x.status === "Parcialmente recebido").length;
-            const externasPend = manutencoesExternas.filter(x => x.status !== "Retornado").length;
-            const alarmesAtivos = alarmes.filter(a => a.ativo).length;
-
-            document.getElementById("estatisticas").innerHTML = `
-                <div class="card estatistica"><span class="icon">🔧</span><span class="label">Ferramentas</span><strong>${total}</strong></div>
-                <div class="card estatistica"><span class="icon">🟢</span><span class="label">Disponíveis</span><strong>${disp}</strong></div>
-                <div class="card estatistica"><span class="icon">📤</span><span class="label">Emprestadas</span><strong>${emp}</strong></div>
-                <div class="card estatistica"><span class="icon">🧰</span><span class="label">Em Manutenção</span><strong>${manut}</strong></div>
-                <div class="card estatistica"><span class="icon">⏰</span><span class="label">Alarmes Ativos</span><strong>${alarmesAtivos}</strong></div>
-                <div class="card estatistica"><span class="icon">📦</span><span class="label">Pedidos</span><strong>${pedidosTotal}</strong></div>
-                <div class="card estatistica"><span class="icon">⏳</span><span class="label">Pedidos Pendentes</span><strong>${pedidosPend}</strong></div>
-                <div class="card estatistica"><span class="icon">🏭</span><span class="label">Ativos</span><strong>${ativosTotal}</strong></div>
-                <div class="card estatistica"><span class="icon">🔨</span><span class="label">Criados</span><strong>${criadosTotal}</strong></div>
-                <div class="card estatistica"><span class="icon">🚚</span><span class="label">Ext. Pendentes</span><strong>${externasPend}</strong></div>
-            `;
-
-            document.getElementById("resumoEmpresa").innerHTML = `
-                <div><span class="muted text-sm">🔧 Ferramentas:</span> <strong>${total}</strong></div>
-                <div><span class="muted text-sm">📤 Emprestadas:</span> <strong>${emp}</strong></div>
-                <div><span class="muted text-sm">🧰 Manutenção:</span> <strong>${manut}</strong></div>
-                <div><span class="muted text-sm">⏰ Alarmes:</span> <strong>${alarmesAtivos}</strong></div>
-                <div><span class="muted text-sm">📦 Pedidos:</span> <strong>${pedidosTotal}</strong></div>
-                <div><span class="muted text-sm">🏭 Ativos:</span> <strong>${ativosTotal}</strong></div>
-                <div><span class="muted text-sm">🔨 Criados:</span> <strong>${criadosTotal}</strong></div>
-            `;
-        }
-
-        /* =====================================================
-           SETORES
-        ===================================================== */
-        function gerarSetores() {
-            return SETORES.map(setor => {
-                const ferr = ferramentas.filter(x => x.setor === setor);
-                const ativ = ativos.filter(x => x.setor === setor);
-                const cri = ativosCriados.filter(x => x.setor === setor);
-                const ped = pedidosMateriais.filter(x => x.setor === setor);
-                return `
-                    <div class="card setor-card">
-                        <h3>📍 ${escapar(setor)}</h3>
-                        <div class="count">${ferr.length + ativ.length + cri.length + ped.length}</div>
-                        <div style="font-size:12px;color:var(--cinza);opacity:0.5;text-transform:uppercase;">itens no total</div>
-                        <div class="tags" style="margin-top:8px;">
-                            <span class="badge badge-success">🟢 ${ferr.filter(x => x.status === "Disponível").length}</span>
-                            <span class="badge badge-warning">📤 ${ferr.filter(x => x.status === "Emprestada").length}</span>
-                            <span class="badge badge-manutencao">🧰 ${ferr.filter(x => x.status === "Manutenção").length}</span>
-                            <span class="badge badge-info">🏭 ${ativ.length}</span>
-                            <span class="badge badge-created">🔨 ${cri.length}</span>
-                            <span class="badge badge-pedido">📦 ${ped.length}</span>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        function mostrarSetores() {
-            const html = gerarSetores();
-            document.getElementById("cartoesSetores").innerHTML = html;
-            document.getElementById("mapaSetores").innerHTML = html;
-        }
-
-        /* =====================================================
-           FERRAMENTAS
-        ===================================================== */
-        function mostrarFerramentas() {
-            const pesquisa = (document.getElementById("pesquisaFerramenta")?.value || "").toLowerCase();
-            const lista = ferramentas.filter(x =>
-                (x.nome + " " + x.codigo + " " + x.setor).toLowerCase().includes(pesquisa)
-            );
-
-            if (!lista.length) {
-                document.getElementById("listaFerramentas").innerHTML = `
-                    <div class="card empty-state">
-                        <span class="emoji">🔍</span>
-                        <span>Nenhuma ferramenta encontrada.</span>
-                    </div>
-                `;
-                return;
-            }
-
-            document.getElementById("listaFerramentas").innerHTML = lista.map(x => {
-                const statusClass = x.status === "Disponível" ? "badge-success" :
-                    x.status === "Emprestada" ? "badge-warning" : "badge-manutencao";
-
-                const alarme = alarmes.find(a => a.ferramentaId === x.id && a.ativo);
-                let tempoRestante = '';
-                let tempoClass = '';
-
-                if (alarme) {
-                    const diff = new Date(alarme.dataLimite).getTime() - new Date().getTime();
-                    if (diff <= 0) {
-                        tempoRestante = '🔴 Atrasado!';
-                        tempoClass = 'badge-tempo urgente';
-                    } else {
-                        const horas = Math.floor(diff / (1000 * 60 * 60));
-                        const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                        tempoRestante = `⏱️ ${horas}h ${minutos}min`;
-                        tempoClass = horas < 6 ? 'badge-tempo urgente' : 'badge-tempo';
-                    }
-                }
-
-                const fotoHtml = x.fotos?.[0] ?
-                    `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
-                    `<div class="imagem-placeholder">🔧</div>`;
-
-                return `
-                    <div class="card item">
-                        ${fotoHtml}
-                        <div class="item-info">
-                            <div class="nome">${escapar(x.nome)}</div>
-                            <div class="detalhes">
-                                Código: ${escapar(x.codigo || "-")}<br>
-                                Setor: ${escapar(x.setor)}
-                                ${x.dataEmprestimo ? `<br>📅 Emprestado: ${new Date(x.dataEmprestimo).toLocaleString('pt-BR')}` : ''}
-                            </div>
-                            <div class="tags">
-                                <span class="badge ${statusClass}">${escapar(x.status)}</span>
-                                ${alarme ? `<span class="badge ${tempoClass}">${tempoRestante}</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="item-actions">
-                            <button onclick="abrirFerramenta('${x.id}')">✏️</button>
-                            <button onclick="compartilharFerramenta('${x.id}')">📲</button>
-                            ${x.status === 'Emprestada' ? `<button onclick="devolverFerramenta('${x.id}')">✅</button>` : ''}
-                            <button onclick="excluirFerramenta('${x.id}')">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        /* =====================================================
-           🧰 FERRAMENTAS EM MANUTENÇÃO — NOVA ABA
-        ===================================================== */
-        function mostrarFerramentasManutencao() {
-            const pesquisa = (document.getElementById("pesquisaManutencao")?.value || "").toLowerCase();
-            const lista = ferramentas.filter(x =>
-                x.status === "Manutenção" &&
-                (x.nome + " " + x.codigo + " " + x.setor).toLowerCase().includes(pesquisa)
-            );
-
-            if (!lista.length) {
-                document.getElementById("listaFerramentasManutencao").innerHTML = `
-                    <div class="card empty-state">
-                        <span class="emoji">🧰</span>
-                        <span>Nenhuma ferramenta em manutenção no momento.</span>
-                        <p class="muted text-sm mt-10">Todas as ferramentas estão disponíveis ou emprestadas. 🎉</p>
-                    </div>
-                `;
-                return;
-            }
-
-            document.getElementById("listaFerramentasManutencao").innerHTML = lista.map(x => {
-                const fotoHtml = x.fotos?.[0] ?
-                    `<img class="imagem-mini" src="${x.fotos[0]}" alt="${escapar(x.nome)}">` :
-                    `<div class="imagem-placeholder">🧰</div>`;
-
-                return `
-                    <div class="card item" style="border-color: rgba(255,107,130,0.3); background: linear-gradient(135deg, rgba(255,107,130,0.05), transparent);">
-                        ${fotoHtml}
-                        <div class="item-info">
-                            <div class="nome">🧰 ${escapar(x.nome)}</div>
-                            <div class="detalhes">
-                                Código: ${escapar(x.codigo || "-")}<br>
-                                Setor: ${escapar(x.setor)}<br>
-                                ${x.observacoes ? `📝 ${escapar(x.observacoes)}` : ''}
-                            </div>
-                            <div class="tags">
-                                <span class="badge badge-manutencao">🔴 Em Manutenção</span>
-                            </div>
-                        </div>
-                        <div class="item-actions">
-                            <button onclick="abrirFerramenta('${x.id}')" title="Editar">✏️</button>
-                            <button onclick="marcarDisponivel('${x.id}')" title="Marcar como Disponível">✅</button>
-                            <button onclick="compartilharFerramenta('${x.id}')">📲</button>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        function marcarDisponivel(id) {
-            const f = ferramentas.find(x => x.id === id);
-            if (!f) return;
-            if (confirm(`Marcar a ferramenta "${f.nome}" como Disponível?`)) {
-                f.status = 'Disponível';
-                f.dataEmprestimo = null;
-                registrarHistorico(f.nome, '✅ Ferramenta liberada da manutenção');
-                salvarBanco();
-                mostrarTudo();
-            }
-        }
-
-        /* =====================================================
-           ABRIR FERRAMENTA
-        ===================================================== */
-        function abrirFerramenta(id = null) {
-            midiasFerramenta = [];
-            document.getElementById("idFerramenta").value = id || "";
-
-            if (id) {
-                const x = ferramentas.find(f => f.id === id);
-                if (!x) return;
-                document.getElementById("tituloFerramenta").textContent = "✏️ Editar ferramenta";
-                document.getElementById("nomeFerramenta").value = x.nome;
-                document.getElementById("codigoFerramenta").value = x.codigo || "";
-                document.getElementById("setorFerramenta").value = x.setor;
-                document.getElementById("statusFerramenta").value = x.status;
-                document.getElementById("obsFerramenta").value = x.observacoes || "";
-                (x.fotos || []).forEach(foto => midiasFerramenta.push({ tipo: "foto", src: foto }));
-            } else {
-                document.getElementById("tituloFerramenta").textContent = "📦 Cadastrar ferramenta";
-                document.getElementById("nomeFerramenta").value = "";
-                document.getElementById("codigoFerramenta").value = "";
-                document.getElementById("setorFerramenta").value = SETORES[0];
-                document.getElementById("statusFerramenta").value = "Disponível";
-                document.getElementById("obsFerramenta").value = "";
-            }
-
-            mostrarPreviewFerramenta();
-            document.getElementById("dialogFerramenta").showModal();
-        }
-
-        function fecharFerramenta() { document.getElementById("dialogFerramenta").close(); }
-
-        function salvarFerramenta() {
-            const nome = document.getElementById("nomeFerramenta").value.trim();
-            if (!nome) { alert("Digite o nome da ferramenta."); return; }
-
-            const id = document.getElementById("idFerramenta").value || gerarId();
-            const status = document.getElementById("statusFerramenta").value;
-            const statusAnterior = ferramentas.find(f => f.id === id)?.status;
-
-            const ferramenta = {
-                id,
-                nome,
-                codigo: document.getElementById("codigoFerramenta").value.trim(),
-                setor: document.getElementById("setorFerramenta").value,
-                status,
-                observacoes: document.getElementById("obsFerramenta").value.trim(),
-                fotos: midiasFerramenta.filter(m => m.tipo === "foto").map(m => m.src),
-                dataEmprestimo: status === "Emprestada" ? new Date().toISOString() : null,
-                dataCriacao: new Date().toISOString()
-            };
-
-            const existe = ferramentas.find(f => f.id === id);
-            if (existe) {
-                ferramentas = ferramentas.map(f => f.id === id ? ferramenta : f);
-                registrarHistorico(nome, "✏️ Ferramenta atualizada");
-
-                if (status === "Emprestada" && statusAnterior !== "Emprestada") {
-                    iniciarAlarme(ferramenta);
-                    registrarHistorico(nome, "⏰ Alarme de 24h ativado");
-                }
-                if (status !== "Emprestada" && statusAnterior === "Emprestada") {
-                    pararAlarme(id);
-                }
-                if (status === "Manutenção" && statusAnterior !== "Manutenção") {
-                    registrarHistorico(nome, "🧰 Ferramenta enviada para manutenção");
-                }
-            } else {
-                ferramentas.push(ferramenta);
-                registrarHistorico(nome, "🔧 Ferramenta cadastrada");
-                if (status === "Emprestada") iniciarAlarme(ferramenta);
-                if (status === "Manutenção") registrarHistorico(nome, "🧰 Ferramenta em manutenção");
-            }
-
-            salvarBanco();
-            fecharFerramenta();
-            mostrarTudo();
-        }
-
-        function excluirFerramenta(id) {
-            const x = ferramentas.find(f => f.id === id);
-            if (!x) return;
-            if (confirm(`Excluir a ferramenta "${x.nome}"?`)) {
-                if (x.status === "Emprestada") pararAlarme(id);
-                ferramentas = ferramentas.filter(f => f.id !== id);
-                registrarHistorico(x.nome, "🗑️ Ferramenta excluída");
-                salvarBanco();
-                mostrarTudo();
-            }
-        }
-
-        function adicionarFotos(arquivos) {
-            [...arquivos].forEach(arquivo => {
-                const leitor = new FileReader();
-                leitor.onload = function() {
-                    midiasFerramenta.push({ tipo: "foto", src: this.result });
-                    mostrarPreviewFerramenta();
-                };
-                leitor.readAsDataURL(arquivo);
-            });
-        }
-
-        function mostrarPreviewFerramenta() {
-            document.getElementById("previewFerramenta").innerHTML =
-                midiasFerramenta.map(m => m.tipo === "foto" ?
-                    `<img src="${m.src}">` : `<video src="${m.src}" controls></video>`).join("");
-        }
-
-        /* =====================================================
-           ATIVOS
-        ===================================================== */
-        function abrirAtivo(id = null) {
-            midiasAtivo = [];
-            document.getElementById("idAtivo").value = id || "";
-
-            if (id) {
-                const x = ativos.find(a => a.id === id);
-                if (!x) return;
-                document.getElementById("nomeAtivo").value = x.nome;
-                document.getElementById("codigoAtivo").value = x.codigo || "";
-                document.getElementById("tipoAtivo").value = x.tipo;
-                document.getElementById("setorAtivo").value = x.setor;
-                document.getElementById("statusAtivo").value = x.status;
-                document.getElementById("obsAtivo").value = x.observacoes || "";
-                if (x.fotos?.[0]) midiasAtivo = [{ tipo: "foto", src: x.fotos[0] }];
-            } else {
-                document.getElementById("nomeAtivo").value = "";
-                document.getElementById("codigoAtivo").value = "";
-                document.getElementById("tipoAtivo").value = "Máquina";
-                document.getElementById("setorAtivo").value = SETORES[0];
-                document.getElementById("statusAtivo").value = "Operando";
-                document.getElementById("obsAtivo").value = "";
-            }
-
-            mostrarPreviewAtivo();
-            document.getElementById("dialogAtivo").showModal();
-        }
-
-        function fecharAtivo() { document.getElementById("dialogAtivo").close(); }
-
-        function salvarAtivo() {
-            const nome = document.getElementById("nomeAtivo").value.trim();
-            if (!nome) { alert("Digite o nome do ativo."); return; }
-
-            const id = document.getElementById("idAtivo").value || gerarId();
-            const ativo = {
-                id, nome,
-                codigo: document.getElementById("codigoAtivo").value.trim(),
-                tipo: document.getElementById("tipoAtivo").value,
-                setor: document.getElementById("setorAtivo").value,
-                status: document.getElementById("statusAtivo").value,
-                observacoes: document.getElementById("obsAtivo").value.trim(),
-                fotos: midiasAtivo.filter(m => m.tipo === "foto").map(m => m.src),
-                dataCriacao: new Date().toISOString()
-            };
-
-            const existe = ativos.find(a => a.id === id);
-            if (existe) {
-                ativos = ativos.map(a => a.id === id ? ativo : a);
-                registrarHistorico(nome, "✏️ Ativo atualizado");
-            } else {
-                ativos.push(ativo);
-                registrarHistorico(nome, "🏭 Ativo cadastrado");
-            }
-
-            salvarBanco();
-            fecharAtivo();
-            mostrarTudo();
-        }
-
-        function mostrarAtivos() {
-            const pesquisa = (document.getElementById("pesquisaAtivo")?.value || "").toLowerCase();
-            const lista = ativos.filter(x =>
-                (x.nome + " " + x.codigo + " " + x.setor + " " + x.tipo).toLowerCase().includes(pesquisa)
-            );
-
-            if (!lista.length) {
-                document.getElementById("listaAtivos").innerHTML = `
-                    <div class="card empty-state"><span class="emoji">🏭</span><span>Nenhum ativo encontrado.</span></div>
-                `;
-                return;
-            }
-
-            document.getElementById("listaAtivos").innerHTML = lista.map(x => {
-                const statusClass = x.status === "Operando" ? "badge-success" :
-                    x.status === "Parado" ? "badge-warning" :
-                    x.status === "Manutenção" ? "badge-danger" : "badge-info";
-
-                const fotoHtml = x.fotos?.[0] ?
-                    `<img class="imagem-mini" src="${x.fotos[0]}">` :
-                    `<div class="imagem-placeholder">🏭</div>`;
-
-                return `
-                    <div class="card item">
-                        ${fotoHtml}
-                        <div class="item-info">
-                            <div class="nome">${escapar(x.nome)}</div>
-                            <div class="detalhes">
-                                TAG: ${escapar(x.codigo || "-")}<br>
-                                Tipo: ${escapar(x.tipo)}<br>
-                                Setor: ${escapar(x.setor)}
-                            </div>
-                            <div class="tags"><span class="badge ${statusClass}">${escapar(x.status)}</span></div>
-                        </div>
-                        <div class="item-actions">
-                            <button onclick="abrirAtivo('${x.id}')">✏️</button>
-                            <button onclick="compartilharAtivo('${x.id}')">📲</button>
-                            <button onclick="excluirAtivo('${x.id}')">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        function excluirAtivo(id) {
-            const x = ativos.find(a => a.id === id);
-            if (!x) return;
-            if (confirm(`Excluir o ativo "${x.nome}"?`)) {
-                ativos = ativos.filter(a => a.id !== id);
-                registrarHistorico(x.nome, "🗑️ Ativo excluído");
-                salvarBanco();
-                mostrarTudo();
-            }
-        }
-
-        function adicionarFotoAtivo(arquivo) {
-            if (!arquivo) return;
-            const leitor = new FileReader();
-            leitor.onload = function() {
-                midiasAtivo = [{ tipo: "foto", src: this.result }];
-                mostrarPreviewAtivo();
-            };
-            leitor.readAsDataURL(arquivo);
-        }
-
-        function mostrarPreviewAtivo() {
-            document.getElementById("previewAtivo").innerHTML =
-                midiasAtivo.map(m => `<img src="${m.src}">`).join("");
-        }
-
-        /* =====================================================
-           CRIADOS
-        ===================================================== */
-        function abrirCriado(id = null) {
-            document.getElementById("idCriado").value = id || "";
-            if (id) {
-                const x = ativosCriados.find(a => a.id === id);
-                if (!x) return;
-                document.getElementById("nomeCriado").value = x.nome;
-                document.getElementById("codigoCriado").value = x.codigo || "";
-                document.getElementById("tipoCriado").value = x.tipo;
-                document.getElementById("responsavelCriado").value = x.responsavel || "";
-                document.getElementById("setorCriado").value = x.setor;
-                document.getElementById("dataCriado").value = x.dataCriado || "";
-                document.getElementById("statusCriado").value = x.status;
-                document.getElementById("materiaisCriado").value = x.materiais || "";
-                document.getElementById("obsCriado").value = x.observacoes || "";
-            } else {
-                document.getElementById("nomeCriado").value = "";
-                document.getElementById("codigoCriado").value = "";
-                document.getElementById("tipoCriado").value = "Máquina";
-                document.getElementById("responsavelCriado").value = "";
-                document.getElementById("setorCriado").value = SETORES[0];
-                document.getElementById("dataCriado").value = new Date().toISOString().substring(0, 10);
-                document.getElementById("statusCriado").value = "Em produção";
-                document.getElementById("materiaisCriado").value = "";
-                document.getElementById("obsCriado").value = "";
-            }
-            document.getElementById("dialogCriado").showModal();
-        }
-
-        function fecharCriado() { document.getElementById("dialogCriado").close(); }
-
-        function salvarCriado() {
-            const nome = document.getElementById("nomeCriado").value.trim();
-            if (!nome) { alert("Digite o nome do ativo."); return; }
-
-            const id = document.getElementById("idCriado").value || gerarId();
-            const criado = {
-                id, nome,
-                codigo: document.getElementById("codigoCriado").value.trim(),
-                tipo: document.getElementById("tipoCriado").value,
-                responsavel: document.getElementById("responsavelCriado").value.trim(),
-                setor: document.getElementById("setorCriado").value,
-                dataCriado: document.getElementById("dataCriado").value,
-                status: document.getElementById("statusCriado").value,
-                materiais: document.getElementById("materiaisCriado").value.trim(),
-                observacoes: document.getElementById("obsCriado").value.trim(),
-                dataCadastro: new Date().toISOString()
-            };
-
-            const existe = ativosCriados.find(a => a.id === id);
-            if (existe) {
-                ativosCriados = ativosCriados.map(a => a.id === id ? criado : a);
-                registrarHistorico(nome, "✏️ Ativo criado atualizado");
-            } else {
-                ativosCriados.push(criado);
-                registrarHistorico(nome, "🔨 Ativo criado cadastrado");
-            }
-
-            salvarBanco();
-            fecharCriado();
-            mostrarTudo();
-        }
-
-        function mostrarCriados() {
-            const pesquisa = (document.getElementById("pesquisaCriado")?.value || "").toLowerCase();
-            const lista = ativosCriados.filter(x =>
-                (x.nome + " " + x.codigo + " " + x.setor + " " + x.responsavel).toLowerCase().includes(pesquisa)
-            );
-
-            if (!lista.length) {
-                document.getElementById("listaCriados").innerHTML = `
-                    <div class="card empty-state"><span class="emoji">🔨</span><span>Nenhum ativo criado.</span></div>
-                `;
-                return;
-            }
-
-            document.getElementById("listaCriados").innerHTML = lista.map(x => {
-                const statusClass = x.status === "Finalizado" || x.status === "Instalado" ? "badge-success" :
-                    x.status === "Em produção" ? "badge-warning" :
-                    x.status === "Em teste" ? "badge-info" : "badge-danger";
-
-                return `
-                    <div class="card item">
-                        <div class="imagem-placeholder">🔨</div>
-                        <div class="item-info">
-                            <div class="nome">${escapar(x.nome)}</div>
-                            <div class="detalhes">
-                                Código: ${escapar(x.codigo || "-")}<br>
-                                Tipo: ${escapar(x.tipo)}<br>
-                                Setor: ${escapar(x.setor)}<br>
-                                Responsável: ${escapar(x.responsavel || "-")}
-                            </div>
-                            <div class="tags"><span class="badge ${statusClass}">${escapar(x.status)}</span></div>
-                        </div>
-                        <div class="item-actions">
-                            <button onclick="abrirCriado('${x.id}')">✏️</button>
-                            <button onclick="excluirCriado('${x.id}')">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        function excluirCriado(id) {
-            const x = ativosCriados.find(a => a.id === id);
-            if (!x) return;
-            if (confirm(`Excluir "${x.nome}"?`)) {
-                ativosCriados = ativosCriados.filter(a => a.id !== id);
-                registrarHistorico(x.nome, "🗑️ Ativo criado excluído");
-                salvarBanco();
-                mostrarTudo();
-            }
-        }
-
-        /* =====================================================
-           PEDIDOS
-        ===================================================== */
-        function abrirPedido(id = null) {
-            document.getElementById("idPedido").value = id || "";
-            if (id) {
-                const x = pedidosMateriais.find(p => p.id === id);
-                if (!x) return;
-                document.getElementById("tituloPedido").textContent = "✏️ Editar Pedido";
-                document.getElementById("nomePedido").value = x.nome;
-                document.getElementById("quantidadePedido").value = x.quantidade || "";
-                document.getElementById("fornecedorPedido").value = x.fornecedor || "";
-                document.getElementById("setorPedido").value = x.setor;
-                document.getElementById("dataPedido").value = x.dataPedido || "";
-                document.getElementById("statusPedido").value = x.status;
-                document.getElementById("recebedorPedido").value = x.recebedor || "";
-                document.getElementById("dataHoraRecebimentoPedido").value = x.dataHoraRecebimento || "";
-                document.getElementById("obsPedido").value = x.observacoes || "";
-            } else {
-                document.getElementById("tituloPedido").textContent = "📦 Novo Pedido";
-                document.getElementById("nomePedido").value = "";
-                document.getElementById("quantidadePedido").value = "";
-                document.getElementById("fornecedorPedido").value = "";
-                document.getElementById("setorPedido").value = "Manutenção";
-                document.getElementById("dataPedido").value = new Date().toISOString().substring(0, 10);
-                document.getElementById("statusPedido").value = "Pendente";
-                document.getElementById("recebedorPedido").value = "";
-                document.getElementById("dataHoraRecebimentoPedido").value = "";
-                document.getElementById("obsPedido").value = "";
-            }
-            document.getElementById("dialogPedido").showModal();
-        }
-
-        function fecharPedido() { document.getElementById("dialogPedido").close(); }
-
-        function salvarPedido() {
-            const nome = document.getElementById("nomePedido").value.trim();
-            if (!nome) { alert("Digite o nome do material."); return; }
-
-            const id = document.getElementById("idPedido").value || gerarId();
-            const pedido = {
-                id, nome,
-                quantidade: document.getElementById("quantidadePedido").value.trim(),
-                fornecedor: document.getElementById("fornecedorPedido").value.trim(),
-                setor: document.getElementById("setorPedido").value,
-                dataPedido: document.getElementById("dataPedido").value,
-                status: document.getElementById("statusPedido").value,
-                recebedor: document.getElementById("recebedorPedido").value.trim(),
-                dataHoraRecebimento: document.getElementById("dataHoraRecebimentoPedido").value,
-                observacoes: document.getElementById("obsPedido").value.trim(),
-                data: new Date().toISOString()
-            };
-
-            const existe = pedidosMateriais.find(x => x.id === id);
-            if (existe) {
-                pedidosMateriais = pedidosMateriais.map(x => x.id === id ? pedido : x);
-                registrarHistorico(nome, "✏️ Pedido atualizado");
-            } else {
-                pedidosMateriais.push(pedido);
-                registrarHistorico(nome, "📦 Pedido cadastrado");
-            }
-
-            salvarBanco();
-            fecharPedido();
-            mostrarTudo();
-        }
-
-        function mostrarPedidos() {
-            const pesquisa = (document.getElementById("pesquisaPedido")?.value || "").toLowerCase();
-            const lista = pedidosMateriais.filter(x =>
-                (x.nome + " " + x.fornecedor + " " + x.setor + " " + (x.recebedor||"")).toLowerCase().includes(pesquisa)
-            );
-
-            if (!lista.length) {
-                document.getElementById("listaPedidos").innerHTML = `
-                    <div class="card empty-state"><span class="emoji">📦</span><span>Nenhum pedido.</span></div>
-                `;
-                return;
-            }
-
-            document.getElementById("listaPedidos").innerHTML = lista.slice().reverse().map(x => {
-                const statusClass = x.status === "Recebido" ? "badge-success" :
-                    x.status === "Comprado" ? "badge-info" :
-                    x.status === "Parcialmente recebido" ? "badge-warning" :
-                    x.status === "Cancelado" ? "badge-danger" : "badge-warning";
-
-                const recebidoInfo = x.recebedor ? `<br>👤 Recebido por: ${escapar(x.recebedor)}` : '';
-
-                return `
-                    <div class="card item">
-                        <div class="imagem-placeholder">📦</div>
-                        <div class="item-info">
-                            <div class="nome">${escapar(x.nome)}</div>
-                            <div class="detalhes">
-                                Qtd: ${escapar(x.quantidade || "-")}<br>
-                                Fornecedor: ${escapar(x.fornecedor || "-")}<br>
-                                Setor: ${escapar(x.setor)}
-                                ${recebidoInfo}
-                            </div>
-                            <div class="tags"><span class="badge ${statusClass}">${escapar(x.status)}</span></div>
-                        </div>
-                        <div class="item-actions">
-                            <button onclick="abrirPedido('${x.id}')">✏️</button>
-                            ${x.status !== 'Recebido' && x.status !== 'Cancelado' ? 
-                                `<button onclick="marcarRecebido('${x.id}')">✅</button>` : ''}
-                            <button onclick="excluirPedido('${x.id}')">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        function marcarRecebido(id) {
-            const pedido = pedidosMateriais.find(p => p.id === id);
-            if (!pedido) return;
-            const recebedor = prompt("Nome de quem recebeu:", pedido.recebedor || "");
-            if (recebedor === null) return;
-
-            pedido.status = "Recebido";
-            pedido.recebedor = recebedor.trim() || "Não informado";
-            pedido.dataHoraRecebimento = new Date().toISOString().slice(0, 16);
-
-            salvarBanco();
-            registrarHistorico(pedido.nome, `✅ Material recebido por ${pedido.recebedor}`);
-            mostrarTudo();
-        }
-
-        function excluirPedido(id) {
-            const x = pedidosMateriais.find(p => p.id === id);
-            if (!x) return;
-            if (confirm(`Excluir "${x.nome}"?`)) {
-                pedidosMateriais = pedidosMateriais.filter(p => p.id !== id);
-                registrarHistorico(x.nome, "🗑️ Pedido excluído");
-                salvarBanco();
-                mostrarTudo();
-            }
-        }
-
-        /* =====================================================
-           EXTERNAS
-        ===================================================== */
-        function abrirManutencaoExterna(id = null) {
-            document.getElementById("idExterna").value = id || "";
-            if (id) {
-                const x = manutencoesExternas.find(m => m.id === id);
-                if (!x) return;
-                document.getElementById("tipoExterno").value = x.tipo;
-                document.getElementById("nomeExterno").value = x.nome;
-                document.getElementById("codigoExterno").value = x.codigo || "";
-                document.getElementById("empresaExterna").value = x.empresa || "";
-                document.getElementById("responsavelExterno").value = x.responsavel || "";
-                document.getElementById("dataSaida").value = x.dataSaida || "";
-                document.getElementById("dataRetorno").value = x.dataRetorno || "";
-                document.getElementById("statusExterno").value = x.status;
-                document.getElementById("servicoExterno").value = x.servico || "";
-            } else {
-                document.getElementById("tipoExterno").value = "Ferramenta";
-                document.getElementById("nomeExterno").value = "";
-                document.getElementById("codigoExterno").value = "";
-                document.getElementById("empresaExterna").value = "";
-                document.getElementById("responsavelExterno").value = "";
-                document.getElementById("dataSaida").value = "";
-                document.getElementById("dataRetorno").value = "";
-                document.getElementById("statusExterno").value = "Enviado";
-                document.getElementById("servicoExterno").value = "";
-            }
-            document.getElementById("dialogExterna").showModal();
-        }
-
-        function fecharExterna() { document.getElementById("dialogExterna").close(); }
-
-        function salvarExterna() {
-            const nome = document.getElementById("nomeExterno").value.trim();
-            if (!nome) { alert("Digite o nome do item."); return; }
-
-            const id = document.getElementById("idExterna").value || gerarId();
-            const externo = {
-                id,
-                tipo: document.getElementById("tipoExterno").value,
-                nome,
-                codigo: document.getElementById("codigoExterno").value.trim(),
-                empresa: document.getElementById("empresaExterna").value.trim(),
-                responsavel: document.getElementById("responsavelExterno").value.trim(),
-                dataSaida: document.getElementById("dataSaida").value,
-                dataRetorno: document.getElementById("dataRetorno").value,
-                status: document.getElementById("statusExterno").value,
-                servico: document.getElementById("servicoExterno").value.trim(),
-                dataCadastro: new Date().toISOString()
-            };
-
-            const existe = manutencoesExternas.find(m => m.id === id);
-            if (existe) {
-                manutencoesExternas = manutencoesExternas.map(m => m.id === id ? externo : m);
-                registrarHistorico(nome, "✏️ Manutenção externa atualizada");
-            } else {
-                manutencoesExternas.push(externo);
-                registrarHistorico(nome, "🚚 Manutenção externa cadastrada");
-            }
-
-            salvarBanco();
-            fecharExterna();
-            mostrarTudo();
-        }
-
-        function mostrarManutencoesExternas() {
-            const lista = manutencoesExternas;
-
-            if (!lista.length) {
-                document.getElementById("listaManutencaoExterna").innerHTML = `
-                    <div class="card empty-state"><span class="emoji">🚚</span><span>Nenhum item em manutenção externa.</span></div>
-                `;
-                return;
-            }
-
-            document.getElementById("listaManutencaoExterna").innerHTML = lista.slice().reverse().map(x => {
-                const statusClass = x.status === "Retornado" ? "badge-success" :
-                    x.status === "Enviado" ? "badge-info" :
-                    x.status === "Em manutenção" ? "badge-warning" :
-                    x.status === "Aguardando peça" ? "badge-danger" : "badge-warning";
-
-                return `
-                    <div class="card item">
-                        <div class="imagem-placeholder">🚚</div>
-                        <div class="item-info">
-                            <div class="nome">${escapar(x.nome)}</div>
-                            <div class="detalhes">
-                                Tipo: ${escapar(x.tipo)}<br>
-                                Empresa: ${escapar(x.empresa || "-")}<br>
-                                Responsável: ${escapar(x.responsavel || "-")}
-                                ${x.dataSaida ? `<br>📅 Saída: ${new Date(x.dataSaida).toLocaleDateString('pt-BR')}` : ''}
-                            </div>
-                            <div class="tags"><span class="badge ${statusClass}">${escapar(x.status)}</span></div>
-                        </div>
-                        <div class="item-actions">
-                            <button onclick="abrirManutencaoExterna('${x.id}')">✏️</button>
-                            <button onclick="excluirManutencao('${x.id}')">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        function excluirManutencao(id) {
-            const x = manutencoesExternas.find(m => m.id === id);
-            if (!x) return;
-            if (confirm(`Excluir "${x.nome}"?`)) {
-                manutencoesExternas = manutencoesExternas.filter(m => m.id !== id);
-                registrarHistorico(x.nome, "🗑️ Manutenção externa excluída");
-                salvarBanco();
-                mostrarTudo();
-            }
-        }
-
-        /* =====================================================
-           CÂMERA
-        ===================================================== */
-        async function abrirCamera(destino = "ferramenta") {
-            cameraDestino = destino;
-            try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "environment" }, audio: false
-                });
-                document.getElementById("camera").srcObject = cameraStream;
-                document.getElementById("dialogCamera").showModal();
-            } catch (e) {
-                alert("Não foi possível acessar a câmera.");
-            }
-        }
-
-        function fecharCamera() {
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(t => t.stop());
-                cameraStream = null;
-            }
-            document.getElementById("dialogCamera").close();
-        }
-
-        function tirarFoto() {
-            const video = document.getElementById("camera");
-            const canvas = document.createElement("canvas");
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext("2d").drawImage(video, 0, 0);
-            const imagem = canvas.toDataURL("image/jpeg", 0.85);
-
-            if (cameraDestino === "ferramenta") {
-                midiasFerramenta.push({ tipo: "foto", src: imagem });
-                mostrarPreviewFerramenta();
-            } else if (cameraDestino === "ativo") {
-                midiasAtivo = [{ tipo: "foto", src: imagem }];
-                mostrarPreviewAtivo();
-            }
-            fecharCamera();
-        }
-
-        /* =====================================================
-           HISTÓRICO
-        ===================================================== */
-        function mostrarHistorico() {
-            if (!historico.length) {
-                document.getElementById("listaHistorico").innerHTML = `
-                    <div class="empty-state" style="padding:20px;">
-                        <span class="emoji" style="font-size:32px;">📭</span>
-                        <span>Nenhum registro.</span>
-                    </div>
-                `;
-                return;
-            }
-
-            document.getElementById("listaHistorico").innerHTML =
-                historico.slice().reverse().slice(0, 50).map(h => `
-                    <div class="historico-item">
-                        <div>
-                            <div class="acao">${escapar(h.nome)}</div>
-                            <div class="text-sm muted" style="opacity:0.5;">${escapar(h.acao)}</div>
-                        </div>
-                        <div class="data">${new Date(h.data).toLocaleString("pt-BR")}</div>
-                    </div>
-                `).join("");
-        }
-
-        /* =====================================================
-           WHATSAPP
-        ===================================================== */
-        function abrirWhatsApp(texto) {
-            window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
-        }
-
-        function compartilharFerramenta(id) {
-            const x = ferramentas.find(f => f.id === id);
-            if (!x) return;
-            abrirWhatsApp(`🛠️ *Ferramenta*\nNome: ${x.nome}\nCódigo: ${x.codigo || "-"}\nSetor: ${x.setor}\nStatus: ${x.status}\nObs: ${x.observacoes || "-"}`);
-        }
-
-        function compartilharAtivo(id) {
-            const x = ativos.find(a => a.id === id);
-            if (!x) return;
-            abrirWhatsApp(`🏭 *Ativo*\nNome: ${x.nome}\nTAG: ${x.codigo || "-"}\nTipo: ${x.tipo}\nSetor: ${x.setor}\nStatus: ${x.status}`);
-        }
-
-        function compartilharRelatorio() {
-            let texto = `📊 *RELATÓRIO DE CONTROLE*\n\n`;
-            texto += `🔧 Ferramentas: ${ferramentas.length}\n`;
-            texto += `🟢 Disponíveis: ${ferramentas.filter(x => x.status === "Disponível").length}\n`;
-            texto += `📤 Emprestadas: ${ferramentas.filter(x => x.status === "Emprestada").length}\n`;
-            texto += `🧰 Em manutenção: ${ferramentas.filter(x => x.status === "Manutenção").length}\n`;
-            texto += `⏰ Alarmes ativos: ${alarmes.filter(a => a.ativo).length}\n\n`;
-            texto += `📦 Pedidos: ${pedidosMateriais.length}\n`;
-            texto += `🏭 Ativos: ${ativos.length}\n`;
-            texto += `🔨 Criados: ${ativosCriados.length}\n`;
-            texto += `🚚 Externas: ${manutencoesExternas.length}\n\n`;
-            texto += `_Use o botão de PDF para relatórios completos._`;
-            abrirWhatsApp(texto);
-        }
-
-        /* =====================================================
-           REDE
-        ===================================================== */
-        function atualizarStatusRede() {
-            const online = navigator.onLine;
-            const badge = document.getElementById('statusRede');
-            if (badge) {
-                badge.textContent = online ? '🟢 Online' : '🔴 Offline';
-                badge.style.color = online ? 'var(--verde)' : 'var(--vermelho)';
-            }
-        }
-
-        window.addEventListener('online', atualizarStatusRede);
-        window.addEventListener('offline', atualizarStatusRede);
-
-        /* =====================================================
-           PWA — INSTALAÇÃO
-        ===================================================== */
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const btn = document.createElement('button');
-            btn.id = 'btnInstalarApp';
-            btn.innerHTML = '📲 Instalar App';
-            document.body.appendChild(btn);
-            btn.onclick = async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt = null;
-                    btn.remove();
-                }
-            };
-        });
-
-        window.addEventListener('appinstalled', () => {
-            const b = document.getElementById('btnInstalarApp');
-            if (b) b.remove();
-        });
-
-        /* =====================================================
-           INICIAR
-        ===================================================== */
-        document.addEventListener("DOMContentLoaded", iniciar);
-    </script>
+/* ================= PDF ================= */
+function checkPDF(){
+  if(!jsPDF){ alert("Biblioteca PDF não carregada. Verifique sua conexão."); return false; }
+  return true;
+}
+function cabecalhoPDF(doc, titulo, sub=""){
+  const w = doc.internal.pageSize.getWidth();
+  doc.setFillColor(13,42,61); doc.rect(0,0,w,35,'F');
+  doc.setFillColor(30,184,201); doc.rect(0,33,w,2,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(20); doc.setFont(undefined,'bold');
+  doc.text(titulo,14,18);
+  if(sub){ doc.setFontSize(10); doc.setFont(undefined,'normal'); doc.setTextColor(176,200,217); doc.text(sub,14,27); }
+  doc.setFontSize(9); doc.setTextColor(176,200,217);
+  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, w-14, 18, {align:'right'});
+  if(usuarioAtual){
+    doc.setFontSize(8); doc.setTextColor(176,200,217);
+    doc.text(`Usuário: ${usuarioAtual}`, w-14, 27, {align:'right'});
+  }
+  const h = doc.internal.pageSize.getHeight();
+  doc.setDrawColor(200,200,200); doc.line(14,h-15,w-14,h-15);
+  doc.setFontSize(8); doc.setTextColor(120,120,120);
+  doc.text('Sistema Controle 3D', 14, h-8);
+  doc.text(`Página ${doc.internal.getCurrentPageInfo().pageNumber}`, w-14, h-8, {align:'right'});
+}
+function salvarPDF(doc, nome){
+  doc.save(nome);
+  setTimeout(()=>{
+    if(confirm('✅ PDF gerado!\n\nDeseja enviar via WhatsApp?')){
+      const t = `📄 *${nome}*\n\nRelatório do Sistema Controle 3D. Anexe o arquivo na conversa.`;
+      window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
+    }
+  },500);
+}
+
+function gerarPDFCompleto(){
+  if(!checkPDF()) return;
+  const doc = new jsPDF();
+  cabecalhoPDF(doc,'RELATÓRIO GERAL','Controle de Ferramentas, Ativos e Manutenção');
+  const resumo = [
+    ['Ferramentas', ferramentas.length],
+    ['Disponíveis', ferramentas.filter(f=>f.status==='Disponível').length],
+    ['Emprestadas', ferramentas.filter(f=>f.status==='Emprestada').length],
+    ['Manutenções cadastradas', manutencoes.length],
+    ['Manutenções abertas', manutencoes.filter(m=>m.status!=='Finalizada'&&m.status!=='Sem conserto').length],
+    ['Alarmes ativos', alarmes.filter(a=>a.ativo).length],
+    ['Ativos', ativos.length],
+    ['Criados', ativosCriados.length],
+    ['Pedidos', pedidosMateriais.length],
+    ['Externas', manutencoesExternas.length],
+    ['Setores', setores.length]
+  ];
+  doc.autoTable({startY:45, head:[['Indicador','Quantidade']], body:resumo, theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255,fontStyle:'bold'}, styles:{fontSize:10,cellPadding:3}, alternateRowStyles:{fillColor:[245,250,252]}, margin:{left:14,right:14}});
+
+  // Segunda tabela: ferramentas em manutenção
+  const emManut = ferramentas.filter(f=>f.status==='Manutenção');
+  if(emManut.length > 0){
+    let y = doc.lastAutoTable.finalY + 10;
+    if(y > 240){ doc.addPage(); y = 20; }
+    doc.setFontSize(13); doc.setTextColor(211,47,47); doc.setFont(undefined,'bold');
+    doc.text('🧰 Ferramentas em Manutenção', 14, y);
+    doc.autoTable({
+      startY: y + 4,
+      head:[['Nome','Código','Setor','Observações']],
+      body: emManut.map(f=>[f.nome, f.codigo||'-', f.setor, f.observacoes||'-']),
+      theme:'grid', headStyles:{fillColor:[211,47,47],textColor:255},
+      styles:{fontSize:9,cellPadding:2},
+      margin:{left:14,right:14}
+    });
+  }
+  salvarPDF(doc,`Relatorio_Geral_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+function gerarPDFFerramentas(){
+  if(!checkPDF()) return;
+  const doc = new jsPDF();
+  cabecalhoPDF(doc,'🔧 FERRAMENTAS',`Total: ${ferramentas.length}`);
+  doc.autoTable({
+    startY:45,
+    head:[['Nome','Código','Setor','Qtd','Status']],
+    body: ferramentas.map(f=>[f.nome, f.codigo||'-', f.setor, f.quantidade||1, f.status]),
+    theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255},
+    styles:{fontSize:9,cellPadding:2},
+    alternateRowStyles:{fillColor:[245,250,252]},
+    margin:{left:14,right:14}
+  });
+  salvarPDF(doc,`Ferramentas_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+function gerarPDFManutencao(){
+  if(!checkPDF()) return;
+  const doc = new jsPDF();
+  cabecalhoPDF(doc,'🧰 FERRAMENTAS EM MANUTENÇÃO',`Total: ${manutencoes.length}`);
+  if(!manutencoes.length){
+    doc.setFontSize(12); doc.setTextColor(100,100,100);
+    doc.text('Nenhuma manutenção cadastrada.',14,55);
+  } else {
+    doc.autoTable({
+      startY:45,
+      head:[['Nome','Código','Setor','Tipo','Prior.','Status','Resp.','Entrada']],
+      body: manutencoes.map(m=>[
+        m.nome, m.codigo||'-', m.setor, m.tipo, m.prioridade, m.status,
+        m.responsavel||'-',
+        m.dataEntrada ? new Date(m.dataEntrada).toLocaleDateString('pt-BR') : '-'
+      ]),
+      theme:'grid', headStyles:{fillColor:[211,47,47],textColor:255},
+      styles:{fontSize:8,cellPadding:2},
+      alternateRowStyles:{fillColor:[255,240,240]},
+      margin:{left:14,right:14}
+    });
+  }
+  salvarPDF(doc,`Manutencao_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+function gerarPDFManutencaoItem(id){
+  if(!checkPDF()) return;
+  const m = manutencoes.find(x=>x.id===id);
+  if(!m) return;
+  const doc = new jsPDF();
+  cabecalhoPDF(doc,'🧰 DETALHE DE MANUTENÇÃO', m.nome);
+  let y = 48;
+  doc.setFontSize(11); doc.setTextColor(20,20,20);
+  const linhas = [
+    ['Nome', m.nome],
+    ['Código', m.codigo||'-'],
+    ['Setor', m.setor],
+    ['Tipo', m.tipo],
+    ['Prioridade', m.prioridade],
+    ['Status', m.status],
+    ['Responsável', m.responsavel||'-'],
+    ['Entrada', m.dataEntrada||'-'],
+    ['Saída prevista', m.dataSaida||'-'],
+    ['Custo estimado', m.custo ? `R$ ${m.custo}` : '-'],
+    ['Descrição', m.descricao||'-'],
+    ['Solução', m.solucao||'-'],
+    ['Fotos', (m.fotos?.length||0)+' imagem(ns)'],
+    ['Arquivos', (m.arquivos?.length||0)+' arquivo(s)']
+  ];
+  linhas.forEach(l=>{
+    doc.setFont(undefined,'bold'); doc.text(l[0]+':',14,y);
+    doc.setFont(undefined,'normal');
+    const txt = doc.splitTextToSize(String(l[1]),150);
+    doc.text(txt,55,y);
+    y += txt.length*6 + 2;
+  });
+  salvarPDF(doc,`Manutencao_${m.nome.replace(/\s+/g,'_')}.pdf`);
+}
+
+function gerarPDFAtivos(){
+  if(!checkPDF()) return;
+  const doc = new jsPDF();
+  cabecalhoPDF(doc,'🏭 ATIVOS',`Total: ${ativos.length}`);
+  if(!ativos.length){
+    doc.setFontSize(12); doc.setTextColor(100,100,100);
+    doc.text('Nenhum ativo cadastrado.',14,55);
+  } else {
+    doc.autoTable({
+      startY:45, head:[['Nome','TAG','Tipo','Setor','Status']],
+      body: ativos.map(a=>[a.nome, a.codigo||'-', a.tipo, a.setor, a.status]),
+      theme:'grid', headStyles:{fillColor:[124,92,191],textColor:255},
+      styles:{fontSize:9,cellPadding:2},
+      alternateRowStyles:{fillColor:[248,245,255]},
+      margin:{left:14,right:14}
+    });
+  }
+  salvarPDF(doc,`Ativos_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+function gerarPDFCriados(){
+  if(!checkPDF()) return;
+  const doc = new jsPDF();
+  cabecalhoPDF(doc,'🔨 CRIADOS',`Total: ${ativosCriados.length}`);
+  if(!ativosCriados.length){
+    doc.setFontSize(12); doc.setTextColor(100,100,100);
+    doc.text('Nenhum ativo criado.',14,55);
+  } else {
+    doc.autoTable({
+      startY:45, head:[['Nome','Código','Tipo','Resp.','Setor','Status']],
+      body: ativosCriados.map(a=>[a.nome, a.codigo||'-', a.tipo, a.responsavel||'-', a.setor, a.status]),
+      theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255},
+      styles:{fontSize:9,cellPadding:2},
+      alternateRowStyles:{fillColor:[240,255,245]},
+      margin:{left:14,right:14}
+    });
+  }
+  salvarPDF(doc,`Criados_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+function gerarPDFPedidos(){
+  if(!checkPDF()) return;
+  const doc = new jsPDF();
+  cabecalhoPDF(doc,'📦 PEDIDOS',`Total: ${pedidosMateriais.length}`);
+  if(!pedidosMateriais.length){
+    doc.setFontSize(12); doc.setTextColor(100,100,100);
+    doc.text('Nenhum pedido.',14,55);
+  } else {
+    doc.autoTable({
+      startY:45, head:[['Material','Qtd','Fornecedor','Setor','Status']],
+      body: pedidosMateriais.map(p=>[p.nome, p.quantidade||'-', p.fornecedor||'-', p.setor, p.status]),
+      theme:'grid', headStyles:{fillColor:[245,166,35],textColor:255},
+      styles:{fontSize:9,cellPadding:2},
+      alternateRowStyles:{fillColor:[255,250,240]},
+      margin:{left:14,right:14}
+    });
+  }
+  salvarPDF(doc,`Pedidos_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+function gerarPDFExternas(){
+  if(!checkPDF()) return;
+  const doc = new jsPDF();
+  cabecalhoPDF(doc,'🚚 EXTERNAS',`Total: ${manutencoesExternas.length}`);
+  if(!manutencoesExternas.length){
+    doc.setFontSize(12); doc.setTextColor(100,100,100);
+    doc.text('Nenhuma manutenção externa.',14,55);
+  } else {
+    doc.autoTable({
+      startY:45, head:[['Item','Tipo','Empresa','Resp.','Status']],
+      body: manutencoesExternas.map(m=>[m.nome, m.tipo, m.empresa||'-', m.responsavel||'-', m.status]),
+      theme:'grid', headStyles:{fillColor:[255,107,157],textColor:255},
+      styles:{fontSize:9,cellPadding:2},
+      margin:{left:14,right:14}
+    });
+  }
+  salvarPDF(doc,`Externas_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+function gerarPDFSetores(){
+  if(!checkPDF()) return;
+  const doc = new jsPDF();
+  cabecalhoPDF(doc,'📍 SETORES',`Total: ${setores.length}`);
+  const dados = setores.map(s=>{
+    const nome = s.nome;
+    const f = ferramentas.filter(x=>x.setor===nome);
+    const m = manutencoes.filter(x=>x.setor===nome);
+    return [nome, f.length, f.filter(x=>x.status==='Disponível').length, f.filter(x=>x.status==='Emprestada').length, m.length, ativos.filter(x=>x.setor===nome).length];
+  });
+  doc.autoTable({
+    startY:45, head:[['Setor','Ferr.','Disp.','Empr.','Manut.','Ativos']],
+    body:dados, theme:'grid',
+    headStyles:{fillColor:[45,219,122],textColor:255},
+    styles:{fontSize:9,cellPadding:2},
+    alternateRowStyles:{fillColor:[240,255,245]},
+    margin:{left:14,right:14}
+  });
+  salvarPDF(doc,`Setores_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+/* ================= COMPARTILHAR COMO IMAGEM (PNG) ================= */
+function compartilharRelatorioImagem(){
+  const canvas = document.createElement("canvas");
+  const w = 800, h = 1000;
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext("2d");
+
+  // Fundo gradiente
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0, "#0a1a2e");
+  grad.addColorStop(1, "#0d2a3d");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,w,h);
+
+  // Cabeçalho
+  ctx.fillStyle = "#1eb8c9";
+  ctx.fillRect(0,0,w,8);
+
+  // Título
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 36px sans-serif";
+  ctx.fillText("📊 RELATÓRIO", 40, 70);
+
+  ctx.font = "16px sans-serif";
+  ctx.fillStyle = "#b0c8d9";
+  ctx.fillText(`Controle de Ferramentas 3D • ${new Date().toLocaleString('pt-BR')}`, 40, 100);
+
+  // Linha divisória
+  ctx.strokeStyle = "rgba(255,255,255,0.1)";
+  ctx.beginPath(); ctx.moveTo(40, 120); ctx.lineTo(w-40, 120); ctx.stroke();
+
+  // Dados
+  const dados = [
+    ["🔧 Ferramentas", ferramentas.length, "#1eb8c9"],
+    ["🟢 Disponíveis", ferramentas.filter(x=>x.status==="Disponível").length, "#2ddb7a"],
+    ["📤 Emprestadas", ferramentas.filter(x=>x.status==="Emprestada").length, "#ffd14a"],
+    ["🧰 Manutenções", manutencoes.length, "#ff6b82"],
+    ["🏭 Ativos", ativos.length, "#7c5cbf"],
+    ["🔨 Criados", ativosCriados.length, "#2ddb7a"],
+    ["📦 Pedidos", pedidosMateriais.length, "#f5a623"],
+    ["🚚 Externas", manutencoesExternas.length, "#ff6b9d"],
+    ["📍 Setores", setores.length, "#6ae2ef"]
+  ];
+
+  let y = 180;
+  dados.forEach(d=>{
+    // Círculo colorido
+    ctx.fillStyle = d[2];
+    ctx.beginPath();
+    ctx.arc(55, y-6, 10, 0, Math.PI*2);
+    ctx.fill();
+
+    // Rótulo
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 22px sans-serif";
+    ctx.fillText(d[0], 80, y);
+
+    // Valor à direita
+    ctx.fillStyle = d[2];
+    ctx.font = "bold 32px sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(String(d[1]), w-60, y+5);
+    ctx.textAlign = "left";
+
+    y += 70;
+  });
+
+  // Rodapé
+  ctx.fillStyle = "rgba(255,255,255,0.4)";
+  ctx.font = "14px sans-serif";
+  ctx.fillText("Sistema 3D de Controle de Ferramentas", 40, h-40);
+
+  // Salva / compartilha
+  canvas.toBlob(blob => {
+    const file = new File([blob], `relatorio_${Date.now()}.png`, {type: "image/png"});
+
+    if(navigator.share && navigator.canShare && navigator.canShare({files: [file]})){
+      navigator.share({
+        files: [file],
+        title: "Relatório de Ferramentas",
+        text: "Relatório gerado pelo Sistema Controle 3D"
+      }).catch(()=>{ baixarBlob(blob); });
+    } else {
+      baixarBlob(blob);
+    }
+  }, "image/png");
+}
+function baixarBlob(blob){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `relatorio_${Date.now()}.png`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ================= ALARMES 24H ================= */
+function iniciarAlarme(f){
+  const agora = new Date();
+  const limite = new Date(agora.getTime() + 24*60*60*1000);
+  alarmes = alarmes.filter(a=>a.ferramentaId!==f.id);
+  alarmes.push({
+    id: gerarId(),
+    ferramentaId: f.id,
+    nome: f.nome,
+    codigo: f.codigo,
+    dataEmprestimo: agora.toISOString(),
+    dataLimite: limite.toISOString(),
+    ativo: true,
+    notificado24h:false, notificado12h:false, notificado6h:false, notificado1h:false, notificadoExpirado:false
+  });
+  salvarBanco();
+  verificarAlarmes();
+}
+function pararAlarme(fid){
+  alarmes = alarmes.filter(a=>a.ferramentaId!==fid);
+  salvarBanco();
+  atualizarBadgeAlarme();
+}
+function verificarAlarmes(){
+  const agora = new Date();
+  let alterou = false;
+  alarmes.forEach(a=>{
+    if(!a.ativo) return;
+    const diff = new Date(a.dataLimite).getTime() - agora.getTime();
+    const horas = diff/(1000*60*60);
+    if(diff<=0 && !a.notificadoExpirado){ a.notificadoExpirado=true; alterou=true; mostrarNotificacaoAlarme(a,'expirado'); }
+    else if(horas<=1 && horas>0 && !a.notificado1h){ a.notificado1h=true; alterou=true; mostrarNotificacaoAlarme(a,'1h'); }
+    else if(horas<=6 && horas>1 && !a.notificado6h){ a.notificado6h=true; alterou=true; mostrarNotificacaoAlarme(a,'6h'); }
+    else if(horas<=12 && horas>6 && !a.notificado12h){ a.notificado12h=true; alterou=true; mostrarNotificacaoAlarme(a,'12h'); }
+    else if(horas<=24 && horas>12 && !a.notificado24h){ a.notificado24h=true; alterou=true; mostrarNotificacaoAlarme(a,'24h'); }
+  });
+  if(alterou) salvarBanco();
+  atualizarBadgeAlarme();
+}
+function mostrarNotificacaoAlarme(a, tipo){
+  const c = document.getElementById('alarmeContainer');
+  const n = document.createElement('div');
+  n.className = 'alarme-notificacao';
+  if(tipo==='expirado') n.classList.add('urgente');
+  const msgs = {'24h':'⏰ Prazo de 24h!','12h':'⏰ Restam 12h!','6h':'⚠️ Restam 6h!','1h':'🚨 URGENTE 1h!','expirado':'❌ EXPIRADO!'};
+  const emojis = {'24h':'⏰','12h':'⏰','6h':'⚠️','1h':'🚨','expirado':'❌'};
+  n.innerHTML = `
+    <div class="alarme-header"><div>
+      <div class="alarme-titulo">${emojis[tipo]} ${msgs[tipo]}</div>
+      <div class="alarme-detalhes"><strong>${escapar(a.nome)}</strong>${a.codigo?` (${escapar(a.codigo)})`:''}<br>Prazo: ${new Date(a.dataLimite).toLocaleString('pt-BR')}</div>
+    </div></div>
+    <div class="alarme-acoes">
+      <button onclick="devolverFerramenta('${a.ferramentaId}')">✅ Devolver</button>
+      <button onclick="this.closest('.alarme-notificacao').remove()">✕</button>
+    </div>`;
+  c.appendChild(n);
+  if(tipo!=='expirado') setTimeout(()=>{ if(n.parentNode) n.remove(); }, 30000);
+
+  // Notificação do navegador (se permitido)
+  if("Notification" in window && Notification.permission === "granted"){
+    try{
+      new Notification(`${emojis[tipo]} ${msgs[tipo]}`, {
+        body: `${a.nome}${a.codigo?` (${a.codigo})`:''} — Prazo: ${new Date(a.dataLimite).toLocaleString('pt-BR')}`,
+        icon: "./icon-192.png"
+      });
+    }catch(e){ console.warn(e); }
+  }
+}
+function devolverFerramenta(id){
+  const f = ferramentas.find(x=>x.id===id);
+  if(!f) return;
+  if(confirm(`Devolver "${f.nome}"?`)){
+    f.status = 'Disponível';
+    f.dataEmprestimo = null;
+    salvarBanco();
+    pararAlarme(id);
+    registrarHistorico(f.nome,'devolveu ferramenta');
+    mostrarTudo();
+    document.querySelectorAll('.alarme-notificacao').forEach(n=>n.remove());
+  }
+}
+function atualizarBadgeAlarme(){
+  const count = alarmes.filter(a=>a.ativo).length;
+  const btn = document.querySelector('[data-tela="ferramentas"]');
+  if(btn){
+    if(count>0){ btn.classList.add('alarme-badge'); btn.dataset.count = count; }
+    else { btn.classList.remove('alarme-badge'); btn.dataset.count='0'; }
+  }
+}
+
+/* ================= BACKUP / RESTAURAÇÃO ================= */
+function exportarBackup(){
+  const dados = {
+    versao: "2.0",
+    gerado: new Date().toISOString(),
+    usuario: usuarioAtual || "—",
+    ferramentas, manutencoes, ativos, ativosCriados,
+    pedidosMateriais, manutencoesExternas, historico, alarmes,
+    setores, contadores
+  };
+  const json = JSON.stringify(dados, null, 2);
+  const blob = new Blob([json], {type: "application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const data = new Date().toISOString().slice(0,10);
+  a.download = `backup_controle3d_${data}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  registrarHistorico("Sistema", "exportou backup completo");
+  alert("✅ Backup exportado com sucesso!\n\nGuarde o arquivo em local seguro.");
+}
+
+function importarBackup(arquivo){
+  if(!arquivo) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const dados = JSON.parse(e.target.result);
+      if(!dados.versao && !dados.ferramentas){
+        alert("❌ Arquivo de backup inválido.");
+        return;
+      }
+      if(!confirm("⚠️ ATENÇÃO\n\nImportar o backup vai SUBSTITUIR todos os dados atuais. Deseja continuar?")) return;
+
+      ferramentas = dados.ferramentas || [];
+      manutencoes = dados.manutencoes || [];
+      ativos = dados.ativos || [];
+      ativosCriados = dados.ativosCriados || [];
+      pedidosMateriais = dados.pedidosMateriais || [];
+      manutencoesExternas = dados.manutencoesExternas || [];
+      historico = dados.historico || [];
+      alarmes = dados.alarmes || [];
+      setores = dados.setores || SETORES_PADRAO.map(n => ({nome:n, observacoes:""}));
+      contadores = dados.contadores || {FER:0,AT:0,CR:0,PED:0,EXT:0,MAN:0};
+
+      registrarHistorico("Sistema", `importou backup de ${dados.gerado ? new Date(dados.gerado).toLocaleString('pt-BR') : "arquivo"}`);
+      salvarBanco();
+      atualizarSelectsSetores();
+      mostrarTudo();
+      alert("✅ Backup restaurado com sucesso!");
+    }catch(err){
+      alert("❌ Erro ao ler o arquivo: " + err.message);
+    }
+  };
+  reader.readAsText(arquivo);
+  // Limpa o input para permitir reimportar o mesmo arquivo
+  document.getElementById("inputImportarBackup").value = "";
+}
+
+function apagarTudo(){
+  if(!confirm("⚠️ ATENÇÃO MÁXIMA ⚠️\n\nIsso vai APAGAR TODOS os dados do aplicativo (ferramentas, ativos, manutenções, históricos...).\n\nRecomendamos EXPORTAR um backup antes.\n\nTem certeza?")) return;
+  if(!confirm("🚨 ÚLTIMA CONFIRMAÇÃO 🚨\n\nApagar TUDO agora?")) return;
+
+  localStorage.clear();
+  location.reload();
+}
+
+/* ================= WHATSAPP ================= */
+function abrirWhatsApp(t){ window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank"); }
+function compartilharFerramenta(id){
+  const x = ferramentas.find(f=>f.id===id);
+  if(!x) return;
+  abrirWhatsApp(`🛠️ *Ferramenta*\nNome: ${x.nome}\nCódigo: ${x.codigo||"-"}\nSetor: ${x.setor}\nStatus: ${x.status}\nQtd: ${x.quantidade||1}`);
+}
+function compartilharRelatorio(){
+  let t = `📊 *RELATÓRIO*\n\n`;
+  t += `🔧 Ferramentas: ${ferramentas.length}\n`;
+  t += `🟢 Disponíveis: ${ferramentas.filter(x=>x.status==="Disponível").length}\n`;
+  t += `📤 Emprestadas: ${ferramentas.filter(x=>x.status==="Emprestada").length}\n`;
+  t += `🧰 Manutenções: ${manutencoes.length}\n`;
+  t += `📦 Pedidos: ${pedidosMateriais.length}\n`;
+  t += `🏭 Ativos: ${ativos.length}\n`;
+  t += `🔨 Criados: ${ativosCriados.length}\n`;
+  t += `📍 Setores: ${setores.length}\n`;
+  t += `\n_${new Date().toLocaleString('pt-BR')}_`;
+  abrirWhatsApp(t);
+}
+
+/* ================= REDE ================= */
+function atualizarStatusRede(){
+  const on = navigator.onLine;
+  const b = document.getElementById('statusRede');
+  if(b){ b.textContent = on?'🟢 Online':'🔴 Offline'; b.style.color = on?'var(--verde)':'var(--vermelho)'; }
+}
+window.addEventListener('online', atualizarStatusRede);
+window.addEventListener('offline', atualizarStatusRede);
+
+/* ================= PWA ================= */
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault(); deferredPrompt = e;
+  if(document.getElementById('btnInstalarApp')) return;
+  const b = document.createElement('button');
+  b.id = 'btnInstalarApp'; b.innerHTML = '📲 Instalar App';
+  document.body.appendChild(b);
+  b.onclick = async ()=>{
+    if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt = null; b.remove(); }
+  };
+});
+window.addEventListener('appinstalled', ()=>{ const b = document.getElementById('btnInstalarApp'); if(b) b.remove(); });
+
+/* ================= PERMISSÃO DE NOTIFICAÇÃO ================= */
+function solicitarNotificacoes(){
+  if("Notification" in window && Notification.permission === "default"){
+    Notification.requestPermission().then(perm => {
+      if(perm === "granted"){
+        registrarHistorico("Sistema", "ativou notificações do navegador");
+      }
+    });
+  }
+}
+
+/* ================= START ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  iniciar();
+  setTimeout(solicitarNotificacoes, 3000);
+});
+</script>
 </body>
 </html>
