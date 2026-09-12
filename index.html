@@ -1,3 +1,2049 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Ferramentas 3D</title>
+<link rel="manifest" href="./manifest.json">
+
+<!-- Bibliotecas -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(()=>console.log('✅ SW registrado'))
+      .catch(e=>console.log('❌ SW:',e));
+  });
+}
+</script>
+
+<style>
+:root{
+  --fundo1:#060d17;--fundo2:#0a1a2e;--fundo3:#0d2a3d;
+  --card:rgba(255,255,255,0.06);--borda:rgba(255,255,255,0.10);
+  --texto:#fff;--cinza:#b0c8d9;--bg-header:rgba(3,10,20,0.92);
+  --verde:#2ddb7a;--amarelo:#ffd14a;--vermelho:#ff6b82;
+  --azul:#1eb8c9;--azul-claro:#6ae2ef;--roxo:#7c5cbf;
+  --laranja:#f5a623;--rosa:#ff6b9d;
+  --sombra:0 15px 50px rgba(0,0,0,0.5);
+  --radius:16px;--transition:0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+body.tema-claro{
+  --fundo1:#f4f6fa;--fundo2:#e8edf5;--fundo3:#dde5f0;
+  --card:rgba(255,255,255,0.85);--borda:rgba(0,0,0,0.08);
+  --texto:#0a1a2e;--cinza:#4a5b6e;--bg-header:rgba(255,255,255,0.92);
+  --sombra:0 15px 50px rgba(0,0,0,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  color:var(--texto);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 20% 50%,rgba(30,184,201,0.08) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(124,92,191,0.08) 0%,transparent 50%),
+             linear-gradient(180deg,var(--fundo1) 0%,var(--fundo2) 40%,var(--fundo3) 100%);
+  background-attachment:fixed;
+  transition:background 0.4s ease,color 0.4s ease;
+}
+.app-wrapper{position:relative;z-index:1}
+header{
+  position:sticky;top:0;z-index:20;padding:12px 20px 8px;
+  background:var(--bg-header);backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--borda);
+  box-shadow:0 4px 30px rgba(0,0,0,0.3);
+  transition:background 0.4s ease;
+}
+.header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.logo-area{display:flex;align-items:center;gap:14px}
+.logo-icon{
+  width:48px;height:48px;border-radius:16px;
+  background:linear-gradient(135deg,var(--azul),var(--roxo),var(--rosa),var(--amarelo));
+  background-size:300% 300%;display:grid;place-items:center;font-size:24px;
+  box-shadow:0 4px 30px rgba(30,184,201,0.3);
+  animation:logoSpin 6s ease-in-out infinite alternate;
+}
+@keyframes logoSpin{0%{background-position:0% 50%;transform:rotateY(0)}50%{transform:rotateY(180deg)}100%{background-position:100% 50%;transform:rotateY(360deg)}}
+.logo-text h1{
+  font-size:22px;font-weight:800;
+  background:linear-gradient(135deg,var(--texto) 30%,var(--azul-claro),var(--roxo),var(--rosa));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;background-size:300% 300%;
+  animation:textGrad 6s ease-in-out infinite alternate;
+}
+@keyframes textGrad{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+.subtitulo{font-size:12px;color:var(--cinza);opacity:.7}
+.header-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.header-actions button{padding:6px 12px;font-size:12px;border-radius:20px}
+#statusRede{font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:rgba(0,0,0,0.2);border:1px solid var(--borda);white-space:nowrap}
+#usuarioAtual{font-size:12px;padding:4px 12px;border-radius:20px;background:rgba(30,184,201,0.15);border:1px solid rgba(30,184,201,0.3);color:var(--azul-claro);cursor:pointer}
+nav{display:flex;gap:5px;overflow-x:auto;padding-top:10px;scrollbar-width:thin}
+nav button{white-space:nowrap;border:none;background:transparent;color:var(--cinza);border-radius:30px;padding:8px 18px;font-weight:600;font-size:13px;cursor:pointer;transition:var(--transition);position:relative}
+nav button:hover{color:var(--texto);background:var(--card);transform:translateY(-3px)}
+nav button.ativo{color:#fff;background:linear-gradient(135deg,var(--azul),var(--roxo),var(--rosa));background-size:200% 200%;animation:btnGrad 3s ease-in-out infinite alternate;box-shadow:0 4px 35px rgba(30,184,201,0.3)}
+@keyframes btnGrad{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+nav button.alarme-badge::after{content:attr(data-count);position:absolute;top:-4px;right:-4px;background:var(--vermelho);color:#fff;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.container{max-width:1260px;margin:auto;padding:18px 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--borda);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--sombra);backdrop-filter:blur(16px);transition:var(--transition);position:relative;overflow:hidden}
+.card:hover{transform:translateY(-8px);border-color:rgba(30,184,201,0.3);box-shadow:0 30px 80px rgba(0,0,0,0.3)}
+.card h2,.card h3{margin-top:0;font-weight:600}
+.card h3{font-size:13px;color:var(--cinza);letter-spacing:.5px;text-transform:uppercase;font-weight:500;opacity:.7}
+.estatistica{text-align:center;padding:4px 2px}
+.estatistica .icon{font-size:34px;display:block;margin-bottom:2px}
+.estatistica .label{font-size:11px;color:var(--cinza);opacity:.7;text-transform:uppercase;letter-spacing:.8px}
+.estatistica strong{display:block;font-size:40px;font-weight:800;margin-top:2px;background:linear-gradient(135deg,var(--texto) 20%,var(--azul-claro),var(--roxo),var(--rosa));background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;animation:counterGrad 4s ease-in-out infinite alternate}
+@keyframes counterGrad{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+button{border:none;background:var(--card);color:var(--texto);border-radius:30px;padding:9px 22px;font-weight:600;font-size:13px;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:6px;border:1px solid var(--borda)}
+button:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,0,0,0.3);border-color:rgba(30,184,201,0.4)}
+.btn-primary{background:linear-gradient(135deg,var(--azul),var(--roxo));border-color:transparent;color:#fff}
+.btn-success{background:linear-gradient(135deg,#1a8a5a,#2ddb7a);border-color:transparent;color:#fff}
+.btn-danger{background:linear-gradient(135deg,#a82f4a,#ff6b82);border-color:transparent;color:#fff}
+.btn-outline{background:transparent;border-color:var(--borda)}
+.btn-pdf{background:linear-gradient(135deg,#d32f2f,#ff5722);border-color:transparent;color:#fff}
+.btn-created{background:linear-gradient(135deg,#2ddb7a,#1eb8c9);border-color:transparent;color:#fff}
+.btn-pedido{background:linear-gradient(135deg,#f5a623,#ff6b9d);border-color:transparent;color:#fff}
+.btn-manut{background:linear-gradient(135deg,#ff6b82,#ffd14a);border-color:transparent;color:#fff}
+.btn-filtro{padding:6px 14px;font-size:12px;border-radius:20px;background:var(--card);border:1px solid var(--borda)}
+.btn-filtro.ativo{background:linear-gradient(135deg,var(--azul),var(--roxo));border-color:transparent;color:#fff}
+.item{display:grid;grid-template-columns:90px 1fr auto;gap:14px;align-items:center;padding:8px 10px}
+.imagem-mini{width:90px;height:72px;object-fit:cover;border-radius:12px;background:rgba(0,0,0,0.2);border:1px solid var(--borda)}
+.imagem-placeholder{width:90px;height:72px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px dashed var(--borda);display:grid;place-items:center;font-size:32px;color:var(--cinza);opacity:.5}
+.item-info .nome{font-weight:600;font-size:15px}
+.item-info .detalhes{color:var(--cinza);font-size:12px;line-height:1.5;margin:2px 0 4px;opacity:.8}
+.item-info .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.item-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.item-actions button{padding:5px 10px;font-size:13px;border-radius:30px;min-width:34px;justify-content:center}
+.badge{display:inline-block;padding:3px 12px;margin:2px 2px 2px 0;border-radius:999px;font-size:11px;font-weight:500;border:1px solid transparent}
+.badge-success{background:rgba(45,219,122,0.15);color:var(--verde)}
+.badge-warning{background:rgba(255,209,74,0.15);color:#b88a00}
+body:not(.tema-claro) .badge-warning{color:var(--amarelo)}
+.badge-danger{background:rgba(255,107,130,0.15);color:var(--vermelho)}
+.badge-info{background:rgba(30,184,201,0.15);color:var(--azul)}
+.badge-created{background:rgba(45,219,122,0.15);color:var(--verde)}
+.badge-pedido{background:rgba(245,166,35,0.15);color:#c47a00}
+body:not(.tema-claro) .badge-pedido{color:var(--laranja)}
+.badge-tempo{background:rgba(255,209,74,0.15);color:#b88a00;font-weight:600}
+body:not(.tema-claro) .badge-tempo{color:var(--amarelo)}
+.badge-tempo.urgente{background:rgba(255,107,130,0.2);color:var(--vermelho)}
+.badge-manutencao{background:rgba(255,107,130,0.15);color:var(--vermelho)}
+.badge-qtd{background:rgba(124,92,191,0.15);color:var(--roxo);font-weight:600}
+dialog{width:min(800px,94vw);padding:0;border:1px solid var(--borda);border-radius:24px;background:var(--bg-header);backdrop-filter:blur(40px);color:var(--texto);box-shadow:0 50px 120px rgba(0,0,0,0.9);animation:modalBounce .5s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes modalBounce{from{opacity:0;transform:scale(.8) translateY(80px)}to{opacity:1;transform:scale(1) translateY(0)}}
+dialog::backdrop{background:rgba(0,0,0,0.8);backdrop-filter:blur(12px)}
+.modal{padding:26px 30px;max-height:90vh;overflow-y:auto}
+.modal h2{font-size:22px;font-weight:700;margin-bottom:18px;background:linear-gradient(135deg,var(--texto) 30%,var(--azul-claro),var(--roxo),var(--rosa));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.modal label{display:block;font-size:13px;font-weight:500;margin:12px 0 4px;color:var(--cinza);opacity:.8}
+.modal input,.modal select,.modal textarea{width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--borda);background:rgba(0,0,0,0.15);color:var(--texto);font-size:14px;font-family:inherit;outline:none}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--azul);box-shadow:0 0 0 4px rgba(30,184,201,0.08)}
+.modal .acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.modal .preview{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.modal .preview img,.modal .preview video{max-width:150px;max-height:150px;border-radius:12px;border:1px solid var(--borda);object-fit:cover}
+.setor-card .count{font-size:28px;font-weight:700;margin:2px 0;background:linear-gradient(135deg,var(--texto) 30%,var(--azul-claro),var(--amarelo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.historico-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--borda)}
+.historico-item .acao{font-weight:500;font-size:14px}
+.historico-item .data{font-size:11px;color:var(--cinza);opacity:.6;white-space:nowrap}
+.hidden{display:none !important}
+.muted{color:var(--cinza)}
+.text-sm{font-size:12px}
+.mt-10{margin-top:10px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}.mb-10{margin-bottom:10px}
+.flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.section-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:22px 0 16px}
+.section-header h2{font-weight:700;font-size:19px;background:linear-gradient(135deg,var(--texto) 30%,var(--azul-claro),var(--roxo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.empty-state{text-align:center;padding:50px 20px;color:var(--cinza)}
+.empty-state .emoji{font-size:52px;display:block;margin-bottom:14px;opacity:.4}
+.search-bar input{width:100%;padding:11px 16px;border-radius:12px;background:rgba(0,0,0,0.15);color:var(--texto);outline:none;font-size:14px;border:1px solid var(--borda);margin:4px 0 10px;font-family:inherit}
+.search-bar input:focus{border-color:var(--azul);box-shadow:0 0 0 4px rgba(30,184,201,0.08)}
+footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opacity:.4;border-top:1px solid var(--borda);margin-top:28px}
+.pdf-panel{background:linear-gradient(135deg,rgba(211,47,47,0.08),rgba(255,87,34,0.05));border:1px solid rgba(255,87,34,0.2);border-radius:var(--radius);padding:22px 24px;margin-top:16px}
+.pdf-panel h2{font-size:18px;font-weight:700;margin-bottom:6px;background:linear-gradient(135deg,#ff5722,#ff6b9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pdf-panel p{font-size:13px;color:var(--cinza);opacity:.8;margin-bottom:14px}
+.pdf-botoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.pdf-botoes button{justify-content:center;padding:12px 18px;font-size:13px}
+#btnInstalarApp{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg,var(--azul),var(--roxo));color:#fff;padding:12px 28px;border-radius:30px;font-weight:700;font-size:15px;box-shadow:0 8px 40px rgba(30,184,201,0.4);animation:pulseInstalar 2s ease-in-out infinite}
+@keyframes pulseInstalar{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.05)}}
+.alarme-container{position:fixed;top:80px;right:20px;z-index:1000;max-width:400px;width:100%;pointer-events:none}
+.alarme-notificacao{background:rgba(255,107,130,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,107,130,0.3);border-radius:16px;padding:18px 20px;margin-bottom:12px;box-shadow:0 20px 60px rgba(0,0,0,0.6);animation:slideInAlarme .5s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto}
+.alarme-notificacao.urgente{background:rgba(255,0,0,0.9);animation:pulseAlarme 1s ease-in-out infinite alternate}
+@keyframes slideInAlarme{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulseAlarme{0%{transform:scale(1)}100%{transform:scale(1.02)}}
+.alarme-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.alarme-titulo{font-weight:700;font-size:16px;color:#fff}
+.alarme-detalhes{font-size:13px;margin-top:6px;line-height:1.4;color:#fff}
+.alarme-acoes{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.alarme-acoes button{padding:6px 16px;font-size:12px;border-radius:20px;background:rgba(255,255,255,0.2);color:#fff}
+.filtros-rapidos{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
+.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.chart-container{position:relative;height:250px}
+#reader{width:100%;max-width:400px;margin:auto;border-radius:12px;overflow:hidden}
+@media (max-width:768px){
+  .item{grid-template-columns:1fr;gap:8px;text-align:center}
+  .item .imagem-mini,.item .imagem-placeholder{width:100%;height:130px;margin:0 auto;max-width:200px}
+  .item-actions{justify-content:center}
+  .modal{padding:16px 18px}
+  .logo-icon{width:38px;height:38px;font-size:20px}
+  .estatistica strong{font-size:30px}
+  .grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
+  nav button{font-size:11.5px;padding:6px 12px}
+  .alarme-container{top:70px;right:10px;max-width:calc(100% - 20px)}
+  .header-actions{gap:4px}
+  .header-actions button{padding:5px 10px;font-size:11px}
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--borda);border-radius:10px}
+</style>
+</head>
+<body>
+
+<div id="alarmeContainer" class="alarme-container"></div>
+
+<div class="app-wrapper">
+<header>
+  <div class="header-top">
+    <div class="logo-area">
+      <div class="logo-icon">🛠</div>
+      <div class="logo-text">
+        <h1>Controle 3D</h1>
+        <div class="subtitulo">Ferramentas • Ativos • Manutenção</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="usuarioAtual" onclick="trocarUsuario()" title="Clique para trocar de usuário">👤 —</span>
+      <button id="btnTema" onclick="alternarTema()" title="Modo claro/escuro">☀️</button>
+      <span id="statusRede">🟢 Online</span>
+    </div>
+  </div>
+  <nav>
+    <button class="ativo" data-tela="painel">📊 Painel</button>
+    <button data-tela="ferramentas" class="alarme-badge" data-count="0">🔧 Ferramentas</button>
+    <button data-tela="manutencao">🧰 Manutenção</button>
+    <button data-tela="ativos">🏭 Ativos</button>
+    <button data-tela="criados">🔨 Criados</button>
+    <button data-tela="pedidos">📦 Pedidos</button>
+    <button data-tela="externa">🚚 Externa</button>
+    <button data-tela="setores">📍 Setores</button>
+    <button data-tela="historico">📋 Histórico</button>
+  </nav>
+</header>
+
+<main class="container">
+
+<!-- PAINEL -->
+<section id="painel">
+  <div id="estatisticas" class="grid"></div>
+
+  <!-- GRÁFICOS -->
+  <div class="dashboard-grid mt-20">
+    <div class="card">
+      <h3>📊 Ferramentas por status</h3>
+      <div class="chart-container"><canvas id="graficoStatus"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>🏭 Top 6 setores com mais itens</h3>
+      <div class="chart-container"><canvas id="graficoSetores"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card mt-20">
+    <h2>🏭 Resumo da Empresa</h2>
+    <div id="resumoEmpresa" style="display:flex;gap:24px;flex-wrap:wrap;margin-top:8px;"></div>
+  </div>
+
+  <!-- BACKUP -->
+  <div class="card mt-20" style="border-left:3px solid var(--verde);">
+    <h2>💾 Backup e Restauração</h2>
+    <p class="muted text-sm" style="margin:8px 0 12px;opacity:.8;">
+      Exporte um arquivo de backup com todos os dados. Guarde em local seguro (Google Drive, e-mail…).
+      Se algo acontecer, importe o arquivo para restaurar tudo.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn-success" onclick="exportarBackup()">💾 Exportar Backup</button>
+      <button class="btn-primary" onclick="document.getElementById('inputImportarBackup').click()">📥 Importar Backup</button>
+      <input id="inputImportarBackup" type="file" accept=".json" class="hidden" onchange="importarBackup(this.files[0])">
+      <button class="btn-danger" onclick="apagarTudo()">🗑️ Apagar Tudo</button>
+    </div>
+  </div>
+
+  <!-- RELATÓRIOS PDF -->
+  <div class="pdf-panel mt-20">
+    <h2>📄 Relatórios em PDF</h2>
+    <p>Gere relatórios profissionais em PDF e envie pelo WhatsApp.</p>
+    <div class="pdf-botoes">
+      <button class="btn-pdf" onclick="gerarPDFCompleto()">📊 Relatório Geral</button>
+      <button class="btn-pdf" onclick="gerarPDFFerramentas()">🔧 Ferramentas</button>
+      <button class="btn-pdf" onclick="gerarPDFManutencao()">🧰 Manutenção</button>
+      <button class="btn-pdf" onclick="gerarPDFAtivos()">🏭 Ativos</button>
+      <button class="btn-pdf" onclick="gerarPDFCriados()">🔨 Criados</button>
+      <button class="btn-pdf" onclick="gerarPDFPedidos()">📦 Pedidos</button>
+      <button class="btn-pdf" onclick="gerarPDFExternas()">🚚 Externas</button>
+      <button class="btn-pdf" onclick="gerarPDFSetores()">📍 Setores</button>
+    </div>
+  </div>
+
+  <div class="card mt-16">
+    <h2>📲 Compartilhar Relatório Rápido</h2>
+    <div class="acoes">
+      <button class="btn-success" onclick="compartilharRelatorio()">📱 WhatsApp (texto)</button>
+      <button class="btn-primary" onclick="compartilharRelatorioImagem()">🖼️ Imagem PNG</button>
+      <button class="btn-outline" onclick="window.print()">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>📍 Setores</h2>
+    <button class="btn-primary" onclick="abrirFerramenta()">＋ Nova ferramenta</button>
+  </div>
+  <div id="cartoesSetores" class="grid"></div>
+</section>
+
+<!-- FERRAMENTAS -->
+<section id="ferramentas" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;">🔧 Ferramentas</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-outline" onclick="abrirScanner()">📷 Escanear</button>
+      <button class="btn-primary" onclick="abrirFerramenta()">＋ Cadastrar</button>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaFerramenta" placeholder="🔎 Pesquisar ferramenta, código ou setor..." oninput="mostrarFerramentas()">
+  </div>
+  <div class="filtros-rapidos" id="filtrosFerramentas">
+    <button class="btn-filtro ativo" data-filtro="todas" onclick="setFiltro('todas')">Todas</button>
+    <button class="btn-filtro" data-filtro="disponivel" onclick="setFiltro('disponivel')">🟢 Disponíveis</button>
+    <button class="btn-filtro" data-filtro="emprestada" onclick="setFiltro('emprestada')">📤 Emprestadas</button>
+    <button class="btn-filtro" data-filtro="manutencao" onclick="setFiltro('manutencao')">🧰 Manutenção</button>
+    <button class="btn-filtro" data-filtro="atrasada" onclick="setFiltro('atrasada')">⚠️ Atrasadas</button>
+  </div>
+  <div id="listaFerramentas" class="grid"></div>
+</section>
+
+<!-- MANUTENÇÃO -->
+<section id="manutencao" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,var(--texto) 30%,var(--vermelho),var(--laranja));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🧰 Ferramentas em Manutenção</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-pdf" onclick="gerarPDFManutencao()">📄 PDF Manutenção</button>
+      <button class="btn-manut" onclick="abrirManutencao()">＋ Cadastrar Manutenção</button>
+    </div>
+  </div>
+  <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--vermelho);">
+    <p class="muted text-sm" style="margin:0;opacity:.8;">🔴 Ferramentas indisponíveis — cadastre aqui as ferramentas em manutenção de forma independente.</p>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaManutencao" placeholder="🔎 Pesquisar..." oninput="mostrarManutencoes()">
+  </div>
+  <div id="listaManutencoes" class="grid"></div>
+</section>
+
+<!-- ATIVOS -->
+<section id="ativos" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;">🏭 Ativos</h2>
+    <button class="btn-primary" onclick="abrirAtivo()">＋ Novo ativo</button>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaAtivo" placeholder="🔎 Pesquisar..." oninput="mostrarAtivos()">
+  </div>
+  <div id="listaAtivos" class="grid"></div>
+</section>
+
+<!-- CRIADOS -->
+<section id="criados" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;">🔨 Criados pela Manutenção</h2>
+    <button class="btn-created" onclick="abrirCriado()">＋ Criar Ativo</button>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaCriado" placeholder="🔎 Pesquisar..." oninput="mostrarCriados()">
+  </div>
+  <div id="listaCriados" class="grid"></div>
+</section>
+
+<!-- PEDIDOS -->
+<section id="pedidos" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;">📦 Pedidos</h2>
+    <button class="btn-pedido" onclick="abrirPedido()">＋ Novo Pedido</button>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaPedido" placeholder="🔎 Pesquisar..." oninput="mostrarPedidos()">
+  </div>
+  <div id="listaPedidos" class="grid"></div>
+</section>
+
+<!-- EXTERNA -->
+<section id="externa" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;">🚚 Manutenção Externa</h2>
+    <button class="btn-primary" onclick="abrirManutencaoExterna()">＋ Enviar</button>
+  </div>
+  <div id="listaManutencaoExterna" class="grid"></div>
+</section>
+
+<!-- SETORES -->
+<section id="setores" class="hidden">
+  <div class="flex-between" style="margin-bottom:16px;">
+    <h2 style="font-weight:700;font-size:19px;">📍 Mapa dos Setores</h2>
+    <button class="btn-primary" onclick="abrirSetorNovo()">＋ Novo Setor</button>
+  </div>
+  <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--azul);">
+    <p class="muted text-sm" style="margin:0;opacity:.85;">
+      👆 Toque em qualquer setor para renomear, excluir, adicionar anotações e gerenciar ferramentas.
+    </p>
+  </div>
+  <div id="mapaSetores" class="grid mt-10"></div>
+</section>
+
+<!-- HISTÓRICO -->
+<section id="historico" class="hidden">
+  <div class="flex-between" style="margin-bottom:16px;">
+    <h2 style="font-weight:700;font-size:19px;">📋 Histórico Geral</h2>
+    <button class="btn-outline" onclick="limparHistorico()">🗑️ Limpar Histórico</button>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaHistorico" placeholder="🔎 Filtrar histórico..." oninput="mostrarHistorico()">
+  </div>
+  <div id="listaHistorico" class="card mt-10" style="padding:8px 16px;"></div>
+</section>
+
+</main>
+<footer>✦ Sistema 3D de Controle de Ferramentas e Manutenção ✦</footer>
+</div>
+
+<!-- ============ MODAIS ============ -->
+<dialog id="dialogUsuario">
+  <div class="modal" style="max-width:420px;">
+    <h2>👤 Quem está usando?</h2>
+    <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Digite seu nome para registrar todas as ações no histórico.</p>
+    <label>Nome do usuário</label>
+    <input id="nomeUsuarioInput" placeholder="Ex.: João Silva" maxlength="40">
+    <div class="acoes" style="margin-top:18px;">
+      <button class="btn-outline" onclick="document.getElementById('dialogUsuario').close()">Cancelar</button>
+      <button class="btn-primary" onclick="salvarUsuario()">💾 Confirmar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogScanner">
+  <div class="modal" style="max-width:500px;">
+    <h2>📷 Escanear Código</h2>
+    <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Aponte a câmera para o código de barras ou QR Code da ferramenta.</p>
+    <div id="reader"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button class="btn-outline" onclick="fecharScanner()">Fechar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogHistoricoItem">
+  <div class="modal" style="max-width:600px;">
+    <h2 id="tituloHistoricoItem">📜 Histórico do Item</h2>
+    <div id="conteudoHistoricoItem"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button class="btn-outline" onclick="document.getElementById('dialogHistoricoItem').close()">Fechar</button>
+    </div>
+  </div>
+</dialog>
+<!-- ============ MODAIS PRINCIPAIS ============ -->
+<dialog id="dialogFerramenta">
+  <div class="modal">
+    <h2 id="tituloFerramenta">Cadastrar ferramenta</h2>
+    <input type="hidden" id="idFerramenta">
+    <label>Nome</label><input id="nomeFerramenta" placeholder="Ex.: Furadeira">
+    <label>Código</label>
+    <input id="codigoFerramenta" placeholder="Deixe vazio para gerar automaticamente">
+    <label>Quantidade</label>
+    <input id="quantidadeFerramenta" type="number" min="1" value="1" placeholder="Ex.: 1">
+    <label>Setor</label><select id="setorFerramenta"></select>
+    <label>Status</label>
+    <select id="statusFerramenta">
+      <option>Disponível</option><option>Emprestada</option><option>Manutenção</option>
+    </select>
+    <label>Observações</label><textarea id="obsFerramenta" rows="3"></textarea>
+    <div class="acoes">
+      <button class="btn-outline" onclick="document.getElementById('entradaFoto').click()">📷 Foto</button>
+      <button class="btn-outline" onclick="abrirCamera('ferramenta')">📹 Câmera</button>
+    </div>
+    <input id="entradaFoto" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotos(this.files)">
+    <div id="previewFerramenta" class="preview"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button class="btn-outline" onclick="fecharFerramenta()">Cancelar</button>
+      <button class="btn-primary" onclick="salvarFerramenta()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogManutencao">
+  <div class="modal">
+    <h2 id="tituloManutencao">🧰 Cadastrar Manutenção</h2>
+    <input type="hidden" id="idManutencao">
+    <label>Nome da ferramenta *</label>
+    <input id="nomeManutencao" placeholder="Ex.: Furadeira Bosch">
+    <label>Código</label>
+    <input id="codigoManutencao" placeholder="Ex.: FER-001">
+    <label>Setor</label>
+    <select id="setorManutencao"></select>
+    <label>Tipo de manutenção</label>
+    <select id="tipoManutencao">
+      <option>Corretiva</option><option>Preventiva</option><option>Preditiva</option>
+      <option>Reparo elétrico</option><option>Reparo mecânico</option>
+      <option>Troca de peça</option><option>Outro</option>
+    </select>
+    <label>Prioridade</label>
+    <select id="prioridadeManutencao">
+      <option>Baixa</option><option selected>Média</option>
+      <option>Alta</option><option>Urgente</option>
+    </select>
+    <label>Responsável técnico</label>
+    <input id="responsavelManutencao" placeholder="Ex.: João Silva">
+    <label>Data de entrada *</label>
+    <input id="dataEntradaManutencao" type="date">
+    <label>Previsão de saída</label>
+    <input id="dataSaidaManutencao" type="date">
+    <label>Status</label>
+    <select id="statusManutencao">
+      <option>Aguardando análise</option><option>Em andamento</option>
+      <option>Aguardando peça</option><option>Em teste</option>
+      <option>Finalizada</option><option>Sem conserto</option>
+    </select>
+    <label>Custo estimado (R$)</label>
+    <input id="custoManutencao" placeholder="Ex.: 150.00">
+    <label>Descrição do problema</label>
+    <textarea id="descricaoManutencao" rows="3"></textarea>
+    <label>Solução aplicada</label>
+    <textarea id="solucaoManutencao" rows="3"></textarea>
+    <div class="acoes">
+      <button class="btn-outline" onclick="document.getElementById('entradaFotoManutencao').click()">📷 Foto</button>
+      <button class="btn-outline" onclick="document.getElementById('entradaArquivoManutencao').click()">📎 Anexar Arquivo</button>
+      <button class="btn-outline" onclick="abrirCamera('manutencao')">📹 Câmera</button>
+    </div>
+    <input id="entradaFotoManutencao" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotosManutencao(this.files)">
+    <input id="entradaArquivoManutencao" class="hidden" type="file" multiple onchange="adicionarArquivosManutencao(this.files)">
+    <div id="previewManutencao" class="preview"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button class="btn-outline" onclick="fecharManutencao()">Cancelar</button>
+      <button class="btn-manut" onclick="salvarManutencao()">💾 Salvar Manutenção</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogAtivo">
+  <div class="modal">
+    <h2>🏭 Cadastro de Ativo</h2>
+    <input type="hidden" id="idAtivo">
+    <label>Nome</label><input id="nomeAtivo">
+    <label>TAG</label><input id="codigoAtivo" placeholder="Deixe vazio para gerar automaticamente">
+    <label>Tipo</label>
+    <select id="tipoAtivo">
+      <option>Máquina</option><option>Equipamento</option><option>Veículo</option>
+      <option>Instalação</option><option>Outro</option>
+    </select>
+    <label>Setor</label><select id="setorAtivo"></select>
+    <label>Status</label>
+    <select id="statusAtivo">
+      <option>Operando</option><option>Parado</option>
+      <option>Manutenção</option><option>Manutenção Externa</option>
+    </select>
+    <label>Observações</label><textarea id="obsAtivo" rows="3"></textarea>
+    <div class="acoes">
+      <button class="btn-outline" onclick="document.getElementById('entradaFotoAtivo').click()">📷 Foto</button>
+      <button class="btn-outline" onclick="abrirCamera('ativo')">📹 Câmera</button>
+    </div>
+    <input id="entradaFotoAtivo" class="hidden" type="file" accept="image/*" capture="environment" onchange="adicionarFotoAtivo(this.files[0])">
+    <div id="previewAtivo" class="preview"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button class="btn-outline" onclick="fecharAtivo()">Cancelar</button>
+      <button class="btn-primary" onclick="salvarAtivo()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogCriado">
+  <div class="modal">
+    <h2>🔨 Ativo Criado</h2>
+    <input type="hidden" id="idCriado">
+    <label>Nome</label><input id="nomeCriado">
+    <label>Código</label><input id="codigoCriado" placeholder="Deixe vazio para gerar automaticamente">
+    <label>Tipo</label>
+    <select id="tipoCriado">
+      <option>Máquina</option><option>Equipamento</option><option>Ferramenta</option>
+      <option>Instalação</option><option>Estrutura</option><option>Outro</option>
+    </select>
+    <label>Responsável</label><input id="responsavelCriado">
+    <label>Setor</label><select id="setorCriado"></select>
+    <label>Data</label><input id="dataCriado" type="date">
+    <label>Status</label>
+    <select id="statusCriado">
+      <option>Em produção</option><option>Finalizado</option><option>Instalado</option>
+      <option>Em teste</option><option>Em manutenção</option>
+    </select>
+    <label>Materiais</label><textarea id="materiaisCriado" rows="3"></textarea>
+    <label>Observações</label><textarea id="obsCriado" rows="3"></textarea>
+    <div class="acoes" style="margin-top:18px;">
+      <button class="btn-outline" onclick="fecharCriado()">Cancelar</button>
+      <button class="btn-created" onclick="salvarCriado()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogPedido">
+  <div class="modal">
+    <h2 id="tituloPedido">📦 Pedido</h2>
+    <input type="hidden" id="idPedido">
+    <label>Material</label><input id="nomePedido">
+    <label>Quantidade</label><input id="quantidadePedido">
+    <label>Fornecedor</label><input id="fornecedorPedido">
+    <label>Setor</label><select id="setorPedido"></select>
+    <label>Data</label><input id="dataPedido" type="date">
+    <label>Status</label>
+    <select id="statusPedido">
+      <option>Pendente</option><option>Comprado</option>
+      <option>Parcialmente recebido</option><option>Recebido</option>
+      <option>Cancelado</option>
+    </select>
+    <label>Recebedor</label><input id="recebedorPedido">
+    <label>Data/hora recebimento</label><input id="dataHoraRecebimentoPedido" type="datetime-local">
+    <label>Observações</label><textarea id="obsPedido" rows="3"></textarea>
+    <div class="acoes" style="margin-top:18px;">
+      <button class="btn-outline" onclick="fecharPedido()">Cancelar</button>
+      <button class="btn-pedido" onclick="salvarPedido()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogExterna">
+  <div class="modal">
+    <h2>🚚 Manutenção Externa</h2>
+    <input type="hidden" id="idExterna">
+    <label>Tipo</label>
+    <select id="tipoExterno"><option>Ferramenta</option><option>Ativo</option></select>
+    <label>Nome</label><input id="nomeExterno">
+    <label>Código</label><input id="codigoExterno">
+    <label>Empresa</label><input id="empresaExterna">
+    <label>Responsável</label><input id="responsavelExterno">
+    <label>Saída</label><input id="dataSaida" type="date">
+    <label>Retorno previsto</label><input id="dataRetorno" type="date">
+    <label>Status</label>
+    <select id="statusExterno">
+      <option>Enviado</option><option>Em manutenção</option>
+      <option>Aguardando orçamento</option><option>Aguardando peça</option>
+      <option>Pronto para retorno</option><option>Retornado</option>
+    </select>
+    <label>Serviço</label><textarea id="servicoExterno" rows="4"></textarea>
+    <div class="acoes" style="margin-top:18px;">
+      <button class="btn-outline" onclick="fecharExterna()">Cancelar</button>
+      <button class="btn-primary" onclick="salvarExterna()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogSetor">
+  <div class="modal" style="max-width:900px;">
+    <h2 id="tituloSetor">📍 Editar Setor</h2>
+    <input type="hidden" id="idSetorOriginal">
+
+    <label>Nome do setor *</label>
+    <input id="nomeSetor" placeholder="Ex.: Acabamento 03">
+
+    <label>📝 Anotações do setor</label>
+    <textarea id="obsSetor" rows="3" placeholder="Ex.: Chave fica com o supervisor João..."></textarea>
+
+    <div id="blocoFerramentasSetor" style="margin-top:22px;border-top:1px solid var(--borda);padding-top:16px;">
+      <div class="flex-between" style="margin-bottom:12px;">
+        <h3 style="font-size:15px;font-weight:700;color:var(--texto);margin:0;">🔧 Ferramentas deste setor</h3>
+        <button class="btn-primary" style="padding:7px 16px;font-size:12px;" onclick="abrirAdicionarFerramentaSetor()">＋ Adicionar ferramenta</button>
+      </div>
+
+      <div id="formAdicionarFerramenta" class="hidden" style="background:rgba(30,184,201,0.06);border:1px solid rgba(30,184,201,0.25);border-radius:14px;padding:14px;margin-bottom:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <label style="margin-top:0;">Nome *</label>
+            <input id="novaFerrNome" placeholder="Ex.: Furadeira Bosch">
+          </div>
+          <div>
+            <label style="margin-top:0;">Código</label>
+            <input id="novaFerrCodigo" placeholder="Deixe vazio para gerar">
+          </div>
+        </div>
+        <label>Status</label>
+        <select id="novaFerrStatus">
+          <option>Disponível</option>
+          <option>Emprestada</option>
+          <option>Manutenção</option>
+        </select>
+        <div class="acoes" style="margin-top:12px;">
+          <button class="btn-outline" style="padding:7px 16px;font-size:12px;" onclick="cancelarAdicionarFerramenta()">Cancelar</button>
+          <button class="btn-success" style="padding:7px 16px;font-size:12px;" onclick="confirmarAdicionarFerramenta()">💾 Adicionar ao setor</button>
+        </div>
+      </div>
+
+      <div id="listaFerramentasSetor" class="grid" style="grid-template-columns:1fr;"></div>
+    </div>
+
+    <div id="acoesExclusaoSetor" class="hidden" style="margin-top:16px;padding:14px;border:1px solid rgba(255,107,130,0.3);border-radius:12px;background:rgba(255,107,130,0.05);">
+      <p class="text-sm" style="margin-bottom:8px;color:var(--vermelho);">⚠️ Ao excluir o setor, os itens restantes precisam ir para outro lugar.</p>
+      <label>Mover itens restantes para:</label>
+      <select id="moverParaSetor"></select>
+    </div>
+
+    <div class="acoes" style="margin-top:18px;">
+      <button class="btn-outline" onclick="fecharSetor()">Fechar</button>
+      <button class="btn-danger" id="btnExcluirSetor" onclick="excluirSetor()">🗑️ Excluir Setor</button>
+      <button class="btn-primary" onclick="salvarSetor()">💾 Salvar Alterações</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogCamera">
+  <div class="modal">
+    <h2>📹 Câmera</h2>
+    <video id="camera" autoplay playsinline style="width:100%;border-radius:12px;"></video>
+    <div class="acoes" style="margin-top:12px;">
+      <button class="btn-primary" onclick="tirarFoto()">📸 Capturar</button>
+      <button class="btn-outline" onclick="fecharCamera()">Fechar</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+/* ================= SETORES ================= */
+const SETORES_PADRAO = ["Acabamento 01","Acabamento 02","Laminação 01","Laminação 02","Marcenaria","CNC","Tecelagem","Manutenção","Almoxarifado","Compras"];
+let setores = JSON.parse(localStorage.getItem("controleSetores") || "null") || SETORES_PADRAO.map(nome => ({ nome, observacoes: "" }));
+Object.defineProperty(window, 'SETORES', { get: () => setores.map(s => s.nome), configurable: true });
+
+/* ================= ESTADO ================= */
+let ferramentas = JSON.parse(localStorage.getItem("controleFerramentas") || "[]");
+let manutencoes = JSON.parse(localStorage.getItem("controleManutencoes") || "[]");
+let ativos = JSON.parse(localStorage.getItem("controleAtivos") || "[]");
+let ativosCriados = JSON.parse(localStorage.getItem("controleAtivosCriados") || "[]");
+let pedidosMateriais = JSON.parse(localStorage.getItem("controlePedidosMateriais") || "[]");
+let manutencoesExternas = JSON.parse(localStorage.getItem("controleManutencoesExternas") || "[]");
+let historico = JSON.parse(localStorage.getItem("controleHistorico") || "[]");
+let alarmes = JSON.parse(localStorage.getItem("controleAlarmes") || "[]");
+let usuarioAtual = localStorage.getItem("controleUsuario") || "";
+let contadores = JSON.parse(localStorage.getItem("controleContadores") || '{"FER":0,"AT":0,"CR":0,"PED":0,"EXT":0,"MAN":0}');
+let filtroAtualFerramenta = "todas";
+let midiasFerramenta = [];
+let midiasManutencao = [];
+let midiasAtivo = [];
+let cameraStream = null;
+let cameraDestino = "ferramenta";
+let scanner = null;
+let graficoStatus = null;
+let graficoSetores = null;
+
+let jsPDF = null;
+if (window.jspdf && window.jspdf.jsPDF) jsPDF = window.jspdf.jsPDF;
+else console.warn("⚠️ jsPDF não carregou");
+
+/* ================= PERSISTÊNCIA ================= */
+function salvarBanco(){
+  localStorage.setItem("controleFerramentas", JSON.stringify(ferramentas));
+  localStorage.setItem("controleManutencoes", JSON.stringify(manutencoes));
+  localStorage.setItem("controleAtivos", JSON.stringify(ativos));
+  localStorage.setItem("controleAtivosCriados", JSON.stringify(ativosCriados));
+  localStorage.setItem("controlePedidosMateriais", JSON.stringify(pedidosMateriais));
+  localStorage.setItem("controleManutencoesExternas", JSON.stringify(manutencoesExternas));
+  localStorage.setItem("controleHistorico", JSON.stringify(historico));
+  localStorage.setItem("controleAlarmes", JSON.stringify(alarmes));
+  localStorage.setItem("controleSetores", JSON.stringify(setores));
+  localStorage.setItem("controleContadores", JSON.stringify(contadores));
+  localStorage.setItem("controleUsuario", usuarioAtual);
+}
+
+function escapar(t=""){
+  return String(t).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+function gerarId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,6); }
+
+/* Geração de código automático */
+function gerarCodigo(prefixo){
+  if(!contadores[prefixo]) contadores[prefixo] = 0;
+  contadores[prefixo]++;
+  salvarBanco();
+  return `${prefixo}-${String(contadores[prefixo]).padStart(3,"0")}`;
+}
+
+function registrarHistorico(nome, acao){
+  const user = usuarioAtual ? `[${usuarioAtual}]` : "[—]";
+  historico.push({nome, acao: `${user} ${acao}`, data:new Date().toISOString(), usuario: usuarioAtual || "—"});
+  if(historico.length>1000) historico.shift();
+  salvarBanco();
+}
+
+/* ================= USUÁRIO ================= */
+function trocarUsuario(){
+  document.getElementById("nomeUsuarioInput").value = usuarioAtual;
+  document.getElementById("dialogUsuario").showModal();
+}
+function salvarUsuario(){
+  const nome = document.getElementById("nomeUsuarioInput").value.trim();
+  if(!nome){ alert("Digite um nome."); return; }
+  usuarioAtual = nome;
+  localStorage.setItem("controleUsuario", nome);
+  document.getElementById("usuarioAtual").textContent = `👤 ${nome}`;
+  document.getElementById("dialogUsuario").close();
+  registrarHistorico(nome, "entrou no sistema");
+}
+
+/* ================= TEMA ================= */
+function alternarTema(){
+  document.body.classList.toggle("tema-claro");
+  const claro = document.body.classList.contains("tema-claro");
+  localStorage.setItem("controleTema", claro ? "claro" : "escuro");
+  document.getElementById("btnTema").textContent = claro ? "🌙" : "☀️";
+  if(graficoStatus) graficoStatus.update();
+  if(graficoSetores) graficoSetores.update();
+}
+
+/* ================= INICIALIZAÇÃO ================= */
+function iniciar(){
+  // Tema
+  if(localStorage.getItem("controleTema") === "claro"){
+    document.body.classList.add("tema-claro");
+    document.getElementById("btnTema").textContent = "🌙";
+  }
+
+  // Usuário
+  if(usuarioAtual){
+    document.getElementById("usuarioAtual").textContent = `👤 ${usuarioAtual}`;
+  } else {
+    setTimeout(()=>{ if(!usuarioAtual) trocarUsuario(); }, 800);
+  }
+
+  atualizarSelectsSetores();
+  const hoje = new Date().toISOString().substring(0,10);
+  document.getElementById("dataPedido").value = hoje;
+  document.getElementById("dataCriado").value = hoje;
+  document.getElementById("dataEntradaManutencao").value = hoje;
+
+  document.querySelectorAll("nav button").forEach(botao=>{
+    botao.onclick = function(){
+      document.querySelectorAll("nav button").forEach(b=>b.classList.remove("ativo"));
+      this.classList.add("ativo");
+      document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
+      const alvo = document.getElementById(this.dataset.tela);
+      if (alvo) alvo.classList.remove("hidden");
+      mostrarTudo();
+    };
+  });
+
+  atualizarStatusRede();
+  setInterval(verificarAlarmes, 30000);
+  setTimeout(verificarAlarmes, 1000);
+  mostrarTudo();
+}
+
+function atualizarSelectsSetores(){
+  const opts = setores.map(s => `<option>${escapar(s.nome)}</option>`).join("");
+  ["setorFerramenta","setorManutencao","setorAtivo","setorCriado","setorPedido"].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    const valorAntigo = el.value;
+    el.innerHTML = opts;
+    if(valorAntigo && setores.some(s => s.nome === valorAntigo)) el.value = valorAntigo;
+  });
+}
+
+function mostrarTudo(){
+  try{ mostrarEstatisticas(); }catch(e){ console.warn(e); }
+  try{ mostrarGraficos(); }catch(e){ console.warn(e); }
+  try{ mostrarSetores(); }catch(e){ console.warn(e); }
+  try{ mostrarFerramentas(); }catch(e){ console.warn(e); }
+  try{ mostrarManutencoes(); }catch(e){ console.warn(e); }
+  try{ mostrarAtivos(); }catch(e){ console.warn(e); }
+  try{ mostrarCriados(); }catch(e){ console.warn(e); }
+  try{ mostrarPedidos(); }catch(e){ console.warn(e); }
+  try{ mostrarManutencoesExternas(); }catch(e){ console.warn(e); }
+  try{ mostrarHistorico(); }catch(e){ console.warn(e); }
+  atualizarBadgeAlarme();
+}
+
+/* ================= ESTATÍSTICAS ================= */
+function mostrarEstatisticas(){
+  const total = ferramentas.length;
+  const disp = ferramentas.filter(x=>x.status==="Disponível").length;
+  const emp = ferramentas.filter(x=>x.status==="Emprestada").length;
+  const manutTotal = manutencoes.length;
+  const manutAbertas = manutencoes.filter(m=>m.status!=="Finalizada" && m.status!=="Sem conserto").length;
+  const ativosTotal = ativos.length;
+  const criadosTotal = ativosCriados.length;
+  const pedidosTotal = pedidosMateriais.length;
+  const pedidosPend = pedidosMateriais.filter(x=>x.status==="Pendente"||x.status==="Parcialmente recebido").length;
+  const externasPend = manutencoesExternas.filter(x=>x.status!=="Retornado").length;
+  const alarmesAtivos = alarmes.filter(a=>a.ativo).length;
+
+  document.getElementById("estatisticas").innerHTML = `
+    <div class="card estatistica"><span class="icon">🔧</span><span class="label">Ferramentas</span><strong>${total}</strong></div>
+    <div class="card estatistica"><span class="icon">🟢</span><span class="label">Disponíveis</span><strong>${disp}</strong></div>
+    <div class="card estatistica"><span class="icon">📤</span><span class="label">Emprestadas</span><strong>${emp}</strong></div>
+    <div class="card estatistica"><span class="icon">🧰</span><span class="label">Manutenções</span><strong>${manutTotal}</strong></div>
+    <div class="card estatistica"><span class="icon">🔴</span><span class="label">Manut. Abertas</span><strong>${manutAbertas}</strong></div>
+    <div class="card estatistica"><span class="icon">⏰</span><span class="label">Alarmes</span><strong>${alarmesAtivos}</strong></div>
+    <div class="card estatistica"><span class="icon">📦</span><span class="label">Pedidos</span><strong>${pedidosTotal}</strong></div>
+    <div class="card estatistica"><span class="icon">⏳</span><span class="label">Pedidos Pend.</span><strong>${pedidosPend}</strong></div>
+    <div class="card estatistica"><span class="icon">🏭</span><span class="label">Ativos</span><strong>${ativosTotal}</strong></div>
+    <div class="card estatistica"><span class="icon">🔨</span><span class="label">Criados</span><strong>${criadosTotal}</strong></div>
+    <div class="card estatistica"><span class="icon">🚚</span><span class="label">Ext. Pend.</span><strong>${externasPend}</strong></div>
+  `;
+
+  document.getElementById("resumoEmpresa").innerHTML = `
+    <div><span class="muted text-sm">🔧 Ferramentas:</span> <strong>${total}</strong></div>
+    <div><span class="muted text-sm">📤 Emprestadas:</span> <strong>${emp}</strong></div>
+    <div><span class="muted text-sm">🧰 Manutenções:</span> <strong>${manutTotal}</strong></div>
+    <div><span class="muted text-sm">⏰ Alarmes:</span> <strong>${alarmesAtivos}</strong></div>
+    <div><span class="muted text-sm">📦 Pedidos:</span> <strong>${pedidosTotal}</strong></div>
+    <div><span class="muted text-sm">🏭 Ativos:</span> <strong>${ativosTotal}</strong></div>
+    <div><span class="muted text-sm">🔨 Criados:</span> <strong>${criadosTotal}</strong></div>
+  `;
+}
+
+/* ================= GRÁFICOS ================= */
+function mostrarGraficos(){
+  if(!window.Chart) return;
+  const claro = document.body.classList.contains("tema-claro");
+  const corTexto = claro ? "#0a1a2e" : "#ffffff";
+
+  const ctx1 = document.getElementById("graficoStatus");
+  if(ctx1){
+    const disp = ferramentas.filter(x=>x.status==="Disponível").length;
+    const emp = ferramentas.filter(x=>x.status==="Emprestada").length;
+    const man = ferramentas.filter(x=>x.status==="Manutenção").length;
+    if(graficoStatus) graficoStatus.destroy();
+    graficoStatus = new Chart(ctx1, {
+      type: "doughnut",
+      data: {
+        labels: ["Disponíveis","Emprestadas","Manutenção"],
+        datasets: [{
+          data: [disp, emp, man],
+          backgroundColor: ["#2ddb7a","#ffd14a","#ff6b82"],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: corTexto, font: { size: 12 } } }
+        }
+      }
+    });
+  }
+
+  const ctx2 = document.getElementById("graficoSetores");
+  if(ctx2){
+    const dados = setores.map(s => {
+      const f = ferramentas.filter(x=>x.setor===s.nome).length;
+      const m = manutencoes.filter(x=>x.setor===s.nome).length;
+      const a = ativos.filter(x=>x.setor===s.nome).length;
+      return { nome: s.nome, total: f+m+a };
+    }).sort((a,b)=>b.total-a.total).slice(0,6);
+
+    if(graficoSetores) graficoSetores.destroy();
+    graficoSetores = new Chart(ctx2, {
+      type: "bar",
+      data: {
+        labels: dados.map(d=>d.nome),
+        datasets: [{
+          label: "Itens",
+          data: dados.map(d=>d.total),
+          backgroundColor: ["#1eb8c9","#7c5cbf","#ff6b9d","#f5a623","#2ddb7a","#6ae2ef"],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: corTexto, font: { size: 10 } }, grid: { display: false } },
+          y: { ticks: { color: corTexto }, grid: { color: "rgba(128,128,128,0.15)" }, beginAtZero: true }
+        }
+      }
+    });
+  }
+}
+
+/* ================= FILTROS FERRAMENTAS ================= */
+function setFiltro(filtro){
+  filtroAtualFerramenta = filtro;
+  document.querySelectorAll("#filtrosFerramentas .btn-filtro").forEach(b=>{
+    b.classList.toggle("ativo", b.dataset.filtro === filtro);
+  });
+  mostrarFerramentas();
+}
+
+/* ================= SETORES (cards) ================= */
+function gerarSetores(){
+  if(!setores.length){
+    return `<div class="card empty-state">
+      <span class="emoji">📍</span>
+      <span>Nenhum setor cadastrado.</span>
+      <button class="btn-primary mt-16" onclick="abrirSetorNovo()">＋ Criar primeiro setor</button>
+    </div>`;
+  }
+  return setores.map(s => {
+    const nome = s.nome;
+    const ferr = ferramentas.filter(x => x.setor === nome);
+    const manut = manutencoes.filter(x => x.setor === nome);
+    const ativ = ativos.filter(x => x.setor === nome);
+    const cri = ativosCriados.filter(x => x.setor === nome);
+    const ped = pedidosMateriais.filter(x => x.setor === nome);
+    const total = ferr.length + manut.length + ativ.length + cri.length + ped.length;
+    const temObs = s.observacoes && s.observacoes.trim().length > 0;
+    const nomeEscapado = escapar(nome).replace(/'/g, "\\'");
+
+    return `
+      <div class="card setor-card" onclick="abrirSetor('${nomeEscapado}')" style="cursor:pointer;" title="Clique para editar este setor">
+        <h3>📍 ${escapar(nome)}</h3>
+        <div class="count">${total}</div>
+        <div style="font-size:12px;color:var(--cinza);opacity:0.6;text-transform:uppercase;">itens no total</div>
+        <div class="tags" style="margin-top:8px;">
+          <span class="badge badge-success">🟢 ${ferr.filter(x => x.status === "Disponível").length}</span>
+          <span class="badge badge-warning">📤 ${ferr.filter(x => x.status === "Emprestada").length}</span>
+          <span class="badge badge-manutencao">🧰 ${manut.length}</span>
+          <span class="badge badge-info">🏭 ${ativ.length}</span>
+          <span class="badge badge-created">🔨 ${cri.length}</span>
+          <span class="badge badge-pedido">📦 ${ped.length}</span>
+        </div>
+        ${temObs ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(255,209,74,0.08);border-left:3px solid var(--amarelo);border-radius:8px;font-size:11.5px;color:var(--amarelo);text-align:left;line-height:1.4;">📝 ${escapar(s.observacoes).substring(0,80)}${s.observacoes.length > 80 ? '...' : ''}</div>` : ''}
+        <div style="margin-top:10px;font-size:10px;color:var(--cinza);opacity:.4;text-transform:uppercase;letter-spacing:1px;">👆 Toque para editar</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function mostrarSetores(){
+  const html = gerarSetores();
+  const a = document.getElementById("cartoesSetores");
+  const b = document.getElementById("mapaSetores");
+  if(a) a.innerHTML = html;
+  if(b) b.innerHTML = html;
+}
+
+/* ================= ABRIR MODAL DO SETOR ================= */
+function abrirSetor(nomeOriginal){
+  const s = setores.find(x => x.nome === nomeOriginal);
+  if(!s) return;
+
+  document.getElementById("tituloSetor").textContent = "📍 Editar Setor";
+  document.getElementById("idSetorOriginal").value = nomeOriginal;
+  document.getElementById("nomeSetor").value = s.nome;
+  document.getElementById("obsSetor").value = s.observacoes || "";
+  document.getElementById("formAdicionarFerramenta").classList.add("hidden");
+
+  const outros = setores.filter(x => x.nome !== nomeOriginal);
+  document.getElementById("moverParaSetor").innerHTML = outros.length
+    ? outros.map(x => `<option>${escapar(x.nome)}</option>`).join("")
+    : `<option value="">(Nenhum outro setor)</option>`;
+  document.getElementById("acoesExclusaoSetor").classList.toggle("hidden", !outros.length);
+
+  renderizarFerramentasDoSetor(nomeOriginal);
+  document.getElementById("dialogSetor").showModal();
+}
+
+function abrirSetorNovo(){
+  document.getElementById("tituloSetor").textContent = "➕ Novo Setor";
+  document.getElementById("idSetorOriginal").value = "";
+  document.getElementById("nomeSetor").value = "";
+  document.getElementById("obsSetor").value = "";
+  document.getElementById("acoesExclusaoSetor").classList.add("hidden");
+  document.getElementById("formAdicionarFerramenta").classList.add("hidden");
+  document.getElementById("listaFerramentasSetor").innerHTML = `
+    <div class="card empty-state" style="padding:20px;">
+      <span class="emoji" style="font-size:32px;">💾</span>
+      <span class="text-sm">Salve o setor primeiro para poder adicionar ferramentas.</span>
+    </div>`;
+  document.getElementById("dialogSetor").showModal();
+}
+
+function fecharSetor(){
+  document.getElementById("dialogSetor").close();
+}
+
+function renderizarFerramentasDoSetor(nomeSetor){
+  const el = document.getElementById("listaFerramentasSetor");
+  const lista = ferramentas.filter(f => f.setor === nomeSetor);
+
+  if(!lista.length){
+    el.innerHTML = `
+      <div class="card empty-state" style="padding:24px;">
+        <span class="emoji" style="font-size:36px;">🔧</span>
+        <span class="text-sm">Nenhuma ferramenta neste setor ainda.</span>
+        <span class="text-sm muted" style="display:block;margin-top:6px;opacity:.6;">Clique em "＋ Adicionar ferramenta" para incluir.</span>
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = lista.map(x => {
+    const sc = x.status === "Disponível" ? "badge-success" :
+               x.status === "Emprestada" ? "badge-warning" : "badge-manutencao";
+    const foto = x.fotos?.[0]
+      ? `<img class="imagem-mini" src="${x.fotos[0]}" style="width:60px;height:50px;">`
+      : `<div class="imagem-placeholder" style="width:60px;height:50px;font-size:22px;">🔧</div>`;
+
+    return `
+      <div class="card item" style="grid-template-columns:60px 1fr auto;padding:8px;">
+        ${foto}
+        <div class="item-info">
+          <div class="nome" style="font-size:14px;">${escapar(x.nome)}</div>
+          <div class="detalhes" style="font-size:11px;">Código: ${escapar(x.codigo || "-")}</div>
+          <div class="tags"><span class="badge ${sc}" style="font-size:10px;">${escapar(x.status)}</span></div>
+        </div>
+        <div class="item-actions">
+          <button title="Ver histórico" onclick="abrirHistoricoItem('ferramenta','${x.id}')">📜</button>
+          <button title="Mover para outro setor" onclick="abrirMoverFerramenta('${x.id}')">🔀</button>
+          <button title="Editar" onclick="abrirFerramentaNoSetor('${x.id}')">✏️</button>
+          <button title="Excluir" onclick="excluirFerramentaDoSetor('${x.id}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function abrirAdicionarFerramentaSetor(){
+  const idSetor = document.getElementById("idSetorOriginal").value;
+  if(!idSetor){ alert("Salve o setor primeiro."); return; }
+  document.getElementById("formAdicionarFerramenta").classList.remove("hidden");
+  document.getElementById("novaFerrNome").value = "";
+  document.getElementById("novaFerrCodigo").value = "";
+  document.getElementById("novaFerrStatus").value = "Disponível";
+  document.getElementById("novaFerrNome").focus();
+}
+function cancelarAdicionarFerramenta(){
+  document.getElementById("formAdicionarFerramenta").classList.add("hidden");
+}
+function confirmarAdicionarFerramenta(){
+  const nomeSetor = document.getElementById("idSetorOriginal").value;
+  const nome = document.getElementById("novaFerrNome").value.trim();
+  let codigo = document.getElementById("novaFerrCodigo").value.trim();
+  const status = document.getElementById("novaFerrStatus").value;
+
+  if(!nome){ alert("Digite o nome da ferramenta."); return; }
+  if(!nomeSetor){ alert("Setor inválido."); return; }
+  if(!codigo) codigo = gerarCodigo("FER");
+
+  const nova = {
+    id: gerarId(), nome, codigo, quantidade: 1,
+    setor: nomeSetor, status,
+    observacoes: "", fotos: [],
+    dataEmprestimo: status === "Emprestada" ? new Date().toISOString() : null,
+    dataCriacao: new Date().toISOString()
+  };
+  ferramentas.push(nova);
+  if(status === "Emprestada") iniciarAlarme(nova);
+  registrarHistorico(nome, `adicionou ferramenta ao setor ${nomeSetor}`);
+  salvarBanco();
+  cancelarAdicionarFerramenta();
+  renderizarFerramentasDoSetor(nomeSetor);
+  mostrarTudo();
+}
+
+function excluirFerramentaDoSetor(id){
+  const f = ferramentas.find(x => x.id === id);
+  if(!f) return;
+  if(!confirm(`Excluir a ferramenta "${f.nome}" do setor ${f.setor}?`)) return;
+  if(f.status === "Emprestada") pararAlarme(id);
+  ferramentas = ferramentas.filter(x => x.id !== id);
+  registrarHistorico(f.nome, `excluiu ferramenta do setor ${f.setor}`);
+  salvarBanco();
+  renderizarFerramentasDoSetor(document.getElementById("idSetorOriginal").value);
+  mostrarTudo();
+}
+
+function abrirMoverFerramenta(id){
+  const f = ferramentas.find(x => x.id === id);
+  if(!f) return;
+  const outros = setores.filter(s => s.nome !== f.setor);
+  if(!outros.length){ alert("Não há outro setor disponível."); return; }
+  const nomes = outros.map(s => s.nome);
+  const escolha = prompt(`Mover "${f.nome}" para qual setor?\n\n${nomes.map((n,i)=>`${i+1}. ${n}`).join("\n")}\n\nDigite o número:`);
+  if(escolha === null) return;
+  const idx = parseInt(escolha, 10) - 1;
+  if(isNaN(idx) || idx < 0 || idx >= nomes.length){ alert("Opção inválida."); return; }
+  f.setor = nomes[idx];
+  registrarHistorico(f.nome, `moveu para o setor ${nomes[idx]}`);
+  salvarBanco();
+  renderizarFerramentasDoSetor(document.getElementById("idSetorOriginal").value);
+  mostrarTudo();
+}
+
+function abrirFerramentaNoSetor(id){
+  abrirFerramenta(id);
+  const dialog = document.getElementById("dialogFerramenta");
+  const handler = () => {
+    const nomeSetor = document.getElementById("idSetorOriginal").value;
+    if(nomeSetor) renderizarFerramentasDoSetor(nomeSetor);
+    dialog.removeEventListener("close", handler);
+  };
+  dialog.addEventListener("close", handler);
+}
+
+/* ================= SALVAR / EXCLUIR SETOR ================= */
+function salvarSetor(){
+  const nomeOriginal = document.getElementById("idSetorOriginal").value;
+  const nome = document.getElementById("nomeSetor").value.trim();
+  const obs = document.getElementById("obsSetor").value.trim();
+
+  if(!nome){ alert("Digite o nome do setor."); return; }
+  const duplicado = setores.find(s => s.nome.toLowerCase() === nome.toLowerCase() && s.nome !== nomeOriginal);
+  if(duplicado){ alert("Já existe um setor com esse nome."); return; }
+
+  if(nomeOriginal){
+    if(nome !== nomeOriginal){
+      ferramentas.forEach(f => { if(f.setor === nomeOriginal) f.setor = nome; });
+      manutencoes.forEach(m => { if(m.setor === nomeOriginal) m.setor = nome; });
+      ativos.forEach(a => { if(a.setor === nomeOriginal) a.setor = nome; });
+      ativosCriados.forEach(c => { if(c.setor === nomeOriginal) c.setor = nome; });
+      pedidosMateriais.forEach(p => { if(p.setor === nomeOriginal) p.setor = nome; });
+      registrarHistorico(nomeOriginal, `renomeou setor para "${nome}"`);
+      document.getElementById("idSetorOriginal").value = nome;
+    } else {
+      registrarHistorico(nome, "atualizou setor");
+    }
+    const idx = setores.findIndex(s => s.nome === nomeOriginal);
+    if(idx >= 0) setores[idx] = { nome, observacoes: obs };
+  } else {
+    setores.push({ nome, observacoes: obs });
+    registrarHistorico(nome, "criou novo setor");
+    document.getElementById("idSetorOriginal").value = nome;
+    document.getElementById("tituloSetor").textContent = "📍 Editar Setor";
+    renderizarFerramentasDoSetor(nome);
+  }
+  salvarBanco();
+  atualizarSelectsSetores();
+  mostrarTudo();
+}
+
+function excluirSetor(){
+  const nomeOriginal = document.getElementById("idSetorOriginal").value;
+  if(!nomeOriginal) return;
+  const destino = document.getElementById("moverParaSetor").value;
+  if(!destino){ alert("Não há outro setor para receber os itens."); return; }
+
+  const total = ferramentas.filter(f=>f.setor===nomeOriginal).length +
+                manutencoes.filter(m=>m.setor===nomeOriginal).length +
+                ativos.filter(a=>a.setor===nomeOriginal).length +
+                ativosCriados.filter(c=>c.setor===nomeOriginal).length +
+                pedidosMateriais.filter(p=>p.setor===nomeOriginal).length;
+
+  if(!confirm(total > 0
+    ? `Excluir o setor "${nomeOriginal}"?\n\n${total} item(ns) serão movidos para "${destino}".`
+    : `Excluir o setor "${nomeOriginal}"?`)) return;
+
+  ferramentas.forEach(f => { if(f.setor === nomeOriginal) f.setor = destino; });
+  manutencoes.forEach(m => { if(m.setor === nomeOriginal) m.setor = destino; });
+  ativos.forEach(a => { if(a.setor === nomeOriginal) a.setor = destino; });
+  ativosCriados.forEach(c => { if(c.setor === nomeOriginal) c.setor = destino; });
+  pedidosMateriais.forEach(p => { if(p.setor === nomeOriginal) p.setor = destino; });
+
+  setores = setores.filter(s => s.nome !== nomeOriginal);
+  registrarHistorico(nomeOriginal, `excluiu setor — ${total} item(ns) → "${destino}"`);
+  salvarBanco();
+  atualizarSelectsSetores();
+  fecharSetor();
+  mostrarTudo();
+}
+
+/* ================= FERRAMENTAS ================= */
+function mostrarFerramentas(){
+  const el = document.getElementById("listaFerramentas");
+  if(!el) return;
+  const pesquisa = (document.getElementById("pesquisaFerramenta")?.value||"").toLowerCase();
+  let lista = ferramentas.filter(x=>(x.nome+" "+x.codigo+" "+x.setor).toLowerCase().includes(pesquisa));
+
+  // Aplica filtro
+  if(filtroAtualFerramenta === "disponivel") lista = lista.filter(x=>x.status==="Disponível");
+  else if(filtroAtualFerramenta === "emprestada") lista = lista.filter(x=>x.status==="Emprestada");
+  else if(filtroAtualFerramenta === "manutencao") lista = lista.filter(x=>x.status==="Manutenção");
+  else if(filtroAtualFerramenta === "atrasada"){
+    lista = lista.filter(x=>{
+      const a = alarmes.find(al=>al.ferramentaId===x.id && al.ativo);
+      return a && new Date(a.dataLimite).getTime() < Date.now();
+    });
+  }
+
+  if(!lista.length){
+    el.innerHTML = `<div class="card empty-state"><span class="emoji">🔍</span><span>Nenhuma ferramenta encontrada.</span></div>`;
+    return;
+  }
+
+  el.innerHTML = lista.map(x=>{
+    const sc = x.status==="Disponível"?"badge-success":x.status==="Emprestada"?"badge-warning":"badge-manutencao";
+    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}">` : `<div class="imagem-placeholder">🔧</div>`;
+    const qtd = (x.quantidade && x.quantidade > 1) ? `<span class="badge badge-qtd">📦 Qtd: ${x.quantidade}</span>` : '';
+    const alarme = alarmes.find(a=>a.ferramentaId===x.id && a.ativo);
+    let tempoRestante = '', tempoClass = '';
+    if(alarme){
+      const diff = new Date(alarme.dataLimite).getTime() - Date.now();
+      if(diff <= 0){ tempoRestante = '🔴 Atrasado!'; tempoClass = 'badge-tempo urgente'; }
+      else {
+        const h = Math.floor(diff/(1000*60*60));
+        const m = Math.floor((diff%(1000*60*60))/(1000*60));
+        tempoRestante = `⏱️ ${h}h ${m}min`;
+        tempoClass = h < 6 ? 'badge-tempo urgente' : 'badge-tempo';
+      }
+    }
+    return `
+      <div class="card item">
+        ${foto}
+        <div class="item-info">
+          <div class="nome">${escapar(x.nome)}</div>
+          <div class="detalhes">Código: ${escapar(x.codigo||"-")}<br>Setor: ${escapar(x.setor)}</div>
+          <div class="tags">
+            <span class="badge ${sc}">${escapar(x.status)}</span>
+            ${qtd}
+            ${alarme ? `<span class="badge ${tempoClass}">${tempoRestante}</span>` : ''}
+          </div>
+        </div>
+        <div class="item-actions">
+          <button title="Ver histórico" onclick="abrirHistoricoItem('ferramenta','${x.id}')">📜</button>
+          <button onclick="abrirFerramenta('${x.id}')">✏️</button>
+          <button onclick="compartilharFerramenta('${x.id}')">📲</button>
+          ${x.status === 'Emprestada' ? `<button onclick="devolverFerramenta('${x.id}')">✅</button>` : ''}
+          <button onclick="excluirFerramenta('${x.id}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function abrirFerramenta(id=null){
+  midiasFerramenta = [];
+  document.getElementById("idFerramenta").value = id||"";
+  if(id){
+    const x = ferramentas.find(f=>f.id===id);
+    if(!x) return;
+    document.getElementById("tituloFerramenta").textContent = "✏️ Editar ferramenta";
+    document.getElementById("nomeFerramenta").value = x.nome;
+    document.getElementById("codigoFerramenta").value = x.codigo||"";
+    document.getElementById("quantidadeFerramenta").value = x.quantidade || 1;
+    document.getElementById("setorFerramenta").value = x.setor;
+    document.getElementById("statusFerramenta").value = x.status;
+    document.getElementById("obsFerramenta").value = x.observacoes||"";
+    (x.fotos||[]).forEach(f=>midiasFerramenta.push({tipo:"foto",src:f}));
+  } else {
+    document.getElementById("tituloFerramenta").textContent = "📦 Cadastrar ferramenta";
+    document.getElementById("nomeFerramenta").value = "";
+    document.getElementById("codigoFerramenta").value = "";
+    document.getElementById("quantidadeFerramenta").value = 1;
+    document.getElementById("setorFerramenta").value = SETORES[0] || "";
+    document.getElementById("statusFerramenta").value = "Disponível";
+    document.getElementById("obsFerramenta").value = "";
+  }
+  mostrarPreviewFerramenta();
+  document.getElementById("dialogFerramenta").showModal();
+}
+function fecharFerramenta(){ document.getElementById("dialogFerramenta").close(); }
+
+function salvarFerramenta(){
+  const nome = document.getElementById("nomeFerramenta").value.trim();
+  if(!nome){ alert("Digite o nome."); return; }
+  const id = document.getElementById("idFerramenta").value || gerarId();
+  const status = document.getElementById("statusFerramenta").value;
+  const anterior = ferramentas.find(f=>f.id===id)?.status;
+  let codigo = document.getElementById("codigoFerramenta").value.trim();
+  if(!codigo) codigo = gerarCodigo("FER");
+  const quantidade = parseInt(document.getElementById("quantidadeFerramenta").value) || 1;
+
+  const f = {
+    id, nome, codigo, quantidade,
+    setor: document.getElementById("setorFerramenta").value,
+    status,
+    observacoes: document.getElementById("obsFerramenta").value.trim(),
+    fotos: midiasFerramenta.filter(m=>m.tipo==="foto").map(m=>m.src),
+    dataEmprestimo: status==="Emprestada" ? new Date().toISOString() : null,
+    dataCriacao: new Date().toISOString()
+  };
+  const existe = ferramentas.find(x=>x.id===id);
+  if(existe){
+    ferramentas = ferramentas.map(x=>x.id===id?f:x);
+    registrarHistorico(nome,"editou ferramenta");
+    if(status==="Emprestada" && anterior!=="Emprestada") iniciarAlarme(f);
+    if(status!=="Emprestada" && anterior==="Emprestada") pararAlarme(id);
+  } else {
+    ferramentas.push(f);
+    registrarHistorico(nome,"cadastrou ferramenta");
+    if(status==="Emprestada") iniciarAlarme(f);
+  }
+  salvarBanco();
+  fecharFerramenta();
+  mostrarTudo();
+}
+
+function excluirFerramenta(id){
+  const x = ferramentas.find(f=>f.id===id);
+  if(!x) return;
+  if(confirm(`Excluir "${x.nome}"?`)){
+    if(x.status==="Emprestada") pararAlarme(id);
+    ferramentas = ferramentas.filter(f=>f.id!==id);
+    registrarHistorico(x.nome,"excluiu ferramenta");
+    salvarBanco();
+    mostrarTudo();
+  }
+}
+
+function adicionarFotos(arquivos){
+  [...arquivos].forEach(a=>{
+    const r = new FileReader();
+    r.onload = function(){ midiasFerramenta.push({tipo:"foto",src:this.result}); mostrarPreviewFerramenta(); };
+    r.readAsDataURL(a);
+  });
+}
+function mostrarPreviewFerramenta(){
+  document.getElementById("previewFerramenta").innerHTML = midiasFerramenta.map(m=>`<img src="${m.src}">`).join("");
+}
+
+/* ================= HISTÓRICO POR ITEM ================= */
+function abrirHistoricoItem(tipo, id){
+  const el = document.getElementById("conteudoHistoricoItem");
+  let nomeItem = "";
+
+  if(tipo === "ferramenta"){
+    const f = ferramentas.find(x=>x.id===id);
+    if(!f) return;
+    nomeItem = f.nome;
+  }
+
+  const eventos = historico.filter(h => h.nome === nomeItem).reverse();
+
+  document.getElementById("tituloHistoricoItem").textContent = `📜 Histórico — ${nomeItem}`;
+
+  if(!eventos.length){
+    el.innerHTML = `<div class="empty-state"><span class="emoji">📭</span><span>Nenhum registro para este item.</span></div>`;
+  } else {
+    el.innerHTML = eventos.map(h=>`
+      <div class="historico-item">
+        <div>
+          <div class="acao">${escapar(h.acao)}</div>
+          <div class="text-sm muted" style="opacity:0.6;">👤 ${escapar(h.usuario||"—")}</div>
+        </div>
+        <div class="data">${new Date(h.data).toLocaleString("pt-BR")}</div>
+      </div>
+    `).join("");
+  }
+
+  document.getElementById("dialogHistoricoItem").showModal();
+}
+
+/* ================= MANUTENÇÃO ================= */
+function abrirManutencao(id=null){
+  midiasManutencao = [];
+  document.getElementById("idManutencao").value = id||"";
+  const hoje = new Date().toISOString().substring(0,10);
+  if(id){
+    const m = manutencoes.find(x=>x.id===id);
+    if(!m) return;
+    document.getElementById("tituloManutencao").textContent = "✏️ Editar Manutenção";
+    document.getElementById("nomeManutencao").value = m.nome;
+    document.getElementById("codigoManutencao").value = m.codigo||"";
+    document.getElementById("setorManutencao").value = m.setor;
+    document.getElementById("tipoManutencao").value = m.tipo||"Corretiva";
+    document.getElementById("prioridadeManutencao").value = m.prioridade||"Média";
+    document.getElementById("responsavelManutencao").value = m.responsavel||"";
+    document.getElementById("dataEntradaManutencao").value = m.dataEntrada||hoje;
+    document.getElementById("dataSaidaManutencao").value = m.dataSaida||"";
+    document.getElementById("statusManutencao").value = m.status||"Aguardando análise";
+    document.getElementById("custoManutencao").value = m.custo||"";
+    document.getElementById("descricaoManutencao").value = m.descricao||"";
+    document.getElementById("solucaoManutencao").value = m.solucao||"";
+    (m.fotos||[]).forEach(f=>midiasManutencao.push({tipo:"foto",src:f}));
+    (m.arquivos||[]).forEach(a=>midiasManutencao.push({tipo:"arquivo",nome:a.nome,src:a.src}));
+  } else {
+    document.getElementById("tituloManutencao").textContent = "🧰 Cadastrar Manutenção";
+    document.getElementById("nomeManutencao").value = "";
+    document.getElementById("codigoManutencao").value = "";
+    document.getElementById("setorManutencao").value = SETORES[0] || "";
+    document.getElementById("tipoManutencao").value = "Corretiva";
+    document.getElementById("prioridadeManutencao").value = "Média";
+    document.getElementById("responsavelManutencao").value = "";
+    document.getElementById("dataEntradaManutencao").value = hoje;
+    document.getElementById("dataSaidaManutencao").value = "";
+    document.getElementById("statusManutencao").value = "Aguardando análise";
+    document.getElementById("custoManutencao").value = "";
+    document.getElementById("descricaoManutencao").value = "";
+    document.getElementById("solucaoManutencao").value = "";
+  }
+  mostrarPreviewManutencao();
+  document.getElementById("dialogManutencao").showModal();
+}
+function fecharManutencao(){ document.getElementById("dialogManutencao").close(); }
+function adicionarFotosManutencao(arquivos){
+  [...arquivos].forEach(a=>{
+    const r = new FileReader();
+    r.onload = function(){ midiasManutencao.push({tipo:"foto",src:this.result}); mostrarPreviewManutencao(); };
+    r.readAsDataURL(a);
+  });
+}
+function adicionarArquivosManutencao(arquivos){
+  [...arquivos].forEach(a=>{
+    const r = new FileReader();
+    r.onload = function(){ midiasManutencao.push({tipo:"arquivo",nome:a.name,src:this.result}); mostrarPreviewManutencao(); };
+    r.readAsDataURL(a);
+  });
+}
+function mostrarPreviewManutencao(){
+  const el = document.getElementById("previewManutencao");
+  el.innerHTML = midiasManutencao.map(m=>{
+    if(m.tipo==="foto") return `<img src="${m.src}">`;
+    const isPdf = m.nome?.toLowerCase().endsWith(".pdf");
+    return `<div style="padding:10px 14px;border:1px solid var(--borda);border-radius:12px;background:rgba(0,0,0,0.15);font-size:12px;">${isPdf?"📄":"📎"} ${escapar(m.nome||"arquivo")}</div>`;
+  }).join("");
+}
+function salvarManutencao(){
+  const nome = document.getElementById("nomeManutencao").value.trim();
+  if(!nome){ alert("Digite o nome da ferramenta."); return; }
+  const id = document.getElementById("idManutencao").value || gerarId();
+  let codigo = document.getElementById("codigoManutencao").value.trim();
+  if(!codigo) codigo = gerarCodigo("MAN");
+
+  const m = {
+    id, nome, codigo,
+    setor: document.getElementById("setorManutencao").value,
+    tipo: document.getElementById("tipoManutencao").value,
+    prioridade: document.getElementById("prioridadeManutencao").value,
+    responsavel: document.getElementById("responsavelManutencao").value.trim(),
+    dataEntrada: document.getElementById("dataEntradaManutencao").value,
+    dataSaida: document.getElementById("dataSaidaManutencao").value,
+    status: document.getElementById("statusManutencao").value,
+    custo: document.getElementById("custoManutencao").value.trim(),
+    descricao: document.getElementById("descricaoManutencao").value.trim(),
+    solucao: document.getElementById("solucaoManutencao").value.trim(),
+    fotos: midiasManutencao.filter(x=>x.tipo==="foto").map(x=>x.src),
+    arquivos: midiasManutencao.filter(x=>x.tipo==="arquivo").map(x=>({nome:x.nome,src:x.src})),
+    dataCadastro: new Date().toISOString()
+  };
+  const existe = manutencoes.find(x=>x.id===id);
+  if(existe){
+    manutencoes = manutencoes.map(x=>x.id===id?m:x);
+    registrarHistorico(nome,"editou manutenção");
+  } else {
+    manutencoes.push(m);
+    registrarHistorico(nome,"cadastrou manutenção");
+  }
+  salvarBanco();
+  fecharManutencao();
+  mostrarTudo();
+}
+function mostrarManutencoes(){
+  const el = document.getElementById("listaManutencoes");
+  if(!el) return;
+  const pesquisa = (document.getElementById("pesquisaManutencao")?.value||"").toLowerCase();
+  const lista = manutencoes.filter(x=>(x.nome+" "+x.codigo+" "+x.setor+" "+x.responsavel).toLowerCase().includes(pesquisa));
+  if(!lista.length){
+    el.innerHTML = `<div class="card empty-state"><span class="emoji">🧰</span><span>Nenhuma manutenção cadastrada.</span></div>`;
+    return;
+  }
+  el.innerHTML = lista.slice().reverse().map(x=>{
+    const prioClass = x.prioridade==="Urgente"?"badge-danger":x.prioridade==="Alta"?"badge-warning":"badge-info";
+    const statusClass = x.status==="Finalizada"?"badge-success":x.status==="Sem conserto"?"badge-danger":x.status==="Aguardando peça"?"badge-warning":"badge-info";
+    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}">` : `<div class="imagem-placeholder">🧰</div>`;
+    const arquivosInfo = x.arquivos?.length ? `<br>📎 ${x.arquivos.length} arquivo(s)` : '';
+    return `
+      <div class="card item" style="border-color:rgba(255,107,130,0.25);">
+        ${foto}
+        <div class="item-info">
+          <div class="nome">🧰 ${escapar(x.nome)}</div>
+          <div class="detalhes">
+            Código: ${escapar(x.codigo||"-")}<br>
+            Setor: ${escapar(x.setor)}<br>
+            Tipo: ${escapar(x.tipo)}<br>
+            Responsável: ${escapar(x.responsavel||"-")}<br>
+            Entrada: ${x.dataEntrada ? new Date(x.dataEntrada).toLocaleDateString("pt-BR") : "-"}
+            ${arquivosInfo}
+          </div>
+          <div class="tags">
+            <span class="badge ${statusClass}">${escapar(x.status)}</span>
+            <span class="badge ${prioClass}">${escapar(x.prioridade)}</span>
+            ${x.custo ? `<span class="badge badge-pedido">💰 R$ ${escapar(x.custo)}</span>` : ''}
+          </div>
+        </div>
+        <div class="item-actions">
+          <button onclick="abrirManutencao('${x.id}')">✏️</button>
+          <button onclick="gerarPDFManutencaoItem('${x.id}')">📄</button>
+          <button onclick="excluirManutencao('${x.id}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+function excluirManutencao(id){
+  const m = manutencoes.find(x=>x.id===id);
+  if(!m) return;
+  if(confirm(`Excluir manutenção de "${m.nome}"?`)){
+    manutencoes = manutencoes.filter(x=>x.id!==id);
+    registrarHistorico(m.nome,"excluiu manutenção");
+    salvarBanco();
+    mostrarTudo();
+  }
+}
+
+/* ================= ATIVOS ================= */
+function abrirAtivo(id=null){
+  midiasAtivo = [];
+  document.getElementById("idAtivo").value = id||"";
+  if(id){
+    const x = ativos.find(a=>a.id===id);
+    if(!x) return;
+    document.getElementById("nomeAtivo").value = x.nome;
+    document.getElementById("codigoAtivo").value = x.codigo||"";
+    document.getElementById("tipoAtivo").value = x.tipo;
+    document.getElementById("setorAtivo").value = x.setor;
+    document.getElementById("statusAtivo").value = x.status;
+    document.getElementById("obsAtivo").value = x.observacoes||"";
+    if(x.fotos?.[0]) midiasAtivo = [{tipo:"foto",src:x.fotos[0]}];
+  } else {
+    document.getElementById("nomeAtivo").value = "";
+    document.getElementById("codigoAtivo").value = "";
+    document.getElementById("tipoAtivo").value = "Máquina";
+    document.getElementById("setorAtivo").value = SETORES[0] || "";
+    document.getElementById("statusAtivo").value = "Operando";
+    document.getElementById("obsAtivo").value = "";
+  }
+  mostrarPreviewAtivo();
+  document.getElementById("dialogAtivo").showModal();
+}
+function fecharAtivo(){ document.getElementById("dialogAtivo").close(); }
+function adicionarFotoAtivo(a){
+  if(!a) return;
+  const r = new FileReader();
+  r.onload = function(){ midiasAtivo=[{tipo:"foto",src:this.result}]; mostrarPreviewAtivo(); };
+  r.readAsDataURL(a);
+}
+function mostrarPreviewAtivo(){
+  document.getElementById("previewAtivo").innerHTML = midiasAtivo.map(m=>`<img src="${m.src}">`).join("");
+}
+function salvarAtivo(){
+  const nome = document.getElementById("nomeAtivo").value.trim();
+  if(!nome){ alert("Digite o nome."); return; }
+  const id = document.getElementById("idAtivo").value || gerarId();
+  let codigo = document.getElementById("codigoAtivo").value.trim();
+  if(!codigo) codigo = gerarCodigo("AT");
+
+  const a = {
+    id, nome, codigo,
+    tipo: document.getElementById("tipoAtivo").value,
+    setor: document.getElementById("setorAtivo").value,
+    status: document.getElementById("statusAtivo").value,
+    observacoes: document.getElementById("obsAtivo").value.trim(),
+    fotos: midiasAtivo.filter(m=>m.tipo==="foto").map(m=>m.src),
+    dataCriacao: new Date().toISOString()
+  };
+  const existe = ativos.find(x=>x.id===id);
+  if(existe){
+    ativos = ativos.map(x=>x.id===id?a:x);
+    registrarHistorico(nome,"editou ativo");
+  } else {
+    ativos.push(a);
+    registrarHistorico(nome,"cadastrou ativo");
+  }
+  salvarBanco();
+  fecharAtivo();
+  mostrarTudo();
+}
+function mostrarAtivos(){
+  const el = document.getElementById("listaAtivos");
+  if(!el) return;
+  const p = (document.getElementById("pesquisaAtivo")?.value||"").toLowerCase();
+  const lista = ativos.filter(x=>(x.nome+" "+x.codigo+" "+x.setor+" "+x.tipo).toLowerCase().includes(p));
+  if(!lista.length){ el.innerHTML = `<div class="card empty-state"><span class="emoji">🏭</span><span>Nenhum ativo.</span></div>`; return; }
+  el.innerHTML = lista.map(x=>{
+    const sc = x.status==="Operando"?"badge-success":x.status==="Parado"?"badge-warning":x.status==="Manutenção"?"badge-danger":"badge-info";
+    const foto = x.fotos?.[0]?`<img class="imagem-mini" src="${x.fotos[0]}">`:`<div class="imagem-placeholder">🏭</div>`;
+    return `
+      <div class="card item">
+        ${foto}
+        <div class="item-info">
+          <div class="nome">${escapar(x.nome)}</div>
+          <div class="detalhes">TAG: ${escapar(x.codigo||"-")}<br>Tipo: ${escapar(x.tipo)}<br>Setor: ${escapar(x.setor)}</div>
+          <div class="tags"><span class="badge ${sc}">${escapar(x.status)}</span></div>
+        </div>
+        <div class="item-actions">
+          <button onclick="abrirAtivo('${x.id}')">✏️</button>
+          <button onclick="excluirAtivo('${x.id}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+function excluirAtivo(id){
+  const x = ativos.find(a=>a.id===id);
+  if(!x) return;
+  if(confirm(`Excluir "${x.nome}"?`)){
+    ativos = ativos.filter(a=>a.id!==id);
+    registrarHistorico(x.nome,"excluiu ativo");
+    salvarBanco();
+    mostrarTudo();
+  }
+}
+
+/* ================= CRIADOS ================= */
+function abrirCriado(id=null){
+  document.getElementById("idCriado").value = id||"";
+  if(id){
+    const x = ativosCriados.find(a=>a.id===id);
+    if(!x) return;
+    document.getElementById("nomeCriado").value = x.nome;
+    document.getElementById("codigoCriado").value = x.codigo||"";
+    document.getElementById("tipoCriado").value = x.tipo;
+    document.getElementById("responsavelCriado").value = x.responsavel||"";
+    document.getElementById("setorCriado").value = x.setor;
+    document.getElementById("dataCriado").value = x.dataCriado||"";
+    document.getElementById("statusCriado").value = x.status;
+    document.getElementById("materiaisCriado").value = x.materiais||"";
+    document.getElementById("obsCriado").value = x.observacoes||"";
+  } else {
+    document.getElementById("nomeCriado").value = "";
+    document.getElementById("codigoCriado").value = "";
+    document.getElementById("tipoCriado").value = "Máquina";
+    document.getElementById("responsavelCriado").value = "";
+    document.getElementById("setorCriado").value = SETORES[0] || "";
+    document.getElementById("dataCriado").value = new Date().toISOString().substring(0,10);
+    document.getElementById("statusCriado").value = "Em produção";
+    document.getElementById("materiaisCriado").value = "";
+    document.getElementById("obsCriado").value = "";
+  }
+  document.getElementById("dialogCriado").showModal();
+}
+function fecharCriado(){ document.getElementById("dialogCriado").close(); }
+function salvarCriado(){
+  const nome = document.getElementById("nomeCriado").value.trim();
+  if(!nome){ alert("Digite o nome."); return; }
+  const id = document.getElementById("idCriado").value || gerarId();
+  let codigo = document.getElementById("codigoCriado").value.trim();
+  if(!codigo) codigo = gerarCodigo("CR");
+
+  const c = {
+    id, nome, codigo,
+    tipo: document.getElementById("tipoCriado").value,
+    responsavel: document.getElementById("responsavelCriado").value.trim(),
+    setor: document.getElementById("setorCriado").value,
+    dataCriado: document.getElementById("dataCriado").value,
+    status: document.getElementById("statusCriado").value,
+    materiais: document.getElementById("materiaisCriado").value.trim(),
+    observacoes: document.getElementById("obsCriado").value.trim(),
+    dataCadastro: new Date().toISOString()
+  };
+  const existe = ativosCriados.find(a=>a.id===id);
+  if(existe){
+    ativosCriados = ativosCriados.map(a=>a.id===id?c:a);
+    registrarHistorico(nome,"editou criado");
+  } else {
+    ativosCriados.push(c);
+    registrarHistorico(nome,"cadastrou criado");
+  }
+  salvarBanco();
+  fecharCriado();
+  mostrarTudo();
+}
+function mostrarCriados(){
+  const el = document.getElementById("listaCriados");
+  if(!el) return;
+  const p = (document.getElementById("pesquisaCriado")?.value||"").toLowerCase();
+  const lista = ativosCriados.filter(x=>(x.nome+" "+x.codigo+" "+x.setor+" "+x.responsavel).toLowerCase().includes(p));
+  if(!lista.length){ el.innerHTML = `<div class="card empty-state"><span class="emoji">🔨</span><span>Nenhum ativo criado.</span></div>`; return; }
+  el.innerHTML = lista.map(x=>`
+    <div class="card item">
+      <div class="imagem-placeholder">🔨</div>
+      <div class="item-info">
+        <div class="nome">${escapar(x.nome)}</div>
+        <div class="detalhes">Código: ${escapar(x.codigo||"-")}<br>Tipo: ${escapar(x.tipo)}<br>Setor: ${escapar(x.setor)}<br>Resp: ${escapar(x.responsavel||"-")}</div>
+        <div class="tags"><span class="badge badge-created">${escapar(x.status)}</span></div>
+      </div>
+      <div class="item-actions">
+        <button onclick="abrirCriado('${x.id}')">✏️</button>
+        <button onclick="excluirCriado('${x.id}')">🗑️</button>
+      </div>
+    </div>
+  `).join("");
+}
+function excluirCriado(id){
+  const x = ativosCriados.find(a=>a.id===id);
+  if(!x) return;
+  if(confirm(`Excluir "${x.nome}"?`)){
+    ativosCriados = ativosCriados.filter(a=>a.id!==id);
+    registrarHistorico(x.nome,"excluiu criado");
+    salvarBanco();
+    mostrarTudo();
+  }
+}
+
+/* ================= PEDIDOS ================= */
+function abrirPedido(id=null){
+  document.getElementById("idPedido").value = id||"";
+  if(id){
+    const x = pedidosMateriais.find(p=>p.id===id);
+    if(!x) return;
+    document.getElementById("nomePedido").value = x.nome;
+    document.getElementById("quantidadePedido").value = x.quantidade||"";
+    document.getElementById("fornecedorPedido").value = x.fornecedor||"";
+    document.getElementById("setorPedido").value = x.setor;
+    document.getElementById("dataPedido").value = x.dataPedido||"";
+    document.getElementById("statusPedido").value = x.status;
+    document.getElementById("recebedorPedido").value = x.recebedor||"";
+    document.getElementById("dataHoraRecebimentoPedido").value = x.dataHoraRecebimento||"";
+    document.getElementById("obsPedido").value = x.observacoes||"";
+  } else {
+    document.getElementById("nomePedido").value = "";
+    document.getElementById("quantidadePedido").value = "";
+    document.getElementById("fornecedorPedido").value = "";
+    document.getElementById("setorPedido").value = "Manutenção";
+    document.getElementById("dataPedido").value = new Date().toISOString().substring(0,10);
+    document.getElementById("statusPedido").value = "Pendente";
+    document.getElementById("recebedorPedido").value = "";
+    document.getElementById("dataHoraRecebimentoPedido").value = "";
+    document.getElementById("obsPedido").value = "";
+  }
+  document.getElementById("dialogPedido").showModal();
+}
+function fecharPedido(){ document.getElementById("dialogPedido").close(); }
+function salvarPedido(){
+  const nome = document.getElementById("nomePedido").value.trim();
+  if(!nome){ alert("Digite o material."); return; }
+  const id = document.getElementById("idPedido").value || gerarId();
+  const p = {
+    id, nome,
+    quantidade: document.getElementById("quantidadePedido").value.trim(),
+    fornecedor: document.getElementById("fornecedorPedido").value.trim(),
+    setor: document.getElementById("setorPedido").value,
+    dataPedido: document.getElementById("dataPedido").value,
+    status: document.getElementById("statusPedido").value,
+    recebedor: document.getElementById("recebedorPedido").value.trim(),
+    dataHoraRecebimento: document.getElementById("dataHoraRecebimentoPedido").value,
+    observacoes: document.getElementById("obsPedido").value.trim(),
+    data: new Date().toISOString()
+  };
+  const existe = pedidosMateriais.find(x=>x.id===id);
+  if(existe){
+    pedidosMateriais = pedidosMateriais.map(x=>x.id===id?p:x);
+    registrarHistorico(nome,"editou pedido");
+  } else {
+    pedidosMateriais.push(p);
+    registrarHistorico(nome,"cadastrou pedido");
+  }
+  salvarBanco();
+  fecharPedido();
+  mostrarTudo();
+}
+function mostrarPedidos(){
+  const el = document.getElementById("listaPedidos");
+  if(!el) return;
+  const p = (document.getElementById("pesquisaPedido")?.value||"").toLowerCase();
+  const lista = pedidosMateriais.filter(x=>(x.nome+" "+x.fornecedor+" "+x.setor+" "+(x.recebedor||"")).toLowerCase().includes(p));
+  if(!lista.length){ el.innerHTML = `<div class="card empty-state"><span class="emoji">📦</span><span>Nenhum pedido.</span></div>`; return; }
+  el.innerHTML = lista.slice().reverse().map(x=>{
+    const sc = x.status==="Recebido"?"badge-success":x.status==="Comprado"?"badge-info":x.status==="Cancelado"?"badge-danger":"badge-warning";
+    return `
+      <div class="card item">
+        <div class="imagem-placeholder">📦</div>
+        <div class="item-info">
+          <div class="nome">${escapar(x.nome)}</div>
+          <div class="detalhes">Qtd: ${escapar(x.quantidade||"-")}<br>Fornecedor: ${escapar(x.fornecedor||"-")}<br>Setor: ${escapar(x.setor)}</div>
+          <div class="tags"><span class="badge ${sc}">${escapar(x.status)}</span></div>
+        </div>
+        <div class="item-actions">
+          <button onclick="abrirPedido('${x.id}')">✏️</button>
+          <button onclick="excluirPedido('${x.id}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+function excluirPedido(id){
+  const x = pedidosMateriais.find(p=>p.id===id);
+  if(!x) return;
+  if(confirm(`Excluir "${x.nome}"?`)){
+    pedidosMateriais = pedidosMateriais.filter(p=>p.id!==id);
+    registrarHistorico(x.nome,"excluiu pedido");
+    salvarBanco();
+    mostrarTudo();
+  }
+}
+
+/* ================= EXTERNAS ================= */
+function abrirManutencaoExterna(id=null){
+  document.getElementById("idExterna").value = id||"";
+  if(id){
+    const x = manutencoesExternas.find(m=>m.id===id);
+    if(!x) return;
+    document.getElementById("tipoExterno").value = x.tipo;
+    document.getElementById("nomeExterno").value = x.nome;
+    document.getElementById("codigoExterno").value = x.codigo||"";
+    document.getElementById("empresaExterna").value = x.empresa||"";
+    document.getElementById("responsavelExterno").value = x.responsavel||"";
+    document.getElementById("dataSaida").value = x.dataSaida||"";
+    document.getElementById("dataRetorno").value = x.dataRetorno||"";
+    document.getElementById("statusExterno").value = x.status;
+    document.getElementById("servicoExterno").value = x.servico||"";
+  } else {
+    ["nomeExterno","codigoExterno","empresaExterna","responsavelExterno","dataSaida","dataRetorno","servicoExterno"].forEach(i=>document.getElementById(i).value="");
+    document.getElementById("tipoExterno").value = "Ferramenta";
+    document.getElementById("statusExterno").value = "Enviado";
+  }
+  document.getElementById("dialogExterna").showModal();
+}
+function fecharExterna(){ document.getElementById("dialogExterna").close(); }
+function salvarExterna(){
+  const nome = document.getElementById("nomeExterno").value.trim();
+  if(!nome){ alert("Digite o nome."); return; }
+  const id = document.getElementById("idExterna").value || gerarId();
+  let codigo = document.getElementById("codigoExterno").value.trim();
+  if(!codigo) codigo = gerarCodigo("EXT");
+
+  const e = {
+    id, tipo: document.getElementById("tipoExterno").value,
+    nome, codigo,
+    empresa: document.getElementById("empresaExterna").value.trim(),
+    responsavel: document.getElementById("responsavelExterno").value.trim(),
+    dataSaida: document.getElementById("dataSaida").value,
+    dataRetorno: document.getElementById("dataRetorno").value,
+    status: document.getElementById("statusExterno").value,
+    servico: document.getElementById("servicoExterno").value.trim(),
+    dataCadastro: new Date().toISOString()
+  };
+  const existe = manutencoesExternas.find(m=>m.id===id);
+  if(existe){
+    manutencoesExternas = manutencoesExternas.map(m=>m.id===id?e:m);
+    registrarHistorico(nome,"editou externa");
+  } else {
+    manutencoesExternas.push(e);
+    registrarHistorico(nome,"cadastrou externa");
+  }
+  salvarBanco();
+  fecharExterna();
+  mostrarTudo();
+}
+function mostrarManutencoesExternas(){
+  const el = document.getElementById("listaManutencaoExterna");
+  if(!el) return;
+  const lista = manutencoesExternas;
+  if(!lista.length){ el.innerHTML = `<div class="card empty-state"><span class="emoji">🚚</span><span>Nenhuma manutenção externa.</span></div>`; return; }
+  el.innerHTML = lista.slice().reverse().map(x=>`
+    <div class="card item">
+      <div class="imagem-placeholder">🚚</div>
+      <div class="item-info">
+        <div class="nome">${escapar(x.nome)}</div>
+        <div class="detalhes">Tipo: ${escapar(x.tipo)}<br>Empresa: ${escapar(x.empresa||"-")}<br>Resp: ${escapar(x.responsavel||"-")}</div>
+        <div class="tags"><span class="badge badge-info">${escapar(x.status)}</span></div>
+      </div>
+      <div class="item-actions">
+        <button onclick="abrirManutencaoExterna('${x.id}')">✏️</button>
+        <button onclick="excluirManutencaoExterna('${x.id}')">🗑️</button>
+      </div>
+    </div>
+  `).join("");
+}
+function excluirManutencaoExterna(id){
+  const x = manutencoesExternas.find(m=>m.id===id);
+  if(!x) return;
+  if(confirm(`Excluir "${x.nome}"?`)){
+    manutencoesExternas = manutencoesExternas.filter(m=>m.id!==id);
+    registrarHistorico(x.nome,"excluiu externa");
+    salvarBanco();
+    mostrarTudo();
+  }
+}
+
+/* ================= HISTÓRICO ================= */
+function mostrarHistorico(){
+  const el = document.getElementById("listaHistorico");
+  if(!el) return;
+  const filtro = (document.getElementById("pesquisaHistorico")?.value||"").toLowerCase();
+  let lista = historico.slice().reverse();
+  if(filtro) lista = lista.filter(h=>(h.nome+" "+h.acao+" "+(h.usuario||"")).toLowerCase().includes(filtro));
+
+  if(!lista.length){
+    el.innerHTML = `<div class="empty-state" style="padding:20px;"><span class="emoji" style="font-size:32px;">📭</span><span>Nenhum registro.</span></div>`;
+    return;
+  }
+  el.innerHTML = lista.slice(0,100).map(h=>`
+    <div class="historico-item">
+      <div>
+        <div class="acao">${escapar(h.nome)}</div>
+        <div class="text-sm muted" style="opacity:0.7;">${escapar(h.acao)}</div>
+      </div>
+      <div class="data">${new Date(h.data).toLocaleString("pt-BR")}</div>
+    </div>
+  `).join("");
+}
+function limparHistorico(){
+  if(confirm("Apagar todo o histórico? Esta ação não pode ser desfeita.")){
+    historico = [];
+    salvarBanco();
+    mostrarTudo();
+  }
+}
+
+/* ================= CÂMERA ================= */
+async function abrirCamera(destino="ferramenta"){
+  cameraDestino = destino;
+  try{
+    cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false});
+    document.getElementById("camera").srcObject = cameraStream;
+    document.getElementById("dialogCamera").showModal();
+  }catch(e){ alert("Não foi possível acessar a câmera."); }
+}
+function fecharCamera(){
+  if(cameraStream){ cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; }
+  document.getElementById("dialogCamera").close();
+}
+function tirarFoto(){
+  const v = document.getElementById("camera");
+  const c = document.createElement("canvas");
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  c.getContext("2d").drawImage(v,0,0);
+  const img = c.toDataURL("image/jpeg",0.85);
+  if(cameraDestino==="ferramenta"){
+    midiasFerramenta.push({tipo:"foto",src:img});
+    mostrarPreviewFerramenta();
+  } else if(cameraDestino==="ativo"){
+    midiasAtivo = [{tipo:"foto",src:img}];
+    mostrarPreviewAtivo();
+  } else if(cameraDestino==="manutencao"){
+    midiasManutencao.push({tipo:"foto",src:img});
+    mostrarPreviewManutencao();
+  }
+  fecharCamera();
+}
+
+/* ================= SCANNER DE CÓDIGO ================= */
+function abrirScanner(){
+  if(!window.Html5Qrcode){
+    alert("Leitor de código não disponível. Verifique sua conexão.");
+    return;
+  }
+  document.getElementById("dialogScanner").showModal();
+  scanner = new Html5Qrcode("reader");
+  scanner.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: { width: 250, height: 250 } },
+    (textoDecodificado) => {
+      // Procura ferramenta com este código
+      const f = ferramentas.find(x => x.codigo && x.codigo.toLowerCase() === textoDecodificado.toLowerCase().trim());
+      if(f){
+        fecharScanner();
+        abrirFerramenta(f.id);
+      } else {
+        alert(`Nenhuma ferramenta encontrada com o código "${textoDecodificado}".`);
+      }
+    },
+    () => {} // ignora erros de leitura contínua
+  ).catch(err => {
+    alert("Não foi possível iniciar o scanner: " + err);
+    fecharScanner();
+  });
+}
+function fecharScanner(){
+  if(scanner){
+    scanner.stop().then(()=>{ scanner.clear(); scanner = null; }).catch(()=>{ scanner = null; });
+  }
+  document.getElementById("dialogScanner").close();
+}
+
 /* ================= PDF ================= */
 function checkPDF(){
   if(!jsPDF){ alert("Biblioteca PDF não carregada. Verifique sua conexão."); return false; }
