@@ -148,11 +148,8 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 .pdf-panel{background:linear-gradient(135deg,rgba(211,47,47,0.08),rgba(255,87,34,0.05));border:1px solid rgba(255,87,34,0.2);border-radius:var(--radius);padding:22px 24px;margin-top:16px}
 .pdf-panel h2{font-size:18px;font-weight:700;margin-bottom:6px;background:linear-gradient(135deg,#ff5722,#ff6b9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .pdf-panel p{font-size:13px;color:var(--cinza);opacity:.8;margin-bottom:14px}
-.pdf-botoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
-.pdf-item{display:flex;gap:6px;align-items:stretch}
-.pdf-item .btn-pdf{flex:1;justify-content:center;padding:12px 18px;font-size:13px}
-.btn-abrir{padding:12px 14px;font-size:15px;border-radius:30px;min-width:48px;justify-content:center;background:transparent;border:1px solid var(--borda)}
-.btn-abrir:hover{background:linear-gradient(135deg,var(--azul),var(--roxo));border-color:transparent;color:#fff}
+.pdf-botoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.pdf-botoes button{justify-content:center;padding:12px 18px;font-size:13px}
 #btnInstalarApp{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg,var(--azul),var(--roxo));color:#fff;padding:12px 28px;border-radius:30px;font-weight:700;font-size:15px;box-shadow:0 8px 40px rgba(30,184,201,0.4);animation:pulseInstalar 2s ease-in-out infinite}
 @keyframes pulseInstalar{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.05)}}
 .alarme-container{position:fixed;top:80px;right:20px;z-index:1000;max-width:400px;width:100%;pointer-events:none}
@@ -252,41 +249,20 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
   <div class="pdf-panel mt-20">
     <h2>📄 Relatórios em PDF</h2>
-    <p>Clique no nome para baixar/compartilhar · Clique em <b>🌐</b> para abrir no navegador.</p>
+    <p>Clique em qualquer botão abaixo — o PDF <b>abre direto no navegador</b> em uma nova aba.</p>
     <div class="pdf-botoes">
-      <div class="pdf-item">
-        <button class="btn-pdf" onclick="gerarPDFCompleto()">📊 Relatório Geral</button>
-        <button class="btn-abrir" onclick="gerarPDFCompleto(true)" title="Abrir no navegador">🌐</button>
-      </div>
-      <div class="pdf-item">
-        <button class="btn-pdf" onclick="gerarPDFFerramentas()">🔧 Ferramentas</button>
-        <button class="btn-abrir" onclick="gerarPDFFerramentas(true)" title="Abrir no navegador">🌐</button>
-      </div>
-      <div class="pdf-item">
-        <button class="btn-pdf" onclick="gerarPDFManutencao()">🧰 Manutenção</button>
-        <button class="btn-abrir" onclick="gerarPDFManutencao(true)" title="Abrir no navegador">🌐</button>
-      </div>
-      <div class="pdf-item">
-        <button class="btn-pdf" onclick="gerarPDFAtivos()">🏭 Ativos</button>
-        <button class="btn-abrir" onclick="gerarPDFAtivos(true)" title="Abrir no navegador">🌐</button>
-      </div>
-      <div class="pdf-item">
-        <button class="btn-pdf" onclick="gerarPDFCriados()">🔨 Criados</button>
-        <button class="btn-abrir" onclick="gerarPDFCriados(true)" title="Abrir no navegador">🌐</button>
-      </div>
-      <div class="pdf-item">
-        <button class="btn-pdf" onclick="gerarPDFPedidos()">📦 Pedidos</button>
-        <button class="btn-abrir" onclick="gerarPDFPedidos(true)" title="Abrir no navegador">🌐</button>
-      </div>
-      <div class="pdf-item">
-        <button class="btn-pdf" onclick="gerarPDFExternas()">🚚 Externas</button>
-        <button class="btn-abrir" onclick="gerarPDFExternas(true)" title="Abrir no navegador">🌐</button>
-      </div>
-      <div class="pdf-item">
-        <button class="btn-pdf" onclick="gerarPDFSetores()">📍 Setores</button>
-        <button class="btn-abrir" onclick="gerarPDFSetores(true)" title="Abrir no navegador">🌐</button>
-      </div>
+      <button class="btn-pdf" onclick="gerarPDFCompleto()">📊 Relatório Geral</button>
+      <button class="btn-pdf" onclick="gerarPDFFerramentas()">🔧 Ferramentas</button>
+      <button class="btn-pdf" onclick="gerarPDFManutencao()">🧰 Manutenção</button>
+      <button class="btn-pdf" onclick="gerarPDFAtivos()">🏭 Ativos</button>
+      <button class="btn-pdf" onclick="gerarPDFCriados()">🔨 Criados</button>
+      <button class="btn-pdf" onclick="gerarPDFPedidos()">📦 Pedidos</button>
+      <button class="btn-pdf" onclick="gerarPDFExternas()">🚚 Externas</button>
+      <button class="btn-pdf" onclick="gerarPDFSetores()">📍 Setores</button>
     </div>
+    <p class="text-sm muted" style="margin-top:12px;opacity:.7;">
+      💡 O PDF abre em uma nova aba. Use <b>Compartilhar</b> ou <b>Salvar</b> no visualizador do navegador para guardar o arquivo.
+    </p>
   </div>
   <div class="card mt-16">
     <h2>📲 Compartilhar Relatório Rápido</h2>
@@ -1922,76 +1898,39 @@ function cabecalhoPDF(doc, titulo, sub=""){
   doc.text(`Página ${doc.internal.getCurrentPageInfo().pageNumber}`, w-14, h-8, {align:'right'});
 }
 
-async function salvarPDF(doc, nome, abrirNoNavegador = false){
+/* ============================================================
+   ✅ SALVAR PDF — AGORA ABRE DIRETO NO NAVEGADOR
+   ------------------------------------------------------------
+   Sempre abre o PDF em uma nova aba do navegador.
+   Se o navegador bloquear pop-ups, avisa o usuário.
+   ============================================================ */
+function salvarPDF(doc, nome){
   let blob;
   try { blob = doc.output("blob"); }
   catch(e){ console.error(e); alert("❌ Erro ao gerar PDF."); return; }
 
-  // ===== MODO 1: Abrir no navegador (nova aba) =====
-  if (abrirNoNavegador) {
-    try {
-      const url = URL.createObjectURL(blob);
-      const w = window.open(url, "_blank");
-      if (!w) {
-        const a = document.createElement("a");
-        a.href = url; a.target = "_blank"; a.rel = "noopener";
-        document.body.appendChild(a); a.click();
-        setTimeout(() => { try{ document.body.removeChild(a); }catch(e){} }, 2000);
-        alert("⚠️ O navegador bloqueou a nova aba.\n\nAutorize pop-ups para este site.");
-      }
-      setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e){} }, 60000);
-      return;
-    } catch(e){
-      console.error(e);
-      alert("❌ Não foi possível abrir o PDF no navegador.");
-      return;
-    }
-  }
-
-  // ===== MODO 2: Compartilhar nativo =====
-  const file = new File([blob], nome, { type: "application/pdf" });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file], title: nome, text: "📄 Relatório do PCM de Ferramentas" });
-      return;
-    } catch (err) {
-      if (err.name === "AbortError") return;
-      console.warn("Share falhou, tentando download...", err);
-    }
-  }
-
-  // ===== MODO 3: Download =====
-  const ok = baixarPDFBlob(blob, nome);
-  if(ok){
-    setTimeout(() => {
-      alert("✅ PDF gerado!\n\nO download deve aparecer na barra de notificações.\n\n📂 Se não aparecer:\n• Abra o menu do navegador (⋮)\n• Toque em 'Downloads'\n\n💡 Em HTTPS, o PDF vai direto para o menu de compartilhamento.");
-    }, 700);
-  }
-}
-
-function baixarPDFBlob(blob, nome){
   try {
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = nome; a.rel = "noopener"; a.style.display = "none";
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { try{ document.body.removeChild(a); URL.revokeObjectURL(url); }catch(e){} }, 2000);
-    return true;
+    const w = window.open(url, "_blank");
+    if (!w) {
+      // Popup bloqueado — tenta criar link
+      const a = document.createElement("a");
+      a.href = url; a.target = "_blank"; a.rel = "noopener";
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { try{ document.body.removeChild(a); }catch(e){} }, 2000);
+      setTimeout(() => {
+        alert("⚠️ O navegador bloqueou a nova aba.\n\nSe o PDF não abriu:\n• Autorize pop-ups para este site\n• Ou copie o link e abra manualmente");
+      }, 500);
+    }
+    // Libera a URL depois de 60s
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e){} }, 60000);
   } catch(e){
     console.error(e);
-    try {
-      const url = URL.createObjectURL(blob);
-      const w = window.open(url, "_blank");
-      if(!w) alert("❌ Não foi possível baixar nem abrir o PDF.\n\nSe você abriu o arquivo direto do celular (file:// ou content://), o download não funciona. Hospede o app em HTTPS (GitHub Pages, Netlify, etc).");
-      return false;
-    } catch(e2){
-      alert("❌ Erro ao baixar PDF. Verifique se está abrindo via HTTPS.");
-      return false;
-    }
+    alert("❌ Não foi possível abrir o PDF no navegador.\n\nSe você abriu o arquivo direto do celular (file:// ou content://), isso não funciona. Hospede o app em HTTPS.");
   }
 }
 
-function gerarPDFCompleto(abrirNoNavegador = false){
+function gerarPDFCompleto(){
   if(!checkPDF()) return;
   const doc = new jsPDFLib();
   cabecalhoPDF(doc,'RELATÓRIO GERAL','PCM de Ferramentas — Ferramentas, Ativos e Manutenção');
@@ -2017,16 +1956,16 @@ function gerarPDFCompleto(abrirNoNavegador = false){
     doc.text('Ferramentas em Manutenção', 14, y);
     doc.autoTable({ startY: y + 4, head:[['Nome','Código','Setor','Observações']], body: emManut.map(f=>[f.nome, f.codigo||'-', f.setor, f.observacoes||'-']), theme:'grid', headStyles:{fillColor:[211,47,47],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
   }
-  salvarPDF(doc, `Relatorio_Geral_${new Date().toISOString().slice(0,10)}.pdf`, abrirNoNavegador);
+  salvarPDF(doc, `Relatorio_Geral_${new Date().toISOString().slice(0,10)}.pdf`);
 }
-function gerarPDFFerramentas(abrirNoNavegador = false){
+function gerarPDFFerramentas(){
   if(!checkPDF()) return;
   const doc = new jsPDFLib();
   cabecalhoPDF(doc,'FERRAMENTAS',`Total: ${ferramentas.length}`);
   doc.autoTable({ startY:45, head:[['Nome','Código','Setor','Qtd','Status']], body: ferramentas.map(f=>[f.nome, f.codigo||'-', f.setor, f.quantidade||1, f.status]), theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255}, styles:{fontSize:9,cellPadding:2}, alternateRowStyles:{fillColor:[245,250,252]}, margin:{left:14,right:14} });
-  salvarPDF(doc, `Ferramentas_${new Date().toISOString().slice(0,10)}.pdf`, abrirNoNavegador);
+  salvarPDF(doc, `Ferramentas_${new Date().toISOString().slice(0,10)}.pdf`);
 }
-function gerarPDFManutencao(abrirNoNavegador = false){
+function gerarPDFManutencao(){
   if(!checkPDF()) return;
   const doc = new jsPDFLib();
   cabecalhoPDF(doc,'FERRAMENTAS EM MANUTENÇÃO',`Total: ${manutencoes.length}`);
@@ -2036,9 +1975,9 @@ function gerarPDFManutencao(abrirNoNavegador = false){
   } else {
     doc.autoTable({ startY:45, head:[['Nome','Código','Setor','Tipo','Prior.','Status','Resp.','Entrada']], body: manutencoes.map(m=>[m.nome, m.codigo||'-', m.setor, m.tipo, m.prioridade, m.status, m.responsavel||'-', m.dataEntrada ? new Date(m.dataEntrada).toLocaleDateString('pt-BR') : '-']), theme:'grid', headStyles:{fillColor:[211,47,47],textColor:255}, styles:{fontSize:8,cellPadding:2}, alternateRowStyles:{fillColor:[255,240,240]}, margin:{left:14,right:14} });
   }
-  salvarPDF(doc, `Manutencao_${new Date().toISOString().slice(0,10)}.pdf`, abrirNoNavegador);
+  salvarPDF(doc, `Manutencao_${new Date().toISOString().slice(0,10)}.pdf`);
 }
-function gerarPDFManutencaoItem(id, abrirNoNavegador = false){
+function gerarPDFManutencaoItem(id){
   if(!checkPDF()) return;
   const m = manutencoes.find(x=>x.id===id);
   if(!m) return;
@@ -2063,9 +2002,9 @@ function gerarPDFManutencaoItem(id, abrirNoNavegador = false){
     doc.text(txt,55,y);
     y += txt.length*6 + 2;
   });
-  salvarPDF(doc, `Manutencao_${m.nome.replace(/\s+/g,'_')}.pdf`, abrirNoNavegador);
+  salvarPDF(doc, `Manutencao_${m.nome.replace(/\s+/g,'_')}.pdf`);
 }
-function gerarPDFAtivos(abrirNoNavegador = false){
+function gerarPDFAtivos(){
   if(!checkPDF()) return;
   const doc = new jsPDFLib();
   cabecalhoPDF(doc,'ATIVOS',`Total: ${ativos.length}`);
@@ -2075,9 +2014,9 @@ function gerarPDFAtivos(abrirNoNavegador = false){
   } else {
     doc.autoTable({ startY:45, head:[['Nome','TAG','Tipo','Setor','Status']], body: ativos.map(a=>[a.nome, a.codigo||'-', a.tipo, a.setor, a.status]), theme:'grid', headStyles:{fillColor:[124,92,191],textColor:255}, styles:{fontSize:9,cellPadding:2}, alternateRowStyles:{fillColor:[248,245,255]}, margin:{left:14,right:14} });
   }
-  salvarPDF(doc, `Ativos_${new Date().toISOString().slice(0,10)}.pdf`, abrirNoNavegador);
+  salvarPDF(doc, `Ativos_${new Date().toISOString().slice(0,10)}.pdf`);
 }
-function gerarPDFCriados(abrirNoNavegador = false){
+function gerarPDFCriados(){
   if(!checkPDF()) return;
   const doc = new jsPDFLib();
   cabecalhoPDF(doc,'CRIADOS',`Total: ${ativosCriados.length}`);
@@ -2087,9 +2026,9 @@ function gerarPDFCriados(abrirNoNavegador = false){
   } else {
     doc.autoTable({ startY:45, head:[['Nome','Código','Tipo','Resp.','Setor','Status']], body: ativosCriados.map(a=>[a.nome, a.codigo||'-', a.tipo, a.responsavel||'-', a.setor, a.status]), theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, alternateRowStyles:{fillColor:[240,255,245]}, margin:{left:14,right:14} });
   }
-  salvarPDF(doc, `Criados_${new Date().toISOString().slice(0,10)}.pdf`, abrirNoNavegador);
+  salvarPDF(doc, `Criados_${new Date().toISOString().slice(0,10)}.pdf`);
 }
-function gerarPDFPedidos(abrirNoNavegador = false){
+function gerarPDFPedidos(){
   if(!checkPDF()) return;
   const doc = new jsPDFLib();
   cabecalhoPDF(doc,'PEDIDOS',`Total: ${pedidosMateriais.length}`);
@@ -2099,9 +2038,9 @@ function gerarPDFPedidos(abrirNoNavegador = false){
   } else {
     doc.autoTable({ startY:45, head:[['Material','Qtd','Fornecedor','Setor','Status']], body: pedidosMateriais.map(p=>[p.nome, p.quantidade||'-', p.fornecedor||'-', p.setor, p.status]), theme:'grid', headStyles:{fillColor:[245,166,35],textColor:255}, styles:{fontSize:9,cellPadding:2}, alternateRowStyles:{fillColor:[255,250,240]}, margin:{left:14,right:14} });
   }
-  salvarPDF(doc, `Pedidos_${new Date().toISOString().slice(0,10)}.pdf`, abrirNoNavegador);
+  salvarPDF(doc, `Pedidos_${new Date().toISOString().slice(0,10)}.pdf`);
 }
-function gerarPDFExternas(abrirNoNavegador = false){
+function gerarPDFExternas(){
   if(!checkPDF()) return;
   const doc = new jsPDFLib();
   cabecalhoPDF(doc,'EXTERNAS',`Total: ${manutencoesExternas.length}`);
@@ -2111,9 +2050,9 @@ function gerarPDFExternas(abrirNoNavegador = false){
   } else {
     doc.autoTable({ startY:45, head:[['Item','Tipo','Empresa','Resp.','Status']], body: manutencoesExternas.map(m=>[m.nome, m.tipo, m.empresa||'-', m.responsavel||'-', m.status]), theme:'grid', headStyles:{fillColor:[255,107,157],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
   }
-  salvarPDF(doc, `Externas_${new Date().toISOString().slice(0,10)}.pdf`, abrirNoNavegador);
+  salvarPDF(doc, `Externas_${new Date().toISOString().slice(0,10)}.pdf`);
 }
-function gerarPDFSetores(abrirNoNavegador = false){
+function gerarPDFSetores(){
   if(!checkPDF()) return;
   const doc = new jsPDFLib();
   cabecalhoPDF(doc,'SETORES',`Total: ${setores.length}`);
@@ -2124,7 +2063,7 @@ function gerarPDFSetores(abrirNoNavegador = false){
     return [nome, f.length, f.filter(x=>x.status==='Disponível').length, f.filter(x=>x.status==='Emprestada').length, m.length, ativos.filter(x=>x.setor===nome).length];
   });
   doc.autoTable({ startY:45, head:[['Setor','Ferr.','Disp.','Empr.','Manut.','Ativos']], body:dados, theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, alternateRowStyles:{fillColor:[240,255,245]}, margin:{left:14,right:14} });
-  salvarPDF(doc, `Setores_${new Date().toISOString().slice(0,10)}.pdf`, abrirNoNavegador);
+  salvarPDF(doc, `Setores_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 
 /* ============ COMPARTILHAR IMAGEM ============ */
@@ -2398,7 +2337,7 @@ function solicitarNotificacoes(){
 /* ============ SERVICE WORKER INLINE ============ */
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   const swCode = `
-    const CACHE = "pcm-ferramentas-v1";
+    const CACHE = "pcm-ferramentas-v2";
     const ARQUIVOS = [
       "./",
       "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
