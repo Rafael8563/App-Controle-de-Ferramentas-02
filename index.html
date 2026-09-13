@@ -269,7 +269,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 
   <div class="pdf-panel mt-20">
     <h2>📄 Relatórios em PDF</h2>
-    <p>Gere relatórios profissionais em PDF e envie pelo WhatsApp.</p>
+    <p>Gere relatórios profissionais em PDF e compartilhe.</p>
     <div class="pdf-botoes">
       <button class="btn-pdf" onclick="gerarPDFCompleto()">📊 Relatório Geral</button>
       <button class="btn-pdf" onclick="gerarPDFFerramentas()">🔧 Ferramentas</button>
@@ -285,10 +285,13 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   <div class="card mt-16">
     <h2>📲 Compartilhar Relatório Rápido</h2>
     <div class="acoes">
-      <button class="btn-success" onclick="compartilharRelatorio()">📱 WhatsApp (texto)</button>
+      <button class="btn-success" onclick="compartilharRelatorio()">📱 Compartilhar Texto</button>
       <button class="btn-primary" onclick="compartilharRelatorioImagem()">🖼️ Imagem PNG</button>
       <button class="btn-outline" onclick="window.print()">🖨️ Imprimir</button>
     </div>
+    <p class="text-sm muted" style="margin-top:12px;opacity:.7;">
+      💡 Em <b>HTTPS</b>, o botão de compartilhar abre o menu nativo do celular. Em <b>localhost/http</b>, o texto é copiado para a área de transferência.
+    </p>
   </div>
 
   <div class="section-header">
@@ -2062,48 +2065,48 @@ function cabecalhoPDF(doc, titulo, sub=""){
 }
 
 /* ============================================================
-   ✅ SALVAR PDF COM COMPARTILHAMENTO NATIVO (Android/iOS)
+   ✅ SALVAR PDF — versão final SEM erro de URL scheme
    ------------------------------------------------------------
-   Usa navigator.share() para enviar o PDF anexado direto no
-   WhatsApp. Se não houver suporte, faz download normal.
+   1) Em HTTPS: usa navigator.share() nativo (menu do Android)
+   2) Em HTTP/localhost: baixa o PDF e mostra instruções
    ============================================================ */
 function salvarPDF(doc, nome){
   try {
-    // Gera o blob do PDF
     const blob = doc.output("blob");
     const file = new File([blob], nome, { type: "application/pdf" });
 
-    // Verifica suporte a compartilhamento de arquivos
+    // Verifica se pode compartilhar arquivos (só HTTPS + suporte)
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       navigator.share({
         files: [file],
         title: nome,
         text: "📄 Relatório do Sistema Controle 3D"
-      }).then(() => {
-        console.log("✅ PDF compartilhado");
       }).catch((err) => {
-        // Se o usuário cancelar (AbortError), não fazer nada
         if (err.name !== "AbortError") {
-          console.warn("Falha ao compartilhar, baixando...", err);
-          doc.save(nome);
-        } else {
-          // Usuário cancelou — ainda assim salva
+          console.warn("Compartilhamento cancelado/falhou, baixando...", err);
           doc.save(nome);
         }
       });
-    } else {
-      // Fallback: download direto + pergunta se quer WhatsApp
-      doc.save(nome);
-      setTimeout(() => {
-        if (confirm('✅ PDF gerado!\n\nDeseja enviar via WhatsApp?\n\n(anexe o arquivo PDF na conversa)')) {
-          const texto = `📄 *${nome}*\n\nRelatório gerado pelo Sistema Controle 3D.`;
-          abrirWhatsApp(texto);
-        }
-      }, 600);
+      return;
     }
+
+    // Fallback: baixa o PDF e mostra instruções
+    doc.save(nome);
+    setTimeout(() => {
+      alert(
+        "✅ PDF salvo em Downloads!\n\n" +
+        "📲 Para enviar no WhatsApp:\n\n" +
+        "1. Abra o WhatsApp\n" +
+        "2. Abra a conversa desejada\n" +
+        "3. Clique no clipe 📎\n" +
+        "4. Escolha 'Documento'\n" +
+        "5. Selecione o PDF em Downloads\n\n" +
+        "💡 Dica: para compartilhamento automático, hospede o app em HTTPS."
+      );
+    }, 500);
+
   } catch (err) {
     console.error("Erro ao gerar PDF:", err);
-    // Último fallback: só salva
     doc.save(nome);
   }
 }
@@ -2561,51 +2564,73 @@ function apagarTudo(){
 }
 
 /* ============================================================
-   ✅ WHATSAPP — versão definitiva
+   ✅ WHATSAPP — versão FINAL, sem esquema customizado
    ------------------------------------------------------------
-   Detecta mobile e usa iframe com whatsapp://send para abrir
-   o app nativo. Fallback para api.whatsapp.com (link HTTPS).
+   Não usa mais whatsapp:// (que dava ERR_UNKNOWN_URL_SCHEME).
+   Em HTTPS: usa navigator.share (menu nativo).
+   Em HTTP: copia o texto para a área de transferência.
    ============================================================ */
+function copiarTexto(t){
+  return new Promise((resolve) => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(resolve).catch(() => {
+        const ta = document.createElement("textarea");
+        ta.value = t;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch(e){}
+        ta.remove();
+        resolve();
+      });
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = t;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch(e){}
+      ta.remove();
+      resolve();
+    }
+  });
+}
+
 function abrirWhatsApp(t){
-  const texto = encodeURIComponent(t);
-  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  const texto = t;
 
-  if (isMobile) {
-    // App nativo via esquema whatsapp:// (não dispara erro de URL)
-    const appUrl = "whatsapp://send?text=" + texto;
-
-    // Truque do iframe invisível — não faz o navegador tentar
-    // carregar o esquema como página
-    const iframe = document.createElement("iframe");
-    iframe.style.display = "none";
-    iframe.src = appUrl;
-    document.body.appendChild(iframe);
-
-    setTimeout(() => {
-      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-    }, 2000);
-
-    // Fallback para link HTTPS universal
-    setTimeout(() => {
-      if (document.visibilityState === "visible") {
-        window.location.href = "https://api.whatsapp.com/send?text=" + texto;
-      }
-    }, 1500);
-  } else {
-    // Desktop
-    window.open("https://api.whatsapp.com/send?text=" + texto, "_blank");
+  // Se tem navigator.share, usa (só funciona em HTTPS ou localhost seguro)
+  if (navigator.share) {
+    navigator.share({ text: texto })
+      .then(() => console.log("✅ Compartilhado"))
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          // Fallback: copia o texto
+          copiarTexto(texto).then(() => {
+            alert("📋 Texto copiado!\n\nAbra o WhatsApp e cole na conversa desejada (pressione e segure → Colar).");
+          });
+        }
+      });
+    return;
   }
+
+  // Fallback: copia o texto e avisa
+  copiarTexto(texto).then(() => {
+    alert("📋 Texto copiado!\n\nAbra o WhatsApp e cole (pressione e segure → Colar) na conversa desejada.");
+  });
 }
 
 function compartilharFerramenta(id){
   const x = ferramentas.find(f=>f.id===id);
   if(!x) return;
-  const texto = `🛠️ *Ferramenta*\nNome: ${x.nome}\nCódigo: ${x.codigo||"-"}\nSetor: ${x.setor}\nStatus: ${x.status}\nQtd: ${x.quantidade||1}`;
+  const texto = `🛠️ Ferramenta\nNome: ${x.nome}\nCódigo: ${x.codigo||"-"}\nSetor: ${x.setor}\nStatus: ${x.status}\nQtd: ${x.quantidade||1}`;
   abrirWhatsApp(texto);
 }
 
 function compartilharRelatorio(){
-  let t = `📊 *RELATÓRIO — Controle 3D*\n\n`;
+  let t = `📊 RELATÓRIO — Controle 3D\n\n`;
   t += `🔧 Ferramentas: ${ferramentas.length}\n`;
   t += `🟢 Disponíveis: ${ferramentas.filter(x=>x.status==="Disponível").length}\n`;
   t += `📤 Emprestadas: ${ferramentas.filter(x=>x.status==="Emprestada").length}\n`;
