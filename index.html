@@ -249,7 +249,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
   <div class="pdf-panel mt-20">
     <h2>📄 Relatórios em PDF</h2>
-    <p>Clique em qualquer botão abaixo — o PDF <b>abre direto no navegador</b> em uma nova aba.</p>
+    <p>Clique em qualquer botão — o menu de compartilhamento do celular abre com o PDF pronto para enviar.</p>
     <div class="pdf-botoes">
       <button class="btn-pdf" onclick="gerarPDFCompleto()">📊 Relatório Geral</button>
       <button class="btn-pdf" onclick="gerarPDFFerramentas()">🔧 Ferramentas</button>
@@ -261,7 +261,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <button class="btn-pdf" onclick="gerarPDFSetores()">📍 Setores</button>
     </div>
     <p class="text-sm muted" style="margin-top:12px;opacity:.7;">
-      💡 O PDF abre em uma nova aba. Use <b>Compartilhar</b> ou <b>Salvar</b> no visualizador do navegador para guardar o arquivo.
+      💡 Abre o menu nativo (WhatsApp, Gmail, Drive…). Se o navegador não suportar, o PDF abre em nova aba.
     </p>
   </div>
   <div class="card mt-16">
@@ -1899,34 +1899,50 @@ function cabecalhoPDF(doc, titulo, sub=""){
 }
 
 /* ============================================================
-   ✅ SALVAR PDF — AGORA ABRE DIRETO NO NAVEGADOR
+   ✅ COMPARTILHAR PDF — igual ao "Compartilhar Texto"
    ------------------------------------------------------------
-   Sempre abre o PDF em uma nova aba do navegador.
-   Se o navegador bloquear pop-ups, avisa o usuário.
+   1) Tenta abrir o menu nativo de compartilhamento com o PDF
+   2) Se não suportar, abre o PDF em nova aba (fallback)
    ============================================================ */
-function salvarPDF(doc, nome){
+async function salvarPDF(doc, nome){
   let blob;
   try { blob = doc.output("blob"); }
   catch(e){ console.error(e); alert("❌ Erro ao gerar PDF."); return; }
 
+  const file = new File([blob], nome, { type: "application/pdf" });
+
+  // === MODO 1: Compartilhamento nativo (menu do Android) ===
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: nome,
+        text: "📄 Relatório — PCM de Ferramentas"
+      });
+      return;
+    } catch (err) {
+      if (err.name === "AbortError") return;
+      console.warn("Share falhou, abrindo em nova aba...", err);
+    }
+  }
+
+  // === MODO 2: Fallback — abrir PDF em nova aba ===
   try {
     const url = URL.createObjectURL(blob);
     const w = window.open(url, "_blank");
     if (!w) {
-      // Popup bloqueado — tenta criar link
       const a = document.createElement("a");
       a.href = url; a.target = "_blank"; a.rel = "noopener";
       document.body.appendChild(a); a.click();
       setTimeout(() => { try{ document.body.removeChild(a); }catch(e){} }, 2000);
       setTimeout(() => {
-        alert("⚠️ O navegador bloqueou a nova aba.\n\nSe o PDF não abriu:\n• Autorize pop-ups para este site\n• Ou copie o link e abra manualmente");
+        alert("⚠️ Seu navegador não suporta compartilhamento direto.\n\nO PDF foi aberto em nova aba — use o menu do visualizador para salvar ou compartilhar.");
       }, 500);
     }
-    // Libera a URL depois de 60s
     setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e){} }, 60000);
   } catch(e){
     console.error(e);
-    alert("❌ Não foi possível abrir o PDF no navegador.\n\nSe você abriu o arquivo direto do celular (file:// ou content://), isso não funciona. Hospede o app em HTTPS.");
+    alert("❌ Não foi possível abrir o PDF.\n\nHospede o app em HTTPS (GitHub Pages já serve).");
   }
 }
 
@@ -2337,7 +2353,7 @@ function solicitarNotificacoes(){
 /* ============ SERVICE WORKER INLINE ============ */
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   const swCode = `
-    const CACHE = "pcm-ferramentas-v2";
+    const CACHE = "pcm-ferramentas-v3";
     const ARQUIVOS = [
       "./",
       "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
