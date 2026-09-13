@@ -237,7 +237,6 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 <section id="painel">
   <div id="estatisticas" class="grid"></div>
 
-  <!-- GRÁFICOS -->
   <div class="dashboard-grid mt-20">
     <div class="card">
       <h3>📊 Ferramentas por status</h3>
@@ -254,7 +253,6 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     <div id="resumoEmpresa" style="display:flex;gap:24px;flex-wrap:wrap;margin-top:8px;"></div>
   </div>
 
-  <!-- BACKUP -->
   <div class="card mt-20" style="border-left:3px solid var(--verde);">
     <h2>💾 Backup e Restauração</h2>
     <p class="muted text-sm" style="margin:8px 0 12px;opacity:.8;">
@@ -269,7 +267,6 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     </div>
   </div>
 
-  <!-- RELATÓRIOS PDF -->
   <div class="pdf-panel mt-20">
     <h2>📄 Relatórios em PDF</h2>
     <p>Gere relatórios profissionais em PDF e envie pelo WhatsApp.</p>
@@ -450,7 +447,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     </div>
   </div>
 </dialog>
-<!-- ============ MODAIS PRINCIPAIS ============ -->
+
 <dialog id="dialogFerramenta">
   <div class="modal">
     <h2 id="tituloFerramenta">Cadastrar ferramenta</h2>
@@ -762,7 +759,6 @@ function escapar(t=""){
 }
 function gerarId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,6); }
 
-/* Geração de código automático */
 function gerarCodigo(prefixo){
   if(!contadores[prefixo]) contadores[prefixo] = 0;
   contadores[prefixo]++;
@@ -804,13 +800,11 @@ function alternarTema(){
 
 /* ================= INICIALIZAÇÃO ================= */
 function iniciar(){
-  // Tema
   if(localStorage.getItem("controleTema") === "claro"){
     document.body.classList.add("tema-claro");
     document.getElementById("btnTema").textContent = "🌙";
   }
 
-  // Usuário
   if(usuarioAtual){
     document.getElementById("usuarioAtual").textContent = `👤 ${usuarioAtual}`;
   } else {
@@ -1256,7 +1250,6 @@ function mostrarFerramentas(){
   const pesquisa = (document.getElementById("pesquisaFerramenta")?.value||"").toLowerCase();
   let lista = ferramentas.filter(x=>(x.nome+" "+x.codigo+" "+x.setor).toLowerCase().includes(pesquisa));
 
-  // Aplica filtro
   if(filtroAtualFerramenta === "disponivel") lista = lista.filter(x=>x.status==="Disponível");
   else if(filtroAtualFerramenta === "emprestada") lista = lista.filter(x=>x.status==="Emprestada");
   else if(filtroAtualFerramenta === "manutencao") lista = lista.filter(x=>x.status==="Manutenção");
@@ -2022,7 +2015,6 @@ function abrirScanner(){
     { facingMode: "environment" },
     { fps: 10, qrbox: { width: 250, height: 250 } },
     (textoDecodificado) => {
-      // Procura ferramenta com este código
       const f = ferramentas.find(x => x.codigo && x.codigo.toLowerCase() === textoDecodificado.toLowerCase().trim());
       if(f){
         fecharScanner();
@@ -2031,7 +2023,7 @@ function abrirScanner(){
         alert(`Nenhuma ferramenta encontrada com o código "${textoDecodificado}".`);
       }
     },
-    () => {} // ignora erros de leitura contínua
+    () => {}
   ).catch(err => {
     alert("Não foi possível iniciar o scanner: " + err);
     fecharScanner();
@@ -2068,14 +2060,52 @@ function cabecalhoPDF(doc, titulo, sub=""){
   doc.text('Sistema Controle 3D', 14, h-8);
   doc.text(`Página ${doc.internal.getCurrentPageInfo().pageNumber}`, w-14, h-8, {align:'right'});
 }
+
+/* ============================================================
+   ✅ SALVAR PDF COM COMPARTILHAMENTO NATIVO (Android/iOS)
+   ------------------------------------------------------------
+   Usa navigator.share() para enviar o PDF anexado direto no
+   WhatsApp. Se não houver suporte, faz download normal.
+   ============================================================ */
 function salvarPDF(doc, nome){
-  doc.save(nome);
-  setTimeout(()=>{
-    if(confirm('✅ PDF gerado!\n\nDeseja enviar via WhatsApp?')){
-      const t = `📄 *${nome}*\n\nRelatório do Sistema Controle 3D. Anexe o arquivo na conversa.`;
-      window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
+  try {
+    // Gera o blob do PDF
+    const blob = doc.output("blob");
+    const file = new File([blob], nome, { type: "application/pdf" });
+
+    // Verifica suporte a compartilhamento de arquivos
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({
+        files: [file],
+        title: nome,
+        text: "📄 Relatório do Sistema Controle 3D"
+      }).then(() => {
+        console.log("✅ PDF compartilhado");
+      }).catch((err) => {
+        // Se o usuário cancelar (AbortError), não fazer nada
+        if (err.name !== "AbortError") {
+          console.warn("Falha ao compartilhar, baixando...", err);
+          doc.save(nome);
+        } else {
+          // Usuário cancelou — ainda assim salva
+          doc.save(nome);
+        }
+      });
+    } else {
+      // Fallback: download direto + pergunta se quer WhatsApp
+      doc.save(nome);
+      setTimeout(() => {
+        if (confirm('✅ PDF gerado!\n\nDeseja enviar via WhatsApp?\n\n(anexe o arquivo PDF na conversa)')) {
+          const texto = `📄 *${nome}*\n\nRelatório gerado pelo Sistema Controle 3D.`;
+          abrirWhatsApp(texto);
+        }
+      }, 600);
     }
-  },500);
+  } catch (err) {
+    console.error("Erro ao gerar PDF:", err);
+    // Último fallback: só salva
+    doc.save(nome);
+  }
 }
 
 function gerarPDFCompleto(){
@@ -2097,13 +2127,12 @@ function gerarPDFCompleto(){
   ];
   doc.autoTable({startY:45, head:[['Indicador','Quantidade']], body:resumo, theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255,fontStyle:'bold'}, styles:{fontSize:10,cellPadding:3}, alternateRowStyles:{fillColor:[245,250,252]}, margin:{left:14,right:14}});
 
-  // Segunda tabela: ferramentas em manutenção
   const emManut = ferramentas.filter(f=>f.status==='Manutenção');
   if(emManut.length > 0){
     let y = doc.lastAutoTable.finalY + 10;
     if(y > 240){ doc.addPage(); y = 20; }
     doc.setFontSize(13); doc.setTextColor(211,47,47); doc.setFont(undefined,'bold');
-    doc.text('🧰 Ferramentas em Manutenção', 14, y);
+    doc.text('Ferramentas em Manutenção', 14, y);
     doc.autoTable({
       startY: y + 4,
       head:[['Nome','Código','Setor','Observações']],
@@ -2119,7 +2148,7 @@ function gerarPDFCompleto(){
 function gerarPDFFerramentas(){
   if(!checkPDF()) return;
   const doc = new jsPDF();
-  cabecalhoPDF(doc,'🔧 FERRAMENTAS',`Total: ${ferramentas.length}`);
+  cabecalhoPDF(doc,'FERRAMENTAS',`Total: ${ferramentas.length}`);
   doc.autoTable({
     startY:45,
     head:[['Nome','Código','Setor','Qtd','Status']],
@@ -2135,7 +2164,7 @@ function gerarPDFFerramentas(){
 function gerarPDFManutencao(){
   if(!checkPDF()) return;
   const doc = new jsPDF();
-  cabecalhoPDF(doc,'🧰 FERRAMENTAS EM MANUTENÇÃO',`Total: ${manutencoes.length}`);
+  cabecalhoPDF(doc,'FERRAMENTAS EM MANUTENÇÃO',`Total: ${manutencoes.length}`);
   if(!manutencoes.length){
     doc.setFontSize(12); doc.setTextColor(100,100,100);
     doc.text('Nenhuma manutenção cadastrada.',14,55);
@@ -2162,7 +2191,7 @@ function gerarPDFManutencaoItem(id){
   const m = manutencoes.find(x=>x.id===id);
   if(!m) return;
   const doc = new jsPDF();
-  cabecalhoPDF(doc,'🧰 DETALHE DE MANUTENÇÃO', m.nome);
+  cabecalhoPDF(doc,'DETALHE DE MANUTENÇÃO', m.nome);
   let y = 48;
   doc.setFontSize(11); doc.setTextColor(20,20,20);
   const linhas = [
@@ -2194,7 +2223,7 @@ function gerarPDFManutencaoItem(id){
 function gerarPDFAtivos(){
   if(!checkPDF()) return;
   const doc = new jsPDF();
-  cabecalhoPDF(doc,'🏭 ATIVOS',`Total: ${ativos.length}`);
+  cabecalhoPDF(doc,'ATIVOS',`Total: ${ativos.length}`);
   if(!ativos.length){
     doc.setFontSize(12); doc.setTextColor(100,100,100);
     doc.text('Nenhum ativo cadastrado.',14,55);
@@ -2214,7 +2243,7 @@ function gerarPDFAtivos(){
 function gerarPDFCriados(){
   if(!checkPDF()) return;
   const doc = new jsPDF();
-  cabecalhoPDF(doc,'🔨 CRIADOS',`Total: ${ativosCriados.length}`);
+  cabecalhoPDF(doc,'CRIADOS',`Total: ${ativosCriados.length}`);
   if(!ativosCriados.length){
     doc.setFontSize(12); doc.setTextColor(100,100,100);
     doc.text('Nenhum ativo criado.',14,55);
@@ -2234,7 +2263,7 @@ function gerarPDFCriados(){
 function gerarPDFPedidos(){
   if(!checkPDF()) return;
   const doc = new jsPDF();
-  cabecalhoPDF(doc,'📦 PEDIDOS',`Total: ${pedidosMateriais.length}`);
+  cabecalhoPDF(doc,'PEDIDOS',`Total: ${pedidosMateriais.length}`);
   if(!pedidosMateriais.length){
     doc.setFontSize(12); doc.setTextColor(100,100,100);
     doc.text('Nenhum pedido.',14,55);
@@ -2254,7 +2283,7 @@ function gerarPDFPedidos(){
 function gerarPDFExternas(){
   if(!checkPDF()) return;
   const doc = new jsPDF();
-  cabecalhoPDF(doc,'🚚 EXTERNAS',`Total: ${manutencoesExternas.length}`);
+  cabecalhoPDF(doc,'EXTERNAS',`Total: ${manutencoesExternas.length}`);
   if(!manutencoesExternas.length){
     doc.setFontSize(12); doc.setTextColor(100,100,100);
     doc.text('Nenhuma manutenção externa.',14,55);
@@ -2273,7 +2302,7 @@ function gerarPDFExternas(){
 function gerarPDFSetores(){
   if(!checkPDF()) return;
   const doc = new jsPDF();
-  cabecalhoPDF(doc,'📍 SETORES',`Total: ${setores.length}`);
+  cabecalhoPDF(doc,'SETORES',`Total: ${setores.length}`);
   const dados = setores.map(s=>{
     const nome = s.nome;
     const f = ferramentas.filter(x=>x.setor===nome);
@@ -2298,57 +2327,49 @@ function compartilharRelatorioImagem(){
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext("2d");
 
-  // Fundo gradiente
   const grad = ctx.createLinearGradient(0,0,0,h);
   grad.addColorStop(0, "#0a1a2e");
   grad.addColorStop(1, "#0d2a3d");
   ctx.fillStyle = grad;
   ctx.fillRect(0,0,w,h);
 
-  // Cabeçalho
   ctx.fillStyle = "#1eb8c9";
   ctx.fillRect(0,0,w,8);
 
-  // Título
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 36px sans-serif";
-  ctx.fillText("📊 RELATÓRIO", 40, 70);
+  ctx.fillText("RELATÓRIO", 40, 70);
 
   ctx.font = "16px sans-serif";
   ctx.fillStyle = "#b0c8d9";
   ctx.fillText(`Controle de Ferramentas 3D • ${new Date().toLocaleString('pt-BR')}`, 40, 100);
 
-  // Linha divisória
   ctx.strokeStyle = "rgba(255,255,255,0.1)";
   ctx.beginPath(); ctx.moveTo(40, 120); ctx.lineTo(w-40, 120); ctx.stroke();
 
-  // Dados
   const dados = [
-    ["🔧 Ferramentas", ferramentas.length, "#1eb8c9"],
-    ["🟢 Disponíveis", ferramentas.filter(x=>x.status==="Disponível").length, "#2ddb7a"],
-    ["📤 Emprestadas", ferramentas.filter(x=>x.status==="Emprestada").length, "#ffd14a"],
-    ["🧰 Manutenções", manutencoes.length, "#ff6b82"],
-    ["🏭 Ativos", ativos.length, "#7c5cbf"],
-    ["🔨 Criados", ativosCriados.length, "#2ddb7a"],
-    ["📦 Pedidos", pedidosMateriais.length, "#f5a623"],
-    ["🚚 Externas", manutencoesExternas.length, "#ff6b9d"],
-    ["📍 Setores", setores.length, "#6ae2ef"]
+    ["Ferramentas", ferramentas.length, "#1eb8c9"],
+    ["Disponíveis", ferramentas.filter(x=>x.status==="Disponível").length, "#2ddb7a"],
+    ["Emprestadas", ferramentas.filter(x=>x.status==="Emprestada").length, "#ffd14a"],
+    ["Manutenções", manutencoes.length, "#ff6b82"],
+    ["Ativos", ativos.length, "#7c5cbf"],
+    ["Criados", ativosCriados.length, "#2ddb7a"],
+    ["Pedidos", pedidosMateriais.length, "#f5a623"],
+    ["Externas", manutencoesExternas.length, "#ff6b9d"],
+    ["Setores", setores.length, "#6ae2ef"]
   ];
 
   let y = 180;
   dados.forEach(d=>{
-    // Círculo colorido
     ctx.fillStyle = d[2];
     ctx.beginPath();
     ctx.arc(55, y-6, 10, 0, Math.PI*2);
     ctx.fill();
 
-    // Rótulo
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 22px sans-serif";
     ctx.fillText(d[0], 80, y);
 
-    // Valor à direita
     ctx.fillStyle = d[2];
     ctx.font = "bold 32px sans-serif";
     ctx.textAlign = "right";
@@ -2358,12 +2379,10 @@ function compartilharRelatorioImagem(){
     y += 70;
   });
 
-  // Rodapé
   ctx.fillStyle = "rgba(255,255,255,0.4)";
   ctx.font = "14px sans-serif";
   ctx.fillText("Sistema 3D de Controle de Ferramentas", 40, h-40);
 
-  // Salva / compartilha
   canvas.toBlob(blob => {
     const file = new File([blob], `relatorio_${Date.now()}.png`, {type: "image/png"});
 
@@ -2430,7 +2449,7 @@ function mostrarNotificacaoAlarme(a, tipo){
   const n = document.createElement('div');
   n.className = 'alarme-notificacao';
   if(tipo==='expirado') n.classList.add('urgente');
-  const msgs = {'24h':'⏰ Prazo de 24h!','12h':'⏰ Restam 12h!','6h':'⚠️ Restam 6h!','1h':'🚨 URGENTE 1h!','expirado':'❌ EXPIRADO!'};
+  const msgs = {'24h':'Prazo de 24h!','12h':'Restam 12h!','6h':'Restam 6h!','1h':'URGENTE 1h!','expirado':'EXPIRADO!'};
   const emojis = {'24h':'⏰','12h':'⏰','6h':'⚠️','1h':'🚨','expirado':'❌'};
   n.innerHTML = `
     <div class="alarme-header"><div>
@@ -2444,7 +2463,6 @@ function mostrarNotificacaoAlarme(a, tipo){
   c.appendChild(n);
   if(tipo!=='expirado') setTimeout(()=>{ if(n.parentNode) n.remove(); }, 30000);
 
-  // Notificação do navegador (se permitido)
   if("Notification" in window && Notification.permission === "granted"){
     try{
       new Notification(`${emojis[tipo]} ${msgs[tipo]}`, {
@@ -2531,7 +2549,6 @@ function importarBackup(arquivo){
     }
   };
   reader.readAsText(arquivo);
-  // Limpa o input para permitir reimportar o mesmo arquivo
   document.getElementById("inputImportarBackup").value = "";
 }
 
@@ -2543,15 +2560,52 @@ function apagarTudo(){
   location.reload();
 }
 
-/* ================= WHATSAPP ================= */
-function abrirWhatsApp(t){ window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank"); }
+/* ============================================================
+   ✅ WHATSAPP — versão definitiva
+   ------------------------------------------------------------
+   Detecta mobile e usa iframe com whatsapp://send para abrir
+   o app nativo. Fallback para api.whatsapp.com (link HTTPS).
+   ============================================================ */
+function abrirWhatsApp(t){
+  const texto = encodeURIComponent(t);
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    // App nativo via esquema whatsapp:// (não dispara erro de URL)
+    const appUrl = "whatsapp://send?text=" + texto;
+
+    // Truque do iframe invisível — não faz o navegador tentar
+    // carregar o esquema como página
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = appUrl;
+    document.body.appendChild(iframe);
+
+    setTimeout(() => {
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    }, 2000);
+
+    // Fallback para link HTTPS universal
+    setTimeout(() => {
+      if (document.visibilityState === "visible") {
+        window.location.href = "https://api.whatsapp.com/send?text=" + texto;
+      }
+    }, 1500);
+  } else {
+    // Desktop
+    window.open("https://api.whatsapp.com/send?text=" + texto, "_blank");
+  }
+}
+
 function compartilharFerramenta(id){
   const x = ferramentas.find(f=>f.id===id);
   if(!x) return;
-  abrirWhatsApp(`🛠️ *Ferramenta*\nNome: ${x.nome}\nCódigo: ${x.codigo||"-"}\nSetor: ${x.setor}\nStatus: ${x.status}\nQtd: ${x.quantidade||1}`);
+  const texto = `🛠️ *Ferramenta*\nNome: ${x.nome}\nCódigo: ${x.codigo||"-"}\nSetor: ${x.setor}\nStatus: ${x.status}\nQtd: ${x.quantidade||1}`;
+  abrirWhatsApp(texto);
 }
+
 function compartilharRelatorio(){
-  let t = `📊 *RELATÓRIO*\n\n`;
+  let t = `📊 *RELATÓRIO — Controle 3D*\n\n`;
   t += `🔧 Ferramentas: ${ferramentas.length}\n`;
   t += `🟢 Disponíveis: ${ferramentas.filter(x=>x.status==="Disponível").length}\n`;
   t += `📤 Emprestadas: ${ferramentas.filter(x=>x.status==="Emprestada").length}\n`;
@@ -2559,6 +2613,7 @@ function compartilharRelatorio(){
   t += `📦 Pedidos: ${pedidosMateriais.length}\n`;
   t += `🏭 Ativos: ${ativos.length}\n`;
   t += `🔨 Criados: ${ativosCriados.length}\n`;
+  t += `🚚 Externas: ${manutencoesExternas.length}\n`;
   t += `📍 Setores: ${setores.length}\n`;
   t += `\n_${new Date().toLocaleString('pt-BR')}_`;
   abrirWhatsApp(t);
