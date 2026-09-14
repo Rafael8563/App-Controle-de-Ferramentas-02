@@ -10,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
 :root{
@@ -97,6 +98,7 @@ button:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,0,0,0.3);b
 .btn-manut{background:linear-gradient(135deg,#ff6b82,#ffd14a);border-color:transparent;color:#fff}
 .btn-fora{background:linear-gradient(135deg,#7c5cbf,#ff6b9d);border-color:transparent;color:#fff}
 .btn-fora-pdf{background:linear-gradient(135deg,#7c5cbf,#1eb8c9);border-color:transparent;color:#fff}
+.btn-ocr{background:linear-gradient(135deg,#1eb8c9,#2ddb7a);border-color:transparent;color:#fff}
 .btn-filtro{padding:6px 14px;font-size:12px;border-radius:20px;background:var(--card);border:1px solid var(--borda)}
 .btn-filtro.ativo{background:linear-gradient(135deg,var(--azul),var(--roxo));border-color:transparent;color:#fff}
 .item{display:grid;grid-template-columns:90px 1fr auto;gap:14px;align-items:center;padding:8px 10px}
@@ -123,6 +125,7 @@ body:not(.tema-claro) .badge-tempo{color:var(--amarelo)}
 .badge-qtd{background:rgba(124,92,191,0.15);color:var(--roxo);font-weight:600}
 .badge-fora{background:rgba(124,92,191,0.2);color:var(--roxo);font-weight:600}
 .badge-externa{background:rgba(255,107,157,0.15);color:var(--rosa)}
+.badge-ocr{background:linear-gradient(135deg,rgba(30,184,201,0.2),rgba(45,219,122,0.2));color:var(--azul-claro);border:1px solid rgba(30,184,201,0.4);font-weight:700}
 dialog{width:min(800px,94vw);padding:0;border:1px solid var(--borda);border-radius:24px;background:var(--bg-header);backdrop-filter:blur(40px);color:var(--texto);box-shadow:0 50px 120px rgba(0,0,0,0.9);animation:modalBounce .5s cubic-bezier(0.34,1.56,0.64,1)}
 @keyframes modalBounce{from{opacity:0;transform:scale(.8) translateY(80px)}to{opacity:1;transform:scale(1) translateY(0)}}
 dialog::backdrop{background:rgba(0,0,0,0.8);backdrop-filter:blur(12px)}
@@ -172,10 +175,49 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
 .chart-container{position:relative;height:250px}
 #reader{width:100%;max-width:400px;margin:auto;border-radius:12px;overflow:hidden}
+#readerNFCe{width:100%;max-width:400px;margin:auto;border-radius:12px;overflow:hidden}
 .anexo-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(0,0,0,0.15);border-radius:10px;border:1px solid var(--borda);margin:4px 0;font-size:12px}
 .anexo-item .icone{font-size:20px}
 .anexo-item .nome{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .anexo-item button{padding:3px 8px;font-size:11px;border-radius:20px}
+
+/* OCR panel */
+.ocr-panel{
+  background:linear-gradient(135deg,rgba(30,184,201,0.10),rgba(45,219,122,0.06));
+  border:1px solid rgba(30,184,201,0.35);
+  border-radius:16px;padding:16px;margin-bottom:14px;
+}
+.ocr-panel h4{font-size:14px;font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:8px;}
+.ocr-panel .subt{font-size:11.5px;color:var(--cinza);opacity:0.85;margin-bottom:12px;line-height:1.5;}
+.ocr-botoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ocr-botoes button{justify-content:center;padding:10px 14px;font-size:12.5px;}
+.resultado-ocr{
+  background:rgba(45,219,122,0.08);
+  border:1px solid rgba(45,219,122,0.3);
+  border-radius:12px;padding:14px;margin-top:12px;
+}
+.resultado-ocr .titulo{font-weight:700;color:var(--verde);font-size:13.5px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.resultado-ocr .grid-campos{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;}
+.resultado-ocr .grid-campos .campo{margin-bottom:2px;}
+.resultado-ocr .grid-campos .campo b{color:var(--texto);}
+
+.ocr-loading{
+  position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;z-index:99999;padding:20px;
+}
+.ocr-loading-inner{
+  background:var(--bg-header);border:1px solid var(--borda);border-radius:24px;
+  padding:32px 40px;max-width:420px;width:100%;text-align:center;
+  box-shadow:0 30px 80px rgba(0,0,0,0.8);
+}
+.ocr-loading-emoji{font-size:48px;margin-bottom:16px;animation:pulseAlarme 1s ease-in-out infinite alternate;}
+.ocr-loading-titulo{font-weight:800;font-size:18px;margin-bottom:8px;}
+.ocr-loading-sub{font-size:12px;color:var(--cinza);opacity:0.8;margin-bottom:16px;}
+.ocr-progress-bg{background:rgba(30,184,201,0.15);border-radius:30px;height:10px;overflow:hidden;}
+.ocr-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--azul),var(--roxo),var(--rosa));transition:width 0.3s;border-radius:30px;}
+.ocr-progress-texto{font-size:13px;color:var(--azul-claro);margin-top:12px;font-weight:600;}
+.ocr-progress-status{font-size:12px;color:var(--cinza);margin-top:6px;opacity:0.7;}
+
 @media (max-width:768px){
   .item{grid-template-columns:1fr;gap:8px;text-align:center}
   .item .imagem-mini,.item .imagem-placeholder{width:100%;height:130px;margin:0 auto;max-width:200px}
@@ -190,6 +232,8 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   .header-actions{gap:4px}
   .header-actions button{padding:5px 10px;font-size:11px}
   .pdf-botoes{grid-template-columns:1fr}
+  .ocr-botoes{grid-template-columns:1fr;}
+  .resultado-ocr .grid-campos{grid-template-columns:1fr;}
 }
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -337,7 +381,6 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   <div id="listaManutencoes" class="grid"></div>
 </section>
 
-<!-- ================= NOVA ABA: FORA DA EMPRESA ================= -->
 <section id="foradaempresa" class="hidden">
   <div class="flex-between">
     <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,var(--texto) 30%,var(--roxo),var(--rosa));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🚛 Ferramentas em Manutenção Fora da Empresa</h2>
@@ -347,7 +390,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     </div>
   </div>
   <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--roxo);">
-    <p class="muted text-sm" style="margin:0;opacity:.85;">🚛 Ferramentas enviadas para manutenção em empresas externas/terceirizadas. Registre aqui todo o envio, acompanhamento e retorno.</p>
+    <p class="muted text-sm" style="margin:0;opacity:.85;">🚛 Ferramentas enviadas para manutenção em empresas externas/terceirizadas. Registre aqui todo o envio, acompanhamento e retorno. <b>Use o OCR para ler Ordens de Serviço automaticamente.</b></p>
   </div>
   <div id="miniEstatisticasFora" class="grid mb-10" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));"></div>
   <div class="search-bar">
@@ -365,7 +408,6 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
   <div id="listaForaDaEmpresa" class="grid"></div>
 </section>
-<!-- ================= FIM DA NOVA ABA ================= -->
 
 <section id="ativos" class="hidden">
   <div class="flex-between">
@@ -459,6 +501,17 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
+<dialog id="dialogScannerNFCe">
+  <div class="modal" style="max-width:500px;">
+    <h2>🧾 Ler QR Code da NFC-e</h2>
+    <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Aponte a câmera para o QR Code da Nota Fiscal Eletrônica. Os dados serão extraídos automaticamente.</p>
+    <div id="readerNFCe"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button class="btn-outline" onclick="fecharScannerNFCe()">Fechar</button>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="dialogHistoricoItem">
   <div class="modal" style="max-width:600px;">
     <h2 id="tituloHistoricoItem">📜 Histórico do Item</h2>
@@ -539,11 +592,21 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<!-- ================= MODAL NOVO: FORA DA EMPRESA ================= -->
 <dialog id="dialogForaDaEmpresa">
   <div class="modal">
     <h2 id="tituloFora">🚛 Manutenção Fora da Empresa</h2>
     <input type="hidden" id="idFora">
+
+    <div class="ocr-panel">
+      <h4>🔍 Preenchimento automático</h4>
+      <div class="subt">Tire foto de uma <b>Ordem de Serviço impressa</b> ou leia o <b>QR Code de uma NFC-e</b>. O app preenche os campos sozinho.</div>
+      <div class="ocr-botoes">
+        <button class="btn-ocr" onclick="lerNotaOCR()">📷 Ler OS (foto)</button>
+        <button class="btn-ocr" onclick="abrirScannerNFCe()">🧾 Ler QR NFC-e</button>
+      </div>
+      <input id="entradaOCR" class="hidden" type="file" accept="image/*" capture="environment" onchange="processarOCR(this.files[0])">
+      <div id="resultadoOCR"></div>
+    </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div>
@@ -590,14 +653,29 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     <label>Setor de origem</label>
     <select id="setorFora"></select>
 
-    <label>Tipo de serviço</label>
-    <select id="tipoServicoFora">
-      <option>Reparo mecânico</option><option>Reparo elétrico</option>
-      <option>Retífica</option><option>Calibração</option>
-      <option>Solda</option><option>Usinagem</option>
-      <option>Pintura</option><option>Manutenção preventiva</option>
-      <option>Laudo técnico</option><option>Outro</option>
-    </select>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <label>Tipo de serviço</label>
+        <select id="tipoServicoFora">
+          <option>Reparo mecânico</option><option>Reparo elétrico</option>
+          <option>Retífica</option><option>Calibração</option>
+          <option>Solda</option><option>Usinagem</option>
+          <option>Pintura</option><option>Manutenção preventiva</option>
+          <option>Laudo técnico</option><option>Garantia</option><option>Outro</option>
+        </select>
+      </div>
+      <div>
+        <label>Tipo de assistência</label>
+        <select id="tipoAssistFora">
+          <option value="">— Não informado —</option>
+          <option>Garantia</option>
+          <option>Particular</option>
+          <option>Contrato</option>
+          <option>Seguro</option>
+          <option>Orçamento</option>
+        </select>
+      </div>
+    </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
       <div>
@@ -879,8 +957,7 @@ let filtroAtualFerramenta = "todas";
 let filtroAtualManutencao = "todas";
 let filtroAtualFora = "todas";
 let midiasFerramenta = [], midiasManutencao = [], midiasAtivo = [], midiasFora = [];
-let cameraStream = null, cameraDestino = "ferramenta", scanner = null;
-let graficoStatus = null, graficoSetores = null;
+let cameraStream = null, cameraDestino = "ferramenta", scanner = null, scannerNFCe = null;
 
 window.usuarioAtual = usuarioAtual;
 window.ferramentas = ferramentas;
@@ -892,10 +969,6 @@ window.manutencoesExternas = manutencoesExternas;
 window.foraDaEmpresa = foraDaEmpresa;
 window.alarmes = alarmes;
 window.setores = setores;
-
-let jsPDFLib = null;
-if (window.jspdf && window.jspdf.jsPDF) jsPDFLib = window.jspdf.jsPDF;
-else console.warn("⚠️ jsPDF não carregou");
 
 /* ============ HELPERS ============ */
 function escapar(t=""){
@@ -964,8 +1037,7 @@ function alternarTema(){
   const claro = document.body.classList.contains("tema-claro");
   localStorage.setItem("controleTema", claro ? "claro" : "escuro");
   document.getElementById("btnTema").textContent = claro ? "🌙" : "☀️";
-  if(graficoStatus) graficoStatus.update();
-  if(graficoSetores) graficoSetores.update();
+  mostrarTudo();
 }
 
 /* ============ INIT ============ */
@@ -1037,13 +1109,11 @@ function mostrarEstatisticas(){
   const disp = ferramentas.filter(x=>x.status==="Disponível").length;
   const emp = ferramentas.filter(x=>x.status==="Emprestada").length;
   const manutTotal = manutencoes.length;
-  const manutAbertas = manutencoes.filter(m=>m.status!=="Finalizada" && m.status!=="Sem conserto").length;
   const foraTotal = foraDaEmpresa.length;
   const foraPend = foraDaEmpresa.filter(x => x.status !== "Retornado" && x.status !== "Cancelado" && x.status !== "Sem conserto").length;
   const ativosTotal = ativos.length;
   const criadosTotal = ativosCriados.length;
   const pedidosTotal = pedidosMateriais.length;
-  const pedidosPend = pedidosMateriais.filter(x=>x.status==="Pendente"||x.status==="Parcialmente recebido").length;
   const externasPend = manutencoesExternas.filter(x=>x.status!=="Retornado").length;
   const alarmesAtivos = alarmes.filter(a=>a.ativo).length;
 
@@ -1073,6 +1143,7 @@ function mostrarEstatisticas(){
 }
 
 /* ============ GRÁFICOS ============ */
+let graficoStatus = null, graficoSetores = null;
 function mostrarGraficos(){
   if(!window.Chart) return;
   const claro = document.body.classList.contains("tema-claro");
@@ -1668,11 +1739,485 @@ function excluirManutencao(id){
   }
 }
 
+/* ============ OCR — LEITURA DE OS ============ */
+function lerNotaOCR(){
+  const input = document.getElementById('entradaOCR');
+  input.value = '';
+  input.click();
+}
+
+function mostrarLoadingOCR(){
+  const div = document.createElement('div');
+  div.id = 'ocrLoading';
+  div.className = 'ocr-loading';
+  div.innerHTML = `
+    <div class="ocr-loading-inner">
+      <div class="ocr-loading-emoji">🔍</div>
+      <div class="ocr-loading-titulo">Lendo a Ordem de Serviço...</div>
+      <div class="ocr-loading-sub">Isso pode levar de 10 a 40 segundos na primeira vez</div>
+      <div class="ocr-progress-bg"><div id="progressoOCRBarra" class="ocr-progress-fill"></div></div>
+      <div id="progressoOCRTexto" class="ocr-progress-texto">0%</div>
+      <div id="progressoOCRStatus" class="ocr-progress-status">Iniciando...</div>
+    </div>
+  `;
+  document.body.appendChild(div);
+}
+
+function atualizarProgressoOCR(m){
+  const barra = document.getElementById('progressoOCRBarra');
+  const texto = document.getElementById('progressoOCRTexto');
+  const status = document.getElementById('progressoOCRStatus');
+  if(!barra) return;
+  if(m.status === 'loading tesseract core'){ status.textContent = 'Baixando motor OCR...'; }
+  else if(m.status === 'loading language traineddata'){ status.textContent = 'Baixando idioma português (só na primeira vez)...'; }
+  else if(m.status === 'initializing api'){ status.textContent = 'Inicializando...'; }
+  else if(m.status === 'recognizing text'){
+    status.textContent = 'Reconhecendo texto...';
+    const pct = Math.round(m.progress * 100);
+    barra.style.width = pct + '%';
+    texto.textContent = pct + '%';
+  }
+}
+
+function removerLoadingOCR(){
+  const el = document.getElementById('ocrLoading');
+  if(el) el.remove();
+}
+
+async function processarOCR(arquivo){
+  if(!arquivo){ alert("⚠️ Nenhum arquivo selecionado."); return; }
+  if(typeof Tesseract === 'undefined'){
+    alert("❌ Biblioteca de OCR não carregou.\n\nVerifique sua internet e recarregue.");
+    return;
+  }
+
+  mostrarLoadingOCR();
+
+  // Salva a foto original como anexo automaticamente
+  const reader = new FileReader();
+  reader.onload = () => {
+    midiasFora.push({ tipo:'foto', src: reader.result, nome:'OS_' + Date.now() + '.jpg' });
+    mostrarPreviewFora();
+  };
+  reader.readAsDataURL(arquivo);
+
+  try {
+    const resultado = await Tesseract.recognize(arquivo, 'por', {
+      logger: m => atualizarProgressoOCR(m)
+    });
+
+    const textoBruto = resultado.data.text;
+    console.log('📄 Texto OCR bruto:\n', textoBruto);
+
+    const dados = extrairDadosOS(textoBruto);
+    console.log('📦 Dados extraídos:', dados);
+
+    preencherFormularioFora(dados);
+    removerLoadingOCR();
+    mostrarResultadoOCR(dados, textoBruto);
+
+  } catch(e){
+    console.error(e);
+    removerLoadingOCR();
+    alert("❌ Erro ao ler a OS:\n\n" + e.message + "\n\nTente tirar a foto com melhor iluminação e enquadramento.");
+  }
+}
+
+function extrairDadosOS(texto){
+  const t = texto
+    .replace(/\r/g,'')
+    .replace(/[ \t]+/g,' ')
+    .replace(/[“”"']/g,'')
+    .trim();
+  const linhas = t.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+  const dados = {
+    os:'', empresa:'', cnpj:'', ie:'', dataEntrada:'', endereco:'', bairro:'',
+    cidade:'', telefone:'', email:'', atendente:'', tecnico:'', nfEntrada:'',
+    equipamento:'', marca:'', modelo:'', codigo:'', tipoAssist:'', notaFiscal:'',
+    defeito:'', observacoes:'', garantia:'', fornecedorGarantia:'', acessorios:''
+  };
+
+  function pegarDepois(pattern, fonte = t){
+    const regex = new RegExp(pattern + '\\s*:?\\s*([^\\n]+?)(?=\\s{2,}|\\n|$)', 'i');
+    const m = fonte.match(regex);
+    return m ? m[1].trim().replace(/\s+$/,'') : '';
+  }
+
+  // Nº OS
+  const mOS = t.match(/N[º°o\.\s]*Ordem\s*Servi[çc]o\s*:?\s*(\d+)/i)
+           || t.match(/Ordem\s*Servi[çc]o\s*:?\s*(\d+)/i)
+           || t.match(/O\.?S\.?\s*:?\s*(\d{3,})/i);
+  if(mOS) dados.os = mOS[1];
+
+  // CNPJ
+  const mCNPJ = t.match(/CNPJ\s*:?\s*(\d{2}\.?\d{3}\.?\d{3}\/?\d{4}\-?\d{2})/i);
+  if(mCNPJ) dados.cnpj = mCNPJ[1].replace(/\D/g,'');
+
+  // IE
+  const mIE = t.match(/\bIE\s*:?\s*(\d{8,12})/i);
+  if(mIE) dados.ie = mIE[1];
+
+  // Data de entrada
+  const mData = t.match(/Data\s*entrada\s*:?\s*(\d{2}\/\d{2}\/\d{4})/i)
+             || t.match(/(\d{2}\/\d{2}\/\d{4})/);
+  if(mData){
+    const [d,mo,a] = mData[1].split('/');
+    dados.dataEntrada = `${a}-${mo}-${d}`;
+  }
+
+  // Garantia
+  const mGarantia = t.match(/Dta\s*Garan\s*:?\s*(\d{2}\/\d{2}\/\d{4})/i);
+  if(mGarantia){
+    const [d,mo,a] = mGarantia[1].split('/');
+    dados.garantia = `${a}-${mo}-${d}`;
+  }
+
+  dados.endereco = pegarDepois('Endere[çc]o');
+  dados.bairro = pegarDepois('Bairro');
+  dados.cidade = pegarDepois('Cidade');
+
+  const mTel = t.match(/(?:Celular|Fone|Telefone)\s*:?\s*([\d\s\-\(\)]{8,})/i);
+  if(mTel) dados.telefone = mTel[1].replace(/\s+/g,' ').trim();
+
+  const mEmail = t.match(/E-?mail\s*:?\s*([^\s]+@[^\s]+)/i);
+  if(mEmail) dados.email = mEmail[1];
+
+  dados.atendente = pegarDepois('Atendente');
+  dados.tecnico = pegarDepois('T[ée]cnico');
+  dados.nfEntrada = pegarDepois('N[º°o\.\s]*NF\\s*Entrada') || pegarDepois('NF\\s*Entrada');
+  dados.equipamento = pegarDepois('Equipamento');
+  dados.marca = pegarDepois('Marca');
+  dados.modelo = pegarDepois('Modelo');
+  dados.codigo = pegarDepois('Ferramenta');
+  dados.tipoAssist = pegarDepois('Tipo\\s*Assist');
+  dados.notaFiscal = pegarDepois('Nota\\s*Fiscal');
+  dados.fornecedorGarantia = pegarDepois('Fornec\\s*Garant');
+  dados.acessorios = pegarDepois('Acess[óo]rios');
+  dados.defeito = pegarDepois('Defeito');
+  dados.observacoes = pegarDepois('\\bObs\\b');
+
+  // Empresa prestadora
+  const idxOS = linhas.findIndex(l => /ordem\s*servi[çc]o/i.test(l));
+  if(idxOS >= 0){
+    for(let i = idxOS+1; i < Math.min(idxOS+5, linhas.length); i++){
+      const l = linhas[i];
+      if(/LTDA|S\/A|EIRELI|\bME\b|\bEPP\b|SERVICE|MANUTEN[ÇC][ÃA]O|COM[ÉE]RCIO|IND[ÚU]STRIA/i.test(l)){
+        dados.empresa = l.replace(/[^\w\s\.\-\/&áéíóúâêîôûãõçÁÉÍÓÚÂÊÎÔÛÃÕÇ]/g,'').trim();
+        break;
+      }
+    }
+  }
+
+  return dados;
+}
+
+function preencherFormularioFora(d){
+  const nomeComposto = [d.equipamento, d.marca, d.modelo].filter(Boolean).join(' ').trim();
+  if(nomeComposto){
+    const el = document.getElementById('nomeFora');
+    if(el) el.value = nomeComposto;
+  }
+  if(d.codigo){
+    const el = document.getElementById('codigoFora');
+    if(el && !el.value) el.value = d.codigo;
+  }
+  if(d.empresa){
+    const el = document.getElementById('empresaFora');
+    if(el) el.value = d.empresa;
+  }
+  const contatos = [];
+  if(d.cnpj) contatos.push('CNPJ: ' + d.cnpj);
+  if(d.ie) contatos.push('IE: ' + d.ie);
+  if(d.telefone) contatos.push(d.telefone);
+  if(contatos.length){
+    const el = document.getElementById('contatoFora');
+    if(el) el.value = contatos.join(' • ');
+  }
+  if(d.tecnico){
+    const el = document.getElementById('responsavelEmpresaFora');
+    if(el) el.value = d.tecnico;
+  }
+  if(d.atendente){
+    const el = document.getElementById('responsavelFora');
+    if(el) el.value = d.atendente;
+  }
+  if(d.os){
+    const el = document.getElementById('osFora');
+    if(el) el.value = d.os;
+  }
+  if(d.dataEntrada){
+    const el = document.getElementById('dataSaidaFora');
+    if(el) el.value = d.dataEntrada;
+  }
+  if(d.notaFiscal){
+    const el = document.getElementById('notaFiscalFora');
+    if(el) el.value = d.notaFiscal;
+  }
+  if(d.tipoAssist){
+    const t = d.tipoAssist.toUpperCase();
+    const elServ = document.getElementById('tipoServicoFora');
+    if(elServ){
+      if(t.includes('GARANTIA')) elServ.value = 'Garantia';
+      else if(t.includes('MEC[ÂA]NICA') || t.includes('MECANICA')) elServ.value = 'Reparo mecânico';
+      else if(t.includes('EL[ÉE]TRICA') || t.includes('ELETRICA')) elServ.value = 'Reparo elétrico';
+    }
+    const elAssist = document.getElementById('tipoAssistFora');
+    if(elAssist){
+      if(t.includes('GARANTIA')) elAssist.value = 'Garantia';
+      else if(t.includes('PARTICULAR')) elAssist.value = 'Particular';
+      else if(t.includes('CONTRATO')) elAssist.value = 'Contrato';
+      else if(t.includes('SEGURO')) elAssist.value = 'Seguro';
+      else if(t.includes('OR[ÇC]AMENTO')) elAssist.value = 'Orçamento';
+    }
+  }
+  const descPartes = [];
+  if(d.defeito && d.defeito.length > 2) descPartes.push('Defeito: ' + d.defeito);
+  if(d.acessorios && d.acessorios.length > 2 && d.acessorios.toUpperCase() !== 'ND') descPartes.push('Acessórios: ' + d.acessorios);
+  if(descPartes.length){
+    const el = document.getElementById('descricaoFora');
+    if(el && !el.value) el.value = descPartes.join('\n');
+  }
+  const obsPartes = [];
+  if(d.observacoes && d.observacoes.length > 2) obsPartes.push(d.observacoes);
+  if(d.endereco) obsPartes.push('Endereço: ' + d.endereco + (d.bairro ? ' - ' + d.bairro : '') + (d.cidade ? ', ' + d.cidade : ''));
+  if(obsPartes.length){
+    const el = document.getElementById('obsFora');
+    if(el && !el.value) el.value = obsPartes.join('\n');
+  }
+}
+
+function mostrarResultadoOCR(dados, textoBruto){
+  const el = document.getElementById('resultadoOCR');
+  if(!el) return;
+  const campos = [
+    ['Nº OS', dados.os],
+    ['Empresa', dados.empresa],
+    ['CNPJ', dados.cnpj],
+    ['Data entrada', dados.dataEntrada ? new Date(dados.dataEntrada + 'T00:00:00').toLocaleDateString('pt-BR') : ''],
+    ['Equipamento', dados.equipamento],
+    ['Marca', dados.marca],
+    ['Modelo', dados.modelo],
+    ['Código', dados.codigo],
+    ['Tipo Assist', dados.tipoAssist],
+    ['Técnico', dados.tecnico],
+    ['Atendente', dados.atendente]
+  ].filter(c => c[1]);
+
+  el.className = 'resultado-ocr';
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="titulo">
+      <span>✅ OS lida — ${campos.length} campo(s) preenchido(s)</span>
+      <button onclick="verTextoOCRRaw()" style="padding:4px 12px;font-size:11px;border-radius:20px;background:rgba(255,255,255,0.08);border:1px solid var(--borda);color:var(--texto);cursor:pointer;">👁️ Ver texto bruto</button>
+    </div>
+    <div class="grid-campos">
+      ${campos.map(c => `<div class="campo"><span class="muted" style="opacity:0.7;">${c[0]}:</span> <b>${escapar(String(c[1]))}</b></div>`).join('')}
+    </div>
+    <div class="text-sm" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(45,219,122,0.2);opacity:0.75;">
+      💡 Confira os campos no formulário e ajuste se necessário antes de salvar.
+    </div>
+  `;
+  window._ultimoTextoOCR = textoBruto;
+}
+
+function verTextoOCRRaw(){
+  if(!window._ultimoTextoOCR) return;
+  const win = window.open('', '_blank');
+  win.document.write('<html><head><title>Texto OCR bruto</title><style>body{font-family:monospace;padding:20px;background:#0a1a2e;color:#b0c8d9;white-space:pre-wrap;line-height:1.6;}h1{color:#6ae2ef;font-size:20px;}</style></head><body><h1>📄 Texto bruto extraído pelo OCR</h1><pre>' + escapar(window._ultimoTextoBruto || window._ultimoTextoOCR) + '</pre></body></html>');
+}
+
+/* ============ NFC-e (QR Code) ============ */
+let _dadosNFCeTemp = null;
+
+function abrirScannerNFCe(){
+  if(!window.Html5Qrcode){ alert("Leitor de QR não disponível."); return; }
+  document.getElementById('dialogScannerNFCe').showModal();
+  scannerNFCe = new Html5Qrcode("readerNFCe");
+  scannerNFCe.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: { width: 250, height: 250 } },
+    (texto) => {
+      // Fecha o scanner e processa
+      const url = texto.trim();
+      fecharScannerNFCe();
+      processarURLNFCe(url);
+    },
+    () => {}
+  ).catch(err => {
+    alert("Não foi possível iniciar o scanner: " + err);
+    fecharScannerNFCe();
+  });
+}
+
+function fecharScannerNFCe(){
+  if(scannerNFCe){
+    scannerNFCe.stop().then(()=>{ scannerNFCe.clear(); scannerNFCe = null; }).catch(()=>{ scannerNFCe = null; });
+  }
+  document.getElementById('dialogScannerNFCe').close();
+}
+
+async function processarURLNFCe(url){
+  const dados = {
+    chave:'', emitente:'', cnpjEmitente:'', valor:'', data:'',
+    uf:'', serie:'', numero:'', protocolo:'', urlOriginal:url
+  };
+
+  // Tenta extrair informações diretamente da URL
+  // Padrão NFC-e: https://www.sefaz.xx.gov.br/nfce/qrcode?p=CHAVE|VERSAO|AMBIENTE|...
+  try {
+    const u = new URL(url);
+    const paramP = u.searchParams.get('p');
+    if(paramP){
+      const partes = paramP.split('|');
+      if(partes[0] && partes[0].length === 44){
+        dados.chave = partes[0];
+        // A chave de 44 dígitos tem estrutura:
+        // cUF(2) AAMM(4) CNPJ(14) mod(2) serie(3) nNF(9) tpEmis(1) cNF(8) cDV(1)
+        const chave = partes[0];
+        dados.uf = chave.substring(0,2);
+        const ano = chave.substring(2,4);
+        const mes = chave.substring(4,6);
+        const anoFull = parseInt(ano) > 50 ? '19'+ano : '20'+ano;
+        dados.data = `${anoFull}-${mes}`; // aproximado, só ano/mês
+        dados.cnpjEmitente = chave.substring(6,20);
+        dados.serie = chave.substring(22,25);
+        dados.numero = chave.substring(25,34);
+      }
+    }
+    // Se veio parâmetro 'v' ou similar com valor, tenta pegar
+    // Alguns QR tem parâmetro "vNF"
+  } catch(e){ console.warn('URL inválida', e); }
+
+  // Tenta buscar dados estruturados via consulta pública
+  // Se for chave válida, monta URL de consulta
+  if(dados.chave && dados.uf){
+    // Mapeia UF para domínio da SEFAZ
+    const sefazUF = {
+      '11':'www.sefaz.ro.gov.br','12':'www.sefaz.ac.gov.br','13':'www.sefaz.am.gov.br',
+      '14':'www.sefaz.rr.gov.br','15':'www.sefaz.pa.gov.br','16':'www.sefaz.ap.gov.br',
+      '17':'www.sefaz.to.gov.br','21':'www.sefaz.ma.gov.br','22':'www.sefaz.pi.gov.br',
+      '23':'www.sefaz.ce.gov.br','24':'www.sefaz.rn.gov.br','25':'www.sefaz.pb.gov.br',
+      '26':'www.sefaz.pe.gov.br','27':'www.sefaz.al.gov.br','28':'www.sefaz.se.gov.br',
+      '29':'www.sefaz.ba.gov.br','31':'www.fazenda.mg.gov.br','32':'www.sefaz.es.gov.br',
+      '33':'www.fazenda.rj.gov.br','35':'www.fazenda.sp.gov.br','41':'www.fazenda.pr.gov.br',
+      '42':'www.sefaz.sc.gov.br','43':'www.sefaz.rs.gov.br','50':'www.sefaz.ms.gov.br',
+      '51':'www.sefaz.mt.gov.br','52':'www.sefaz.go.gov.br','53':'www.fazenda.df.gov.br'
+    };
+    
+    // Mostrar modal com opções: preencher dados básicos ou abrir consulta completa
+    _dadosNFCeTemp = dados;
+    mostrarResultadoNFCe(dados, url);
+  } else {
+    // Não conseguiu extrair chave — mostra só a URL
+    _dadosNFCeTemp = dados;
+    mostrarResultadoNFCe(dados, url);
+  }
+}
+
+function mostrarResultadoNFCe(dados, url){
+  const el = document.getElementById('resultadoOCR');
+  if(!el) return;
+  
+  el.className = 'resultado-ocr';
+  el.style.display = 'block';
+  
+  const campos = [
+    ['Chave NFC-e', dados.chave || '(não identificada)'],
+    ['UF', dados.uf ? mapearUF(dados.uf) : ''],
+    ['CNPJ Emitente', dados.cnpjEmitente || ''],
+    ['Série', dados.serie || ''],
+    ['Número', dados.numero || ''],
+    ['Data aprox.', dados.data || '']
+  ].filter(c => c[1]);
+
+  el.innerHTML = `
+    <div class="titulo">
+      <span>🧾 QR Code NFC-e lido</span>
+      <button onclick="fecharResultadoOCR()" style="padding:4px 12px;font-size:11px;border-radius:20px;background:rgba(255,255,255,0.08);border:1px solid var(--borda);color:var(--texto);cursor:pointer;">✕ Fechar</button>
+    </div>
+    <div class="grid-campos">
+      ${campos.map(c => `<div class="campo"><span class="muted" style="opacity:0.7;">${c[0]}:</span> <b>${escapar(String(c[1]))}</b></div>`).join('')}
+    </div>
+    <div class="text-sm" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(45,219,122,0.2);opacity:0.8;">
+      💡 A chave foi extraída. Complete os campos manualmente ou use o OCR da foto da nota para mais detalhes.
+    </div>
+    <div class="acoes" style="margin-top:10px;">
+      <button class="btn-primary" onclick="aplicarDadosNFCe()">✅ Aplicar dados no formulário</button>
+      <button class="btn-outline" onclick="window.open('${escapar(url)}','_blank')">🌐 Abrir consulta SEFAZ</button>
+    </div>
+  `;
+  
+  window._ultimosDadosNFCe = dados;
+}
+
+function mapearUF(codigo){
+  const map = {
+    '11':'RO','12':'AC','13':'AM','14':'RR','15':'PA','16':'AP','17':'TO',
+    '21':'MA','22':'PI','23':'CE','24':'RN','25':'PB','26':'PE','27':'AL',
+    '28':'SE','29':'BA','31':'MG','32':'ES','33':'RJ','35':'SP','41':'PR',
+    '42':'SC','43':'RS','50':'MS','51':'MT','52':'GO','53':'DF'
+  };
+  return map[codigo] || codigo;
+}
+
+function aplicarDadosNFCe(){
+  const d = window._ultimosDadosNFCe;
+  if(!d) return;
+  
+  // CNPJ → contatoFora
+  if(d.cnpjEmitente){
+    const el = document.getElementById('contatoFora');
+    if(el){
+      const atual = el.value;
+      if(!atual || !atual.includes(d.cnpjEmitente)){
+        el.value = (atual ? atual + ' • ' : '') + 'CNPJ: ' + d.cnpjEmitente;
+      }
+    }
+  }
+  
+  // Chave / Série / Número → notaFiscalFora
+  if(d.chave){
+    const el = document.getElementById('notaFiscalFora');
+    if(el && !el.value){
+      el.value = 'NFC-e ' + (d.serie ? 'S' + d.serie + ' ' : '') + (d.numero ? 'Nº ' + d.numero : '');
+    }
+  }
+  
+  // Data → dataSaidaFora (só ano/mês, deixa vazio se não tiver dia)
+  if(d.data && d.data.length === 7){
+    const hoje = new Date();
+    const [a, m] = d.data.split('-');
+    if(parseInt(a) === hoje.getFullYear() && parseInt(m) === (hoje.getMonth()+1)){
+      const el = document.getElementById('dataSaidaFora');
+      if(el && !el.value) el.value = hoje.toISOString().substring(0,10);
+    }
+  }
+  
+  // UF na observação
+  if(d.uf){
+    const el = document.getElementById('obsFora');
+    if(el && !el.value.includes('UF:')){
+      el.value = (el.value ? el.value + '\n' : '') + 'UF emitente: ' + mapearUF(d.uf);
+    }
+  }
+  
+  alert('✅ Dados da NFC-e aplicados!\n\nAlguns campos precisam ser conferidos manualmente.');
+}
+
+function fecharResultadoOCR(){
+  const el = document.getElementById('resultadoOCR');
+  if(el){ el.style.display = 'none'; el.innerHTML = ''; }
+}
+
 /* ============ FORA DA EMPRESA ============ */
 function abrirForaDaEmpresa(id=null){
   midiasFora = [];
   document.getElementById("idFora").value = id||"";
   const hoje = new Date().toISOString().substring(0,10);
+  const elResOCR = document.getElementById('resultadoOCR');
+  if(elResOCR){ elResOCR.style.display = 'none'; elResOCR.innerHTML = ''; }
+
   if(id){
     const x = foraDaEmpresa.find(f=>f.id===id);
     if(!x) return;
@@ -1687,6 +2232,8 @@ function abrirForaDaEmpresa(id=null){
     document.getElementById("responsavelFora").value = x.responsavel||"";
     document.getElementById("setorFora").value = x.setor||setores[0]?.nome;
     document.getElementById("tipoServicoFora").value = x.tipoServico||"Reparo mecânico";
+    const elAssist = document.getElementById('tipoAssistFora');
+    if(elAssist) elAssist.value = x.tipoAssist || '';
     document.getElementById("prioridadeFora").value = x.prioridade||"Média";
     document.getElementById("dataSaidaFora").value = x.dataSaida||hoje;
     document.getElementById("dataRetornoFora").value = x.dataRetorno||"";
@@ -1704,11 +2251,16 @@ function abrirForaDaEmpresa(id=null){
     (x.arquivos||[]).forEach(a=>midiasFora.push({tipo:"arquivo",nome:a.nome,src:a.src}));
   } else {
     document.getElementById("tituloFora").textContent = "🚛 Nova Saída Fora da Empresa";
-    ["nomeFora","codigoFora","empresaFora","contatoFora","responsavelEmpresaFora","responsavelFora","dataRetornoFora","osFora","valorFora","notaFiscalFora","descricaoFora","solucaoFora","obsFora","dataHoraRetornoFora","recebedorFora"].forEach(id => document.getElementById(id).value = "");
+    ["nomeFora","codigoFora","empresaFora","contatoFora","responsavelEmpresaFora","responsavelFora","dataRetornoFora","osFora","valorFora","notaFiscalFora","descricaoFora","solucaoFora","obsFora","dataHoraRetornoFora","recebedorFora"].forEach(i => {
+      const el = document.getElementById(i);
+      if(el) el.value = "";
+    });
     document.getElementById("tipoFora").value = "Ferramenta";
     document.getElementById("quantidadeFora").value = 1;
     document.getElementById("setorFora").value = setores[0]?.nome || "";
     document.getElementById("tipoServicoFora").value = "Reparo mecânico";
+    const elAssistNovo = document.getElementById('tipoAssistFora');
+    if(elAssistNovo) elAssistNovo.value = '';
     document.getElementById("prioridadeFora").value = "Média";
     document.getElementById("dataSaidaFora").value = hoje;
     document.getElementById("statusFora").value = "Enviado";
@@ -1726,7 +2278,7 @@ function adicionarFotosFora(arquivos){
 }
 function adicionarVideosFora(arquivos){
   [...arquivos].forEach(a=>{
-    if(a.size > 30 * 1024 * 1024){ alert(`⚠️ Vídeo "${a.name}" é maior que 30MB. Considere comprimir.`); }
+    if(a.size > 30 * 1024 * 1024){ alert(`⚠️ Vídeo "${a.name}" é maior que 30MB.`); }
     const r = new FileReader();
     r.onload = function(){ midiasFora.push({tipo:"video",src:this.result,nome:a.name}); mostrarPreviewFora(); };
     r.readAsDataURL(a);
@@ -1785,13 +2337,16 @@ function salvarForaDaEmpresa(){
 
   const anterior = foraDaEmpresa.find(f=>f.id===id);
   const status = document.getElementById("statusFora").value;
-  const dataHoraRetorno = document.getElementById("dataHoraRetornoFora").value;
+  let dataHoraRetorno = document.getElementById("dataHoraRetornoFora").value;
 
   if(status === "Retornado" && !dataHoraRetorno){
     const agora = new Date();
     agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
-    document.getElementById("dataHoraRetornoFora").value = agora.toISOString().slice(0,16);
+    dataHoraRetorno = agora.toISOString().slice(0,16);
+    document.getElementById("dataHoraRetornoFora").value = dataHoraRetorno;
   }
+
+  const tipoAssist = document.getElementById('tipoAssistFora')?.value || '';
 
   const f = {
     id, nome, codigo,
@@ -1803,6 +2358,7 @@ function salvarForaDaEmpresa(){
     responsavel: document.getElementById("responsavelFora").value.trim(),
     setor: document.getElementById("setorFora").value,
     tipoServico: document.getElementById("tipoServicoFora").value,
+    tipoAssist: tipoAssist,
     prioridade: document.getElementById("prioridadeFora").value,
     dataSaida: document.getElementById("dataSaidaFora").value,
     dataRetorno: document.getElementById("dataRetornoFora").value,
@@ -1813,7 +2369,7 @@ function salvarForaDaEmpresa(){
     descricao: document.getElementById("descricaoFora").value.trim(),
     solucao: document.getElementById("solucaoFora").value.trim(),
     observacoes: document.getElementById("obsFora").value.trim(),
-    dataHoraRetorno: document.getElementById("dataHoraRetornoFora").value,
+    dataHoraRetorno: dataHoraRetorno,
     recebedor: document.getElementById("recebedorFora").value.trim(),
     fotos: midiasFora.filter(m=>m.tipo==="foto").map(m=>m.src),
     videos: midiasFora.filter(m=>m.tipo==="video").map(m=>m.src),
@@ -1880,19 +2436,13 @@ function mostrarForaDaEmpresa(){
 
   el.innerHTML = lista.slice().reverse().map(x=>{
     const statusClass = {
-      "Enviado":"badge-fora",
-      "Aguardando orçamento":"badge-warning",
-      "Orçamento aprovado":"badge-info",
-      "Em manutenção":"badge-danger",
-      "Aguardando peça":"badge-warning",
-      "Pronto para retorno":"badge-created",
-      "Retornado":"badge-success",
-      "Sem conserto":"badge-danger",
-      "Cancelado":"badge-danger"
+      "Enviado":"badge-fora","Aguardando orçamento":"badge-warning",
+      "Orçamento aprovado":"badge-info","Em manutenção":"badge-danger",
+      "Aguardando peça":"badge-warning","Pronto para retorno":"badge-created",
+      "Retornado":"badge-success","Sem conserto":"badge-danger","Cancelado":"badge-danger"
     }[x.status] || "badge-info";
 
     const prioClass = x.prioridade==="Urgente"?"badge-danger":x.prioridade==="Alta"?"badge-warning":"badge-info";
-
     const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}">` : `<div class="imagem-placeholder">🚛</div>`;
 
     const agora = Date.now();
@@ -1922,7 +2472,8 @@ function mostrarForaDaEmpresa(){
             ${x.responsavelEmpresa?`👤 Resp. empresa: ${escapar(x.responsavelEmpresa)}<br>`:''}
             ${x.responsavel?`📤 Enviado por: ${escapar(x.responsavel)}<br>`:''}
             📍 Setor: ${escapar(x.setor)}<br>
-            🔧 Serviço: ${escapar(x.tipoServico||"-")}<br>
+            🔧 Serviço: ${escapar(x.tipoServico||"-")}
+            ${x.tipoAssist?` • 🛡️ Assist: ${escapar(x.tipoAssist)}`:''}<br>
             📅 Saída: ${x.dataSaida?new Date(x.dataSaida).toLocaleDateString("pt-BR"):"-"}
             ${x.dataRetorno?` • Retorno: ${new Date(x.dataRetorno).toLocaleDateString("pt-BR")}`:''}
             ${x.os?`<br>📋 OS: ${escapar(x.os)}`:''}
@@ -1983,6 +2534,7 @@ function compartilharForaItem(id){
   if(x.responsavel) t += `📤 Enviado por: ${x.responsavel}\n`;
   t += `📍 Setor: ${x.setor}\n`;
   t += `🔧 Serviço: ${x.tipoServico||"-"}\n`;
+  if(x.tipoAssist) t += `🛡️ Assistência: ${x.tipoAssist}\n`;
   t += `⚡ Prioridade: ${x.prioridade||"-"}\n`;
   t += `📅 Saída: ${x.dataSaida||"-"}\n`;
   if(x.dataRetorno) t += `📅 Retorno prev.: ${x.dataRetorno}\n`;
@@ -2414,7 +2966,7 @@ function tirarFoto(){
   fecharCamera();
 }
 
-/* ============ SCANNER ============ */
+/* ============ SCANNER (FERRAMENTA) ============ */
 function abrirScanner(){
   if(!window.Html5Qrcode){ alert("Leitor de código não disponível."); return; }
   document.getElementById("dialogScanner").showModal();
@@ -2439,7 +2991,7 @@ function fecharScanner(){
 
 /* ============ PDF ============ */
 function checkPDF(){
-  if(!jsPDFLib){ alert("❌ Biblioteca PDF não carregada. Verifique sua internet e recarregue."); return false; }
+  if(!window.jspdf || !window.jspdf.jsPDF){ alert("❌ Biblioteca PDF não carregada. Verifique sua internet e recarregue."); return false; }
   return true;
 }
 function cabecalhoPDF(doc, titulo, sub=""){
@@ -2471,11 +3023,7 @@ async function salvarPDF(doc, nome){
 
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
-      await navigator.share({
-        files: [file],
-        title: nome,
-        text: "📄 Relatório — PCM de Ferramentas"
-      });
+      await navigator.share({ files: [file], title: nome, text: "📄 Relatório — PCM de Ferramentas" });
       return;
     } catch (err) {
       if (err.name === "AbortError") return;
@@ -2504,7 +3052,8 @@ async function salvarPDF(doc, nome){
 
 function gerarPDFCompleto(){
   if(!checkPDF()) return;
-  const doc = new jsPDFLib();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   cabecalhoPDF(doc,'RELATÓRIO GERAL','PCM de Ferramentas — Ferramentas, Ativos e Manutenção');
   const resumo = [
     ['Ferramentas', ferramentas.length],
@@ -2526,14 +3075,16 @@ function gerarPDFCompleto(){
 }
 function gerarPDFFerramentas(){
   if(!checkPDF()) return;
-  const doc = new jsPDFLib();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   cabecalhoPDF(doc,'FERRAMENTAS',`Total: ${ferramentas.length}`);
   doc.autoTable({ startY:45, head:[['Nome','Código','Setor','Qtd','Status']], body: ferramentas.map(f=>[f.nome, f.codigo||'-', f.setor, f.quantidade||1, f.status]), theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255}, styles:{fontSize:9,cellPadding:2}, alternateRowStyles:{fillColor:[245,250,252]}, margin:{left:14,right:14} });
   salvarPDF(doc, `Ferramentas_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFManutencao(){
   if(!checkPDF()) return;
-  const doc = new jsPDFLib();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   cabecalhoPDF(doc,'FERRAMENTAS EM MANUTENÇÃO',`Total: ${manutencoes.length}`);
   if(!manutencoes.length){
     doc.setFontSize(12); doc.setTextColor(100,100,100);
@@ -2547,7 +3098,8 @@ function gerarPDFManutencaoItem(id){
   if(!checkPDF()) return;
   const m = manutencoes.find(x=>x.id===id);
   if(!m) return;
-  const doc = new jsPDFLib();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   cabecalhoPDF(doc,'DETALHE DE MANUTENÇÃO', m.nome);
   let y = 48;
   doc.setFontSize(11); doc.setTextColor(20,20,20);
@@ -2571,10 +3123,10 @@ function gerarPDFManutencaoItem(id){
   salvarPDF(doc, `Manutencao_${m.nome.replace(/\s+/g,'_')}.pdf`);
 }
 
-/* ==== PDF FORA DA EMPRESA ==== */
 function gerarPDFForaDaEmpresa(){
   if(!checkPDF()) return;
-  const doc = new jsPDFLib();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   cabecalhoPDF(doc,'🚛 FORA DA EMPRESA','Manutenção externa / terceirizada');
   if(!foraDaEmpresa.length){
     doc.setFontSize(12); doc.setTextColor(100,100,100);
@@ -2582,11 +3134,12 @@ function gerarPDFForaDaEmpresa(){
   } else {
     doc.autoTable({
       startY:45,
-      head:[['Item','Empresa','Serviço','Saída','Retorno','Status','Valor']],
+      head:[['Item','Empresa','Serviço','Assist.','Saída','Retorno','Status','Valor']],
       body: foraDaEmpresa.map(x=>[
         x.nome + (x.codigo?`\n${x.codigo}`:''),
         x.empresa || '-',
         x.tipoServico || '-',
+        x.tipoAssist || '-',
         x.dataSaida ? new Date(x.dataSaida).toLocaleDateString('pt-BR') : '-',
         x.dataRetorno ? new Date(x.dataRetorno).toLocaleDateString('pt-BR') : '-',
         x.status,
@@ -2606,21 +3159,20 @@ function gerarPDFForaItem(id){
   if(!checkPDF()) return;
   const x = foraDaEmpresa.find(f=>f.id===id);
   if(!x) return;
-  const doc = new jsPDFLib();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   cabecalhoPDF(doc,'DETALHE — MANUTENÇÃO FORA DA EMPRESA', x.nome);
   let y = 48;
   doc.setFontSize(11); doc.setTextColor(20,20,20);
   const linhas = [
-    ['Nome', x.nome],
-    ['Código', x.codigo||'-'],
-    ['Tipo', x.tipo||'-'],
+    ['Nome', x.nome],['Código', x.codigo||'-'],['Tipo', x.tipo||'-'],
     ['Quantidade', x.quantidade||1],
-    ['🏢 Empresa', x.empresa||'-'],
-    ['📞 Contato', x.contato||'-'],
+    ['🏢 Empresa', x.empresa||'-'],['📞 Contato', x.contato||'-'],
     ['👤 Resp. empresa', x.responsavelEmpresa||'-'],
     ['📤 Enviado por', x.responsavel||'-'],
     ['📍 Setor', x.setor],
     ['🔧 Serviço', x.tipoServico||'-'],
+    ['🛡️ Assistência', x.tipoAssist||'-'],
     ['⚡ Prioridade', x.prioridade||'-'],
     ['📅 Saída', x.dataSaida||'-'],
     ['📅 Retorno prev.', x.dataRetorno||'-'],
@@ -2650,7 +3202,8 @@ function gerarPDFForaItem(id){
 
 function gerarPDFAtivos(){
   if(!checkPDF()) return;
-  const doc = new jsPDFLib();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   cabecalhoPDF(doc,'ATIVOS',`Total: ${ativos.length}`);
   if(!ativos.length){
     doc.setFontSize(12); doc.setTextColor(100,100,100);
@@ -2662,7 +3215,8 @@ function gerarPDFAtivos(){
 }
 function gerarPDFCriados(){
   if(!checkPDF()) return;
-  const doc = new jsPDFLib();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   cabecalhoPDF(doc,'CRIADOS',`Total: ${ativosCriados.length}`);
   if(!ativosCriados.length){
     doc.setFontSize(12); doc.setTextColor(100,100,100);
@@ -2674,7 +3228,8 @@ function gerarPDFCriados(){
 }
 function gerarPDFPedidos(){
   if(!checkPDF()) return;
-  const doc = new jsPDFLib();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   cabecalhoPDF(doc,'PEDIDOS',`Total: ${pedidosMateriais.length}`);
   if(!pedidosMateriais.length){
     doc.setFontSize(12); doc.setTextColor(100,100,100);
@@ -2686,7 +3241,8 @@ function gerarPDFPedidos(){
 }
 function gerarPDFExternas(){
   if(!checkPDF()) return;
-  const doc = new jsPDFLib();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   cabecalhoPDF(doc,'EXTERNAS',`Total: ${manutencoesExternas.length}`);
   if(!manutencoesExternas.length){
     doc.setFontSize(12); doc.setTextColor(100,100,100);
@@ -2698,7 +3254,8 @@ function gerarPDFExternas(){
 }
 function gerarPDFSetores(){
   if(!checkPDF()) return;
-  const doc = new jsPDFLib();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   cabecalhoPDF(doc,'SETORES',`Total: ${setores.length}`);
   const dados = setores.map(s=>{
     const nome = s.nome;
@@ -2858,11 +3415,10 @@ function atualizarBadgeFora(){
 /* ============ BACKUP ============ */
 function exportarBackup(){
   const dados = {
-    versao: "2.2", gerado: new Date().toISOString(), usuario: usuarioAtual || "—",
+    versao: "2.3", gerado: new Date().toISOString(), usuario: usuarioAtual || "—",
     ferramentas, manutencoes, ativos, ativosCriados,
     pedidosMateriais, manutencoesExternas, foraDaEmpresa,
-    historico, alarmes,
-    setores, contadores
+    historico, alarmes, setores, contadores
   };
   const json = JSON.stringify(dados, null, 2);
   const blob = new Blob([json], {type: "application/json"});
@@ -2992,16 +3548,17 @@ function solicitarNotificacoes(){
   }
 }
 
-/* ============ SERVICE WORKER INLINE ============ */
+/* ============ SERVICE WORKER ============ */
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   const swCode = `
-    const CACHE = "pcm-ferramentas-v4";
+    const CACHE = "pcm-ferramentas-v6";
     const ARQUIVOS = [
       "./",
       "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
       "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js",
       "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
-      "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"
+      "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js",
+      "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"
     ];
     self.addEventListener("install", e => {
       e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARQUIVOS)).then(() => self.skipWaiting()));
