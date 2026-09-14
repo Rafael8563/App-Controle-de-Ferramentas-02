@@ -124,8 +124,6 @@ body:not(.tema-claro) .badge-tempo{color:var(--amarelo)}
 .badge-manutencao{background:rgba(255,107,130,0.15);color:var(--vermelho)}
 .badge-qtd{background:rgba(124,92,191,0.15);color:var(--roxo);font-weight:600}
 .badge-fora{background:rgba(124,92,191,0.2);color:var(--roxo);font-weight:600}
-.badge-externa{background:rgba(255,107,157,0.15);color:var(--rosa)}
-.badge-ocr{background:linear-gradient(135deg,rgba(30,184,201,0.2),rgba(45,219,122,0.2));color:var(--azul-claro);border:1px solid rgba(30,184,201,0.4);font-weight:700}
 dialog{width:min(800px,94vw);padding:0;border:1px solid var(--borda);border-radius:24px;background:var(--bg-header);backdrop-filter:blur(40px);color:var(--texto);box-shadow:0 50px 120px rgba(0,0,0,0.9);animation:modalBounce .5s cubic-bezier(0.34,1.56,0.64,1)}
 @keyframes modalBounce{from{opacity:0;transform:scale(.8) translateY(80px)}to{opacity:1;transform:scale(1) translateY(0)}}
 dialog::backdrop{background:rgba(0,0,0,0.8);backdrop-filter:blur(12px)}
@@ -181,7 +179,6 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 .anexo-item .nome{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .anexo-item button{padding:3px 8px;font-size:11px;border-radius:20px}
 
-/* OCR panel */
 .ocr-panel{
   background:linear-gradient(135deg,rgba(30,184,201,0.10),rgba(45,219,122,0.06));
   border:1px solid rgba(30,184,201,0.35);
@@ -189,8 +186,8 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 }
 .ocr-panel h4{font-size:14px;font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:8px;}
 .ocr-panel .subt{font-size:11.5px;color:var(--cinza);opacity:0.85;margin-bottom:12px;line-height:1.5;}
-.ocr-botoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.ocr-botoes button{justify-content:center;padding:10px 14px;font-size:12.5px;}
+.ocr-botoes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.ocr-botoes button{justify-content:center;padding:10px 12px;font-size:12px;}
 .resultado-ocr{
   background:rgba(45,219,122,0.08);
   border:1px solid rgba(45,219,122,0.3);
@@ -198,7 +195,6 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 }
 .resultado-ocr .titulo{font-weight:700;color:var(--verde);font-size:13.5px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
 .resultado-ocr .grid-campos{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;}
-.resultado-ocr .grid-campos .campo{margin-bottom:2px;}
 .resultado-ocr .grid-campos .campo b{color:var(--texto);}
 
 .ocr-loading{
@@ -390,7 +386,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     </div>
   </div>
   <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--roxo);">
-    <p class="muted text-sm" style="margin:0;opacity:.85;">🚛 Ferramentas enviadas para manutenção em empresas externas/terceirizadas. Registre aqui todo o envio, acompanhamento e retorno. <b>Use o OCR para ler Ordens de Serviço automaticamente.</b></p>
+    <p class="muted text-sm" style="margin:0;opacity:.85;">🚛 Ferramentas enviadas para manutenção em empresas externas. <b>Use o OCR para ler Ordens de Serviço automaticamente.</b></p>
   </div>
   <div id="miniEstatisticasFora" class="grid mb-10" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));"></div>
   <div class="search-bar">
@@ -504,7 +500,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 <dialog id="dialogScannerNFCe">
   <div class="modal" style="max-width:500px;">
     <h2>🧾 Ler QR Code da NFC-e</h2>
-    <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Aponte a câmera para o QR Code da Nota Fiscal Eletrônica. Os dados serão extraídos automaticamente.</p>
+    <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Aponte a câmera para o QR Code da Nota Fiscal Eletrônica.</p>
     <div id="readerNFCe"></div>
     <div class="acoes" style="margin-top:18px;">
       <button class="btn-outline" onclick="fecharScannerNFCe()">Fechar</button>
@@ -536,10 +532,12 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     </select>
     <label>Observações</label><textarea id="obsFerramenta" rows="3"></textarea>
     <div class="acoes">
-      <button class="btn-outline" onclick="document.getElementById('entradaFoto').click()">📷 Foto</button>
-      <button class="btn-outline" onclick="abrirCamera('ferramenta')">📹 Câmera</button>
+      <button class="btn-outline" onclick="document.getElementById('entradaFoto').click()">📷 Câmera</button>
+      <button class="btn-outline" onclick="document.getElementById('entradaGaleria').click()">🖼️ Galeria</button>
+      <button class="btn-outline" onclick="abrirCamera('ferramenta')">📹 Webcam</button>
     </div>
     <input id="entradaFoto" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotos(this.files)">
+    <input id="entradaGaleria" class="hidden" type="file" accept="image/*" multiple onchange="adicionarFotos(this.files)">
     <div id="previewFerramenta" class="preview"></div>
     <div class="acoes" style="margin-top:18px;">
       <button class="btn-outline" onclick="fecharFerramenta()">Cancelar</button>
@@ -578,11 +576,13 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     <label>Descrição do problema</label><textarea id="descricaoManutencao" rows="3"></textarea>
     <label>Solução aplicada</label><textarea id="solucaoManutencao" rows="3"></textarea>
     <div class="acoes">
-      <button class="btn-outline" onclick="document.getElementById('entradaFotoManutencao').click()">📷 Foto</button>
-      <button class="btn-outline" onclick="document.getElementById('entradaArquivoManutencao').click()">📎 Anexar</button>
-      <button class="btn-outline" onclick="abrirCamera('manutencao')">📹 Câmera</button>
+      <button class="btn-outline" onclick="document.getElementById('entradaFotoManutencao').click()">📷 Câmera</button>
+      <button class="btn-outline" onclick="document.getElementById('entradaGaleriaManutencao').click()">🖼️ Galeria</button>
+      <button class="btn-outline" onclick="document.getElementById('entradaArquivoManutencao').click()">📎 Arquivos</button>
+      <button class="btn-outline" onclick="abrirCamera('manutencao')">📹 Webcam</button>
     </div>
     <input id="entradaFotoManutencao" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotosManutencao(this.files)">
+    <input id="entradaGaleriaManutencao" class="hidden" type="file" accept="image/*" multiple onchange="adicionarFotosManutencao(this.files)">
     <input id="entradaArquivoManutencao" class="hidden" type="file" multiple onchange="adicionarArquivosManutencao(this.files)">
     <div id="previewManutencao" class="preview"></div>
     <div class="acoes" style="margin-top:18px;">
@@ -599,12 +599,14 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 
     <div class="ocr-panel">
       <h4>🔍 Preenchimento automático</h4>
-      <div class="subt">Tire foto de uma <b>Ordem de Serviço impressa</b> ou leia o <b>QR Code de uma NFC-e</b>. O app preenche os campos sozinho.</div>
+      <div class="subt">Tire foto, escolha da galeria ou leia o QR Code da NFC-e. O app preenche os campos sozinho.</div>
       <div class="ocr-botoes">
-        <button class="btn-ocr" onclick="lerNotaOCR()">📷 Ler OS (foto)</button>
-        <button class="btn-ocr" onclick="abrirScannerNFCe()">🧾 Ler QR NFC-e</button>
+        <button class="btn-ocr" onclick="lerNotaOCR('camera')">📷 Tirar foto</button>
+        <button class="btn-ocr" onclick="lerNotaOCR('galeria')">🖼️ Da galeria</button>
+        <button class="btn-ocr" onclick="abrirScannerNFCe()">🧾 QR NFC-e</button>
       </div>
-      <input id="entradaOCR" class="hidden" type="file" accept="image/*" capture="environment" onchange="processarOCR(this.files[0])">
+      <input id="entradaOCR_camera" class="hidden" type="file" accept="image/*" capture="environment" onchange="processarOCR(this.files[0])">
+      <input id="entradaOCR_galeria" class="hidden" type="file" accept="image/*" onchange="processarOCR(this.files[0])">
       <div id="resultadoOCR"></div>
     </div>
 
@@ -723,10 +725,10 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     <input id="notaFiscalFora" placeholder="Nº NF ou documento">
 
     <label>Descrição do problema / serviço solicitado</label>
-    <textarea id="descricaoFora" rows="3" placeholder="Descreva o defeito e o que precisa ser feito..."></textarea>
+    <textarea id="descricaoFora" rows="3" placeholder="Descreva o defeito..."></textarea>
 
     <label>Diagnóstico / Solução aplicada pela empresa</label>
-    <textarea id="solucaoFora" rows="3" placeholder="Preenchido quando retornar com o laudo..."></textarea>
+    <textarea id="solucaoFora" rows="3" placeholder="Preenchido quando retornar..."></textarea>
 
     <label>Observações gerais</label>
     <textarea id="obsFora" rows="3"></textarea>
@@ -738,15 +740,17 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     <input id="recebedorFora" placeholder="Quem recebeu de volta">
 
     <div style="margin-top:14px;">
-      <label style="margin-bottom:8px;">📎 Anexos (fotos, vídeos, PDFs, documentos)</label>
+      <label style="margin-bottom:8px;">📎 Anexos</label>
       <div class="acoes">
-        <button class="btn-outline" onclick="document.getElementById('entradaFotoFora').click()">📷 Fotos</button>
+        <button class="btn-outline" onclick="document.getElementById('entradaFotoFora').click()">📷 Câmera</button>
+        <button class="btn-outline" onclick="document.getElementById('entradaGaleriaFora').click()">🖼️ Galeria</button>
         <button class="btn-outline" onclick="document.getElementById('entradaVideoFora').click()">🎥 Vídeos</button>
         <button class="btn-outline" onclick="document.getElementById('entradaArquivoFora').click()">📎 Arquivos</button>
-        <button class="btn-outline" onclick="abrirCamera('foradaempresa')">📹 Câmera</button>
+        <button class="btn-outline" onclick="abrirCamera('foradaempresa')">📹 Webcam</button>
       </div>
       <input id="entradaFotoFora" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotosFora(this.files)">
-      <input id="entradaVideoFora" class="hidden" type="file" accept="video/*" capture="environment" multiple onchange="adicionarVideosFora(this.files)">
+      <input id="entradaGaleriaFora" class="hidden" type="file" accept="image/*" multiple onchange="adicionarFotosFora(this.files)">
+      <input id="entradaVideoFora" class="hidden" type="file" accept="video/*" multiple onchange="adicionarVideosFora(this.files)">
       <input id="entradaArquivoFora" class="hidden" type="file" multiple onchange="adicionarArquivosFora(this.files)">
     </div>
 
@@ -788,10 +792,12 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     </select>
     <label>Observações</label><textarea id="obsAtivo" rows="3"></textarea>
     <div class="acoes">
-      <button class="btn-outline" onclick="document.getElementById('entradaFotoAtivo').click()">📷 Foto</button>
-      <button class="btn-outline" onclick="abrirCamera('ativo')">📹 Câmera</button>
+      <button class="btn-outline" onclick="document.getElementById('entradaFotoAtivo').click()">📷 Câmera</button>
+      <button class="btn-outline" onclick="document.getElementById('entradaGaleriaAtivo').click()">🖼️ Galeria</button>
+      <button class="btn-outline" onclick="abrirCamera('ativo')">📹 Webcam</button>
     </div>
     <input id="entradaFotoAtivo" class="hidden" type="file" accept="image/*" capture="environment" onchange="adicionarFotoAtivo(this.files[0])">
+    <input id="entradaGaleriaAtivo" class="hidden" type="file" accept="image/*" onchange="adicionarFotoAtivo(this.files[0])">
     <div id="previewAtivo" class="preview"></div>
     <div class="acoes" style="margin-top:18px;">
       <button class="btn-outline" onclick="fecharAtivo()">Cancelar</button>
@@ -929,7 +935,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 
 <dialog id="dialogCamera">
   <div class="modal">
-    <h2>📹 Câmera</h2>
+    <h2>📹 Webcam</h2>
     <video id="camera" autoplay playsinline style="width:100%;border-radius:12px;"></video>
     <div class="acoes" style="margin-top:12px;">
       <button class="btn-primary" onclick="tirarFoto()">📸 Capturar</button>
@@ -958,6 +964,7 @@ let filtroAtualManutencao = "todas";
 let filtroAtualFora = "todas";
 let midiasFerramenta = [], midiasManutencao = [], midiasAtivo = [], midiasFora = [];
 let cameraStream = null, cameraDestino = "ferramenta", scanner = null, scannerNFCe = null;
+let graficoStatus = null, graficoSetores = null;
 
 window.usuarioAtual = usuarioAtual;
 window.ferramentas = ferramentas;
@@ -1143,7 +1150,6 @@ function mostrarEstatisticas(){
 }
 
 /* ============ GRÁFICOS ============ */
-let graficoStatus = null, graficoSetores = null;
 function mostrarGraficos(){
   if(!window.Chart) return;
   const claro = document.body.classList.contains("tema-claro");
@@ -1324,6 +1330,26 @@ function confirmarAdicionarFerramenta(){
   const status = document.getElementById("novaFerrStatus").value;
   if(!nome){ alert("Digite o nome da ferramenta."); return; }
   if(!nomeSetor){ alert("Setor inválido."); return; }
+
+  // 🛡️ Verificação de duplicata — código
+  if(codigo){
+    const dupCod = ferramentas.find(f => String(f.codigo||'').trim().toLowerCase() === codigo.toLowerCase());
+    if(dupCod){
+      alert(`⚠️ Já existe uma ferramenta com o código "${dupCod.codigo}".\n\n📦 ${dupCod.nome}\n📍 ${dupCod.setor}`);
+      return;
+    }
+  }
+
+  // 🛡️ Verificação de duplicata — nome + setor
+  const dupNomeSetor = ferramentas.find(f =>
+    String(f.nome||'').trim().toLowerCase() === nome.toLowerCase() &&
+    String(f.setor||'').trim().toLowerCase() === nomeSetor.toLowerCase()
+  );
+  if(dupNomeSetor){
+    alert(`⚠️ Esta ferramenta já está cadastrada neste setor.\n\n📦 ${dupNomeSetor.nome}\n📌 Código: ${dupNomeSetor.codigo || '-'}\n📍 ${dupNomeSetor.setor}`);
+    return;
+  }
+
   if(!codigo) codigo = gerarCodigo("FER");
   const nova = { id: gerarId(), nome, codigo, quantidade: 1, setor: nomeSetor, status, observacoes: "", fotos: [], dataEmprestimo: status === "Emprestada" ? new Date().toISOString() : null, dataCriacao: new Date().toISOString() };
   ferramentas.push(nova);
@@ -1506,21 +1532,50 @@ function fecharFerramenta(){ document.getElementById("dialogFerramenta").close()
 function salvarFerramenta(){
   const nome = document.getElementById("nomeFerramenta").value.trim();
   if(!nome){ alert("Digite o nome."); return; }
+
   const id = document.getElementById("idFerramenta").value || gerarId();
   const status = document.getElementById("statusFerramenta").value;
+  const setor = document.getElementById("setorFerramenta").value;
   const anterior = ferramentas.find(f=>f.id===id)?.status;
+  const ehEdicao = !!document.getElementById("idFerramenta").value;
   let codigo = document.getElementById("codigoFerramenta").value.trim();
+
+  // 🛡️ Verificação de duplicata — código
+  if(codigo){
+    const dupCod = ferramentas.find(f =>
+      f.id !== (ehEdicao ? id : null) &&
+      String(f.codigo||'').trim().toLowerCase() === codigo.toLowerCase()
+    );
+    if(dupCod){
+      alert(`⚠️ Já existe uma ferramenta com o código "${dupCod.codigo}".\n\n📦 ${dupCod.nome}\n📍 ${dupCod.setor}`);
+      return;
+    }
+  }
+
+  // 🛡️ Verificação de duplicata — nome + setor
+  const dupNomeSetor = ferramentas.find(f =>
+    f.id !== (ehEdicao ? id : null) &&
+    String(f.nome||'').trim().toLowerCase() === nome.toLowerCase() &&
+    String(f.setor||'').trim().toLowerCase() === setor.toLowerCase()
+  );
+  if(dupNomeSetor){
+    alert(`⚠️ Esta ferramenta já está cadastrada neste setor.\n\n📦 ${dupNomeSetor.nome}\n📌 Código: ${dupNomeSetor.codigo || '-'}\n📍 ${dupNomeSetor.setor}`);
+    return;
+  }
+
   if(!codigo) codigo = gerarCodigo("FER");
   const quantidade = parseInt(document.getElementById("quantidadeFerramenta").value) || 1;
+
   const f = {
     id, nome, codigo, quantidade,
-    setor: document.getElementById("setorFerramenta").value,
+    setor: setor,
     status,
     observacoes: document.getElementById("obsFerramenta").value.trim(),
     fotos: midiasFerramenta.filter(m=>m.tipo==="foto").map(m=>m.src),
     dataEmprestimo: status==="Emprestada" ? new Date().toISOString() : null,
     dataCriacao: new Date().toISOString()
   };
+
   const existe = ferramentas.find(x=>x.id===id);
   if(existe){
     ferramentas = ferramentas.map(x=>x.id===id?f:x);
@@ -1740,8 +1795,10 @@ function excluirManutencao(id){
 }
 
 /* ============ OCR — LEITURA DE OS ============ */
-function lerNotaOCR(){
-  const input = document.getElementById('entradaOCR');
+function lerNotaOCR(origem = 'camera'){
+  const id = origem === 'galeria' ? 'entradaOCR_galeria' : 'entradaOCR_camera';
+  const input = document.getElementById(id);
+  if(!input) return;
   input.value = '';
   input.click();
 }
@@ -1762,14 +1819,13 @@ function mostrarLoadingOCR(){
   `;
   document.body.appendChild(div);
 }
-
 function atualizarProgressoOCR(m){
   const barra = document.getElementById('progressoOCRBarra');
   const texto = document.getElementById('progressoOCRTexto');
   const status = document.getElementById('progressoOCRStatus');
   if(!barra) return;
   if(m.status === 'loading tesseract core'){ status.textContent = 'Baixando motor OCR...'; }
-  else if(m.status === 'loading language traineddata'){ status.textContent = 'Baixando idioma português (só na primeira vez)...'; }
+  else if(m.status === 'loading language traineddata'){ status.textContent = 'Baixando idioma português...'; }
   else if(m.status === 'initializing api'){ status.textContent = 'Inicializando...'; }
   else if(m.status === 'recognizing text'){
     status.textContent = 'Reconhecendo texto...';
@@ -1778,7 +1834,6 @@ function atualizarProgressoOCR(m){
     texto.textContent = pct + '%';
   }
 }
-
 function removerLoadingOCR(){
   const el = document.getElementById('ocrLoading');
   if(el) el.remove();
@@ -1805,7 +1860,6 @@ async function processarOCR(arquivo){
     const resultado = await Tesseract.recognize(arquivo, 'por', {
       logger: m => atualizarProgressoOCR(m)
     });
-
     const textoBruto = resultado.data.text;
     console.log('📄 Texto OCR bruto:\n', textoBruto);
 
@@ -1815,28 +1869,21 @@ async function processarOCR(arquivo){
     preencherFormularioFora(dados);
     removerLoadingOCR();
     mostrarResultadoOCR(dados, textoBruto);
-
   } catch(e){
     console.error(e);
     removerLoadingOCR();
-    alert("❌ Erro ao ler a OS:\n\n" + e.message + "\n\nTente tirar a foto com melhor iluminação e enquadramento.");
+    alert("❌ Erro ao ler a OS:\n\n" + e.message + "\n\nTente uma foto com melhor iluminação.");
   }
 }
 
 function extrairDadosOS(texto){
-  const t = texto
-    .replace(/\r/g,'')
-    .replace(/[ \t]+/g,' ')
-    .replace(/[“”"']/g,'')
-    .trim();
+  const t = texto.replace(/\r/g,'').replace(/[ \t]+/g,' ').replace(/[“”"']/g,'').trim();
   const linhas = t.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
-  const dados = {
-    os:'', empresa:'', cnpj:'', ie:'', dataEntrada:'', endereco:'', bairro:'',
+  const dados = { os:'', empresa:'', cnpj:'', ie:'', dataEntrada:'', endereco:'', bairro:'',
     cidade:'', telefone:'', email:'', atendente:'', tecnico:'', nfEntrada:'',
     equipamento:'', marca:'', modelo:'', codigo:'', tipoAssist:'', notaFiscal:'',
-    defeito:'', observacoes:'', garantia:'', fornecedorGarantia:'', acessorios:''
-  };
+    defeito:'', observacoes:'', garantia:'', fornecedorGarantia:'', acessorios:'' };
 
   function pegarDepois(pattern, fonte = t){
     const regex = new RegExp(pattern + '\\s*:?\\s*([^\\n]+?)(?=\\s{2,}|\\n|$)', 'i');
@@ -1844,34 +1891,20 @@ function extrairDadosOS(texto){
     return m ? m[1].trim().replace(/\s+$/,'') : '';
   }
 
-  // Nº OS
-  const mOS = t.match(/N[º°o\.\s]*Ordem\s*Servi[çc]o\s*:?\s*(\d+)/i)
-           || t.match(/Ordem\s*Servi[çc]o\s*:?\s*(\d+)/i)
-           || t.match(/O\.?S\.?\s*:?\s*(\d{3,})/i);
+  const mOS = t.match(/N[º°o\.\s]*Ordem\s*Servi[çc]o\s*:?\s*(\d+)/i) || t.match(/Ordem\s*Servi[çc]o\s*:?\s*(\d+)/i) || t.match(/O\.?S\.?\s*:?\s*(\d{3,})/i);
   if(mOS) dados.os = mOS[1];
 
-  // CNPJ
   const mCNPJ = t.match(/CNPJ\s*:?\s*(\d{2}\.?\d{3}\.?\d{3}\/?\d{4}\-?\d{2})/i);
   if(mCNPJ) dados.cnpj = mCNPJ[1].replace(/\D/g,'');
 
-  // IE
   const mIE = t.match(/\bIE\s*:?\s*(\d{8,12})/i);
   if(mIE) dados.ie = mIE[1];
 
-  // Data de entrada
-  const mData = t.match(/Data\s*entrada\s*:?\s*(\d{2}\/\d{2}\/\d{4})/i)
-             || t.match(/(\d{2}\/\d{2}\/\d{4})/);
-  if(mData){
-    const [d,mo,a] = mData[1].split('/');
-    dados.dataEntrada = `${a}-${mo}-${d}`;
-  }
+  const mData = t.match(/Data\s*entrada\s*:?\s*(\d{2}\/\d{2}\/\d{4})/i) || t.match(/(\d{2}\/\d{2}\/\d{4})/);
+  if(mData){ const [d,mo,a] = mData[1].split('/'); dados.dataEntrada = `${a}-${mo}-${d}`; }
 
-  // Garantia
   const mGarantia = t.match(/Dta\s*Garan\s*:?\s*(\d{2}\/\d{2}\/\d{4})/i);
-  if(mGarantia){
-    const [d,mo,a] = mGarantia[1].split('/');
-    dados.garantia = `${a}-${mo}-${d}`;
-  }
+  if(mGarantia){ const [d,mo,a] = mGarantia[1].split('/'); dados.garantia = `${a}-${mo}-${d}`; }
 
   dados.endereco = pegarDepois('Endere[çc]o');
   dados.bairro = pegarDepois('Bairro');
@@ -1897,7 +1930,6 @@ function extrairDadosOS(texto){
   dados.defeito = pegarDepois('Defeito');
   dados.observacoes = pegarDepois('\\bObs\\b');
 
-  // Empresa prestadora
   const idxOS = linhas.findIndex(l => /ordem\s*servi[çc]o/i.test(l));
   if(idxOS >= 0){
     for(let i = idxOS+1; i < Math.min(idxOS+5, linhas.length); i++){
@@ -1908,59 +1940,31 @@ function extrairDadosOS(texto){
       }
     }
   }
-
   return dados;
 }
 
 function preencherFormularioFora(d){
   const nomeComposto = [d.equipamento, d.marca, d.modelo].filter(Boolean).join(' ').trim();
-  if(nomeComposto){
-    const el = document.getElementById('nomeFora');
-    if(el) el.value = nomeComposto;
-  }
-  if(d.codigo){
-    const el = document.getElementById('codigoFora');
-    if(el && !el.value) el.value = d.codigo;
-  }
-  if(d.empresa){
-    const el = document.getElementById('empresaFora');
-    if(el) el.value = d.empresa;
-  }
+  if(nomeComposto){ const el = document.getElementById('nomeFora'); if(el) el.value = nomeComposto; }
+  if(d.codigo){ const el = document.getElementById('codigoFora'); if(el && !el.value) el.value = d.codigo; }
+  if(d.empresa){ const el = document.getElementById('empresaFora'); if(el) el.value = d.empresa; }
   const contatos = [];
   if(d.cnpj) contatos.push('CNPJ: ' + d.cnpj);
   if(d.ie) contatos.push('IE: ' + d.ie);
   if(d.telefone) contatos.push(d.telefone);
-  if(contatos.length){
-    const el = document.getElementById('contatoFora');
-    if(el) el.value = contatos.join(' • ');
-  }
-  if(d.tecnico){
-    const el = document.getElementById('responsavelEmpresaFora');
-    if(el) el.value = d.tecnico;
-  }
-  if(d.atendente){
-    const el = document.getElementById('responsavelFora');
-    if(el) el.value = d.atendente;
-  }
-  if(d.os){
-    const el = document.getElementById('osFora');
-    if(el) el.value = d.os;
-  }
-  if(d.dataEntrada){
-    const el = document.getElementById('dataSaidaFora');
-    if(el) el.value = d.dataEntrada;
-  }
-  if(d.notaFiscal){
-    const el = document.getElementById('notaFiscalFora');
-    if(el) el.value = d.notaFiscal;
-  }
+  if(contatos.length){ const el = document.getElementById('contatoFora'); if(el) el.value = contatos.join(' • '); }
+  if(d.tecnico){ const el = document.getElementById('responsavelEmpresaFora'); if(el) el.value = d.tecnico; }
+  if(d.atendente){ const el = document.getElementById('responsavelFora'); if(el) el.value = d.atendente; }
+  if(d.os){ const el = document.getElementById('osFora'); if(el) el.value = d.os; }
+  if(d.dataEntrada){ const el = document.getElementById('dataSaidaFora'); if(el) el.value = d.dataEntrada; }
+  if(d.notaFiscal){ const el = document.getElementById('notaFiscalFora'); if(el) el.value = d.notaFiscal; }
   if(d.tipoAssist){
     const t = d.tipoAssist.toUpperCase();
     const elServ = document.getElementById('tipoServicoFora');
     if(elServ){
       if(t.includes('GARANTIA')) elServ.value = 'Garantia';
-      else if(t.includes('MEC[ÂA]NICA') || t.includes('MECANICA')) elServ.value = 'Reparo mecânico';
-      else if(t.includes('EL[ÉE]TRICA') || t.includes('ELETRICA')) elServ.value = 'Reparo elétrico';
+      else if(t.includes('MECANICA') || t.includes('MECÂNICA')) elServ.value = 'Reparo mecânico';
+      else if(t.includes('ELETRICA') || t.includes('ELÉTRICA')) elServ.value = 'Reparo elétrico';
     }
     const elAssist = document.getElementById('tipoAssistFora');
     if(elAssist){
@@ -1968,47 +1972,34 @@ function preencherFormularioFora(d){
       else if(t.includes('PARTICULAR')) elAssist.value = 'Particular';
       else if(t.includes('CONTRATO')) elAssist.value = 'Contrato';
       else if(t.includes('SEGURO')) elAssist.value = 'Seguro';
-      else if(t.includes('OR[ÇC]AMENTO')) elAssist.value = 'Orçamento';
+      else if(t.includes('ORÇAMENTO') || t.includes('ORCAMENTO')) elAssist.value = 'Orçamento';
     }
   }
   const descPartes = [];
   if(d.defeito && d.defeito.length > 2) descPartes.push('Defeito: ' + d.defeito);
   if(d.acessorios && d.acessorios.length > 2 && d.acessorios.toUpperCase() !== 'ND') descPartes.push('Acessórios: ' + d.acessorios);
-  if(descPartes.length){
-    const el = document.getElementById('descricaoFora');
-    if(el && !el.value) el.value = descPartes.join('\n');
-  }
+  if(descPartes.length){ const el = document.getElementById('descricaoFora'); if(el && !el.value) el.value = descPartes.join('\n'); }
   const obsPartes = [];
   if(d.observacoes && d.observacoes.length > 2) obsPartes.push(d.observacoes);
   if(d.endereco) obsPartes.push('Endereço: ' + d.endereco + (d.bairro ? ' - ' + d.bairro : '') + (d.cidade ? ', ' + d.cidade : ''));
-  if(obsPartes.length){
-    const el = document.getElementById('obsFora');
-    if(el && !el.value) el.value = obsPartes.join('\n');
-  }
+  if(obsPartes.length){ const el = document.getElementById('obsFora'); if(el && !el.value) el.value = obsPartes.join('\n'); }
 }
 
 function mostrarResultadoOCR(dados, textoBruto){
   const el = document.getElementById('resultadoOCR');
   if(!el) return;
   const campos = [
-    ['Nº OS', dados.os],
-    ['Empresa', dados.empresa],
-    ['CNPJ', dados.cnpj],
+    ['Nº OS', dados.os],['Empresa', dados.empresa],['CNPJ', dados.cnpj],
     ['Data entrada', dados.dataEntrada ? new Date(dados.dataEntrada + 'T00:00:00').toLocaleDateString('pt-BR') : ''],
-    ['Equipamento', dados.equipamento],
-    ['Marca', dados.marca],
-    ['Modelo', dados.modelo],
-    ['Código', dados.codigo],
-    ['Tipo Assist', dados.tipoAssist],
-    ['Técnico', dados.tecnico],
-    ['Atendente', dados.atendente]
+    ['Equipamento', dados.equipamento],['Marca', dados.marca],['Modelo', dados.modelo],
+    ['Código', dados.codigo],['Tipo Assist', dados.tipoAssist],['Técnico', dados.tecnico],['Atendente', dados.atendente]
   ].filter(c => c[1]);
 
   el.className = 'resultado-ocr';
   el.style.display = 'block';
   el.innerHTML = `
     <div class="titulo">
-      <span>✅ OS lida — ${campos.length} campo(s) preenchido(s)</span>
+      <span>✅ OS lida — ${campos.length} campo(s)</span>
       <button onclick="verTextoOCRRaw()" style="padding:4px 12px;font-size:11px;border-radius:20px;background:rgba(255,255,255,0.08);border:1px solid var(--borda);color:var(--texto);cursor:pointer;">👁️ Ver texto bruto</button>
     </div>
     <div class="grid-campos">
@@ -2024,12 +2015,10 @@ function mostrarResultadoOCR(dados, textoBruto){
 function verTextoOCRRaw(){
   if(!window._ultimoTextoOCR) return;
   const win = window.open('', '_blank');
-  win.document.write('<html><head><title>Texto OCR bruto</title><style>body{font-family:monospace;padding:20px;background:#0a1a2e;color:#b0c8d9;white-space:pre-wrap;line-height:1.6;}h1{color:#6ae2ef;font-size:20px;}</style></head><body><h1>📄 Texto bruto extraído pelo OCR</h1><pre>' + escapar(window._ultimoTextoBruto || window._ultimoTextoOCR) + '</pre></body></html>');
+  win.document.write('<html><head><title>Texto OCR bruto</title><style>body{font-family:monospace;padding:20px;background:#0a1a2e;color:#b0c8d9;white-space:pre-wrap;line-height:1.6;}h1{color:#6ae2ef;font-size:20px;}</style></head><body><h1>📄 Texto bruto extraído pelo OCR</h1><pre>' + escapar(window._ultimoTextoOCR) + '</pre></body></html>');
 }
 
 /* ============ NFC-e (QR Code) ============ */
-let _dadosNFCeTemp = null;
-
 function abrirScannerNFCe(){
   if(!window.Html5Qrcode){ alert("Leitor de QR não disponível."); return; }
   document.getElementById('dialogScannerNFCe').showModal();
@@ -2037,19 +2026,10 @@ function abrirScannerNFCe(){
   scannerNFCe.start(
     { facingMode: "environment" },
     { fps: 10, qrbox: { width: 250, height: 250 } },
-    (texto) => {
-      // Fecha o scanner e processa
-      const url = texto.trim();
-      fecharScannerNFCe();
-      processarURLNFCe(url);
-    },
+    (texto) => { const url = texto.trim(); fecharScannerNFCe(); processarURLNFCe(url); },
     () => {}
-  ).catch(err => {
-    alert("Não foi possível iniciar o scanner: " + err);
-    fecharScannerNFCe();
-  });
+  ).catch(err => { alert("Não foi possível iniciar o scanner: " + err); fecharScannerNFCe(); });
 }
-
 function fecharScannerNFCe(){
   if(scannerNFCe){
     scannerNFCe.stop().then(()=>{ scannerNFCe.clear(); scannerNFCe = null; }).catch(()=>{ scannerNFCe = null; });
@@ -2057,71 +2037,36 @@ function fecharScannerNFCe(){
   document.getElementById('dialogScannerNFCe').close();
 }
 
-async function processarURLNFCe(url){
-  const dados = {
-    chave:'', emitente:'', cnpjEmitente:'', valor:'', data:'',
-    uf:'', serie:'', numero:'', protocolo:'', urlOriginal:url
-  };
-
-  // Tenta extrair informações diretamente da URL
-  // Padrão NFC-e: https://www.sefaz.xx.gov.br/nfce/qrcode?p=CHAVE|VERSAO|AMBIENTE|...
+function processarURLNFCe(url){
+  const dados = { chave:'', emitente:'', cnpjEmitente:'', valor:'', data:'', uf:'', serie:'', numero:'', urlOriginal:url };
   try {
     const u = new URL(url);
     const paramP = u.searchParams.get('p');
     if(paramP){
       const partes = paramP.split('|');
       if(partes[0] && partes[0].length === 44){
-        dados.chave = partes[0];
-        // A chave de 44 dígitos tem estrutura:
-        // cUF(2) AAMM(4) CNPJ(14) mod(2) serie(3) nNF(9) tpEmis(1) cNF(8) cDV(1)
         const chave = partes[0];
+        dados.chave = chave;
         dados.uf = chave.substring(0,2);
         const ano = chave.substring(2,4);
         const mes = chave.substring(4,6);
         const anoFull = parseInt(ano) > 50 ? '19'+ano : '20'+ano;
-        dados.data = `${anoFull}-${mes}`; // aproximado, só ano/mês
+        dados.data = `${anoFull}-${mes}`;
         dados.cnpjEmitente = chave.substring(6,20);
         dados.serie = chave.substring(22,25);
         dados.numero = chave.substring(25,34);
       }
     }
-    // Se veio parâmetro 'v' ou similar com valor, tenta pegar
-    // Alguns QR tem parâmetro "vNF"
   } catch(e){ console.warn('URL inválida', e); }
-
-  // Tenta buscar dados estruturados via consulta pública
-  // Se for chave válida, monta URL de consulta
-  if(dados.chave && dados.uf){
-    // Mapeia UF para domínio da SEFAZ
-    const sefazUF = {
-      '11':'www.sefaz.ro.gov.br','12':'www.sefaz.ac.gov.br','13':'www.sefaz.am.gov.br',
-      '14':'www.sefaz.rr.gov.br','15':'www.sefaz.pa.gov.br','16':'www.sefaz.ap.gov.br',
-      '17':'www.sefaz.to.gov.br','21':'www.sefaz.ma.gov.br','22':'www.sefaz.pi.gov.br',
-      '23':'www.sefaz.ce.gov.br','24':'www.sefaz.rn.gov.br','25':'www.sefaz.pb.gov.br',
-      '26':'www.sefaz.pe.gov.br','27':'www.sefaz.al.gov.br','28':'www.sefaz.se.gov.br',
-      '29':'www.sefaz.ba.gov.br','31':'www.fazenda.mg.gov.br','32':'www.sefaz.es.gov.br',
-      '33':'www.fazenda.rj.gov.br','35':'www.fazenda.sp.gov.br','41':'www.fazenda.pr.gov.br',
-      '42':'www.sefaz.sc.gov.br','43':'www.sefaz.rs.gov.br','50':'www.sefaz.ms.gov.br',
-      '51':'www.sefaz.mt.gov.br','52':'www.sefaz.go.gov.br','53':'www.fazenda.df.gov.br'
-    };
-    
-    // Mostrar modal com opções: preencher dados básicos ou abrir consulta completa
-    _dadosNFCeTemp = dados;
-    mostrarResultadoNFCe(dados, url);
-  } else {
-    // Não conseguiu extrair chave — mostra só a URL
-    _dadosNFCeTemp = dados;
-    mostrarResultadoNFCe(dados, url);
-  }
+  mostrarResultadoNFCe(dados, url);
 }
 
 function mostrarResultadoNFCe(dados, url){
   const el = document.getElementById('resultadoOCR');
   if(!el) return;
-  
   el.className = 'resultado-ocr';
   el.style.display = 'block';
-  
+
   const campos = [
     ['Chave NFC-e', dados.chave || '(não identificada)'],
     ['UF', dados.uf ? mapearUF(dados.uf) : ''],
@@ -2147,44 +2092,28 @@ function mostrarResultadoNFCe(dados, url){
       <button class="btn-outline" onclick="window.open('${escapar(url)}','_blank')">🌐 Abrir consulta SEFAZ</button>
     </div>
   `;
-  
   window._ultimosDadosNFCe = dados;
 }
 
 function mapearUF(codigo){
-  const map = {
-    '11':'RO','12':'AC','13':'AM','14':'RR','15':'PA','16':'AP','17':'TO',
-    '21':'MA','22':'PI','23':'CE','24':'RN','25':'PB','26':'PE','27':'AL',
-    '28':'SE','29':'BA','31':'MG','32':'ES','33':'RJ','35':'SP','41':'PR',
-    '42':'SC','43':'RS','50':'MS','51':'MT','52':'GO','53':'DF'
-  };
+  const map = { '11':'RO','12':'AC','13':'AM','14':'RR','15':'PA','16':'AP','17':'TO','21':'MA','22':'PI','23':'CE','24':'RN','25':'PB','26':'PE','27':'AL','28':'SE','29':'BA','31':'MG','32':'ES','33':'RJ','35':'SP','41':'PR','42':'SC','43':'RS','50':'MS','51':'MT','52':'GO','53':'DF' };
   return map[codigo] || codigo;
 }
 
 function aplicarDadosNFCe(){
   const d = window._ultimosDadosNFCe;
   if(!d) return;
-  
-  // CNPJ → contatoFora
   if(d.cnpjEmitente){
     const el = document.getElementById('contatoFora');
     if(el){
       const atual = el.value;
-      if(!atual || !atual.includes(d.cnpjEmitente)){
-        el.value = (atual ? atual + ' • ' : '') + 'CNPJ: ' + d.cnpjEmitente;
-      }
+      if(!atual || !atual.includes(d.cnpjEmitente)) el.value = (atual ? atual + ' • ' : '') + 'CNPJ: ' + d.cnpjEmitente;
     }
   }
-  
-  // Chave / Série / Número → notaFiscalFora
   if(d.chave){
     const el = document.getElementById('notaFiscalFora');
-    if(el && !el.value){
-      el.value = 'NFC-e ' + (d.serie ? 'S' + d.serie + ' ' : '') + (d.numero ? 'Nº ' + d.numero : '');
-    }
+    if(el && !el.value) el.value = 'NFC-e ' + (d.serie ? 'S' + d.serie + ' ' : '') + (d.numero ? 'Nº ' + d.numero : '');
   }
-  
-  // Data → dataSaidaFora (só ano/mês, deixa vazio se não tiver dia)
   if(d.data && d.data.length === 7){
     const hoje = new Date();
     const [a, m] = d.data.split('-');
@@ -2193,16 +2122,11 @@ function aplicarDadosNFCe(){
       if(el && !el.value) el.value = hoje.toISOString().substring(0,10);
     }
   }
-  
-  // UF na observação
   if(d.uf){
     const el = document.getElementById('obsFora');
-    if(el && !el.value.includes('UF:')){
-      el.value = (el.value ? el.value + '\n' : '') + 'UF emitente: ' + mapearUF(d.uf);
-    }
+    if(el && !el.value.includes('UF:')) el.value = (el.value ? el.value + '\n' : '') + 'UF emitente: ' + mapearUF(d.uf);
   }
-  
-  alert('✅ Dados da NFC-e aplicados!\n\nAlguns campos precisam ser conferidos manualmente.');
+  alert('✅ Dados da NFC-e aplicados!');
 }
 
 function fecharResultadoOCR(){
@@ -2251,10 +2175,7 @@ function abrirForaDaEmpresa(id=null){
     (x.arquivos||[]).forEach(a=>midiasFora.push({tipo:"arquivo",nome:a.nome,src:a.src}));
   } else {
     document.getElementById("tituloFora").textContent = "🚛 Nova Saída Fora da Empresa";
-    ["nomeFora","codigoFora","empresaFora","contatoFora","responsavelEmpresaFora","responsavelFora","dataRetornoFora","osFora","valorFora","notaFiscalFora","descricaoFora","solucaoFora","obsFora","dataHoraRetornoFora","recebedorFora"].forEach(i => {
-      const el = document.getElementById(i);
-      if(el) el.value = "";
-    });
+    ["nomeFora","codigoFora","empresaFora","contatoFora","responsavelEmpresaFora","responsavelFora","dataRetornoFora","osFora","valorFora","notaFiscalFora","descricaoFora","solucaoFora","obsFora","dataHoraRetornoFora","recebedorFora"].forEach(i => { const el = document.getElementById(i); if(el) el.value = ""; });
     document.getElementById("tipoFora").value = "Ferramenta";
     document.getElementById("quantidadeFora").value = 1;
     document.getElementById("setorFora").value = setores[0]?.nome || "";
@@ -2334,20 +2255,15 @@ function salvarForaDaEmpresa(){
   const id = document.getElementById("idFora").value || gerarId();
   let codigo = document.getElementById("codigoFora").value.trim();
   if(!codigo) codigo = gerarCodigo("FORA");
-
   const anterior = foraDaEmpresa.find(f=>f.id===id);
   const status = document.getElementById("statusFora").value;
   let dataHoraRetorno = document.getElementById("dataHoraRetornoFora").value;
-
   if(status === "Retornado" && !dataHoraRetorno){
-    const agora = new Date();
-    agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+    const agora = new Date(); agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
     dataHoraRetorno = agora.toISOString().slice(0,16);
     document.getElementById("dataHoraRetornoFora").value = dataHoraRetorno;
   }
-
   const tipoAssist = document.getElementById('tipoAssistFora')?.value || '';
-
   const f = {
     id, nome, codigo,
     tipo: document.getElementById("tipoFora").value,
@@ -2377,7 +2293,6 @@ function salvarForaDaEmpresa(){
     dataCadastro: anterior?.dataCadastro || new Date().toISOString(),
     dataAtualizacao: new Date().toISOString()
   };
-
   if(anterior){
     foraDaEmpresa = foraDaEmpresa.map(x=>x.id===id?f:x);
     registrarHistorico(nome, `editou envio externo (${empresa})`);
@@ -2392,7 +2307,6 @@ function salvarForaDaEmpresa(){
 function mostrarForaDaEmpresa(){
   const el = document.getElementById("listaForaDaEmpresa");
   if(!el) return;
-
   const total = foraDaEmpresa.length;
   const pend = foraDaEmpresa.filter(x=>x.status!=="Retornado"&&x.status!=="Cancelado"&&x.status!=="Sem conserto").length;
   const atrasado = foraDaEmpresa.filter(x=>{
@@ -2400,10 +2314,7 @@ function mostrarForaDaEmpresa(){
     if(!x.dataRetorno) return false;
     return new Date(x.dataRetorno).getTime() < Date.now();
   }).length;
-  const valorTotal = foraDaEmpresa.reduce((acc,x)=>{
-    const v = parseFloat((x.valor||"0").replace(",","."));
-    return acc + (isNaN(v) ? 0 : v);
-  }, 0);
+  const valorTotal = foraDaEmpresa.reduce((acc,x)=>{ const v = parseFloat((x.valor||"0").replace(",",".")); return acc + (isNaN(v) ? 0 : v); }, 0);
 
   const miniEl = document.getElementById("miniEstatisticasFora");
   if(miniEl){
@@ -2441,7 +2352,6 @@ function mostrarForaDaEmpresa(){
       "Aguardando peça":"badge-warning","Pronto para retorno":"badge-created",
       "Retornado":"badge-success","Sem conserto":"badge-danger","Cancelado":"badge-danger"
     }[x.status] || "badge-info";
-
     const prioClass = x.prioridade==="Urgente"?"badge-danger":x.prioridade==="Alta"?"badge-warning":"badge-info";
     const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}">` : `<div class="imagem-placeholder">🚛</div>`;
 
@@ -2450,10 +2360,7 @@ function mostrarForaDaEmpresa(){
     if(x.dataRetorno && x.status!=="Retornado" && x.status!=="Cancelado" && x.status!=="Sem conserto"){
       const dias = Math.floor((agora - new Date(x.dataRetorno).getTime())/(1000*60*60*24));
       if(dias > 0) atrasoInfo = `<span class="badge badge-tempo urgente">⚠️ Atrasado ${dias}d</span>`;
-      else {
-        const diasRest = Math.abs(dias);
-        atrasoInfo = `<span class="badge badge-tempo">📅 ${diasRest}d p/ retorno</span>`;
-      }
+      else { const dr = Math.abs(dias); atrasoInfo = `<span class="badge badge-tempo">📅 ${dr}d p/ retorno</span>`; }
     }
 
     const anexos = [];
@@ -2502,8 +2409,7 @@ function marcarRetornado(id){
   const x = foraDaEmpresa.find(f=>f.id===id);
   if(!x) return;
   if(!confirm(`Marcar "${x.nome}" como retornado da empresa "${x.empresa}"?`)) return;
-  const agora = new Date();
-  agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+  const agora = new Date(); agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
   x.status = "Retornado";
   x.dataHoraRetorno = x.dataHoraRetorno || agora.toISOString().slice(0,16);
   registrarHistorico(x.nome, `marcou como retornado de "${x.empresa}"`);
@@ -2523,8 +2429,7 @@ function excluirForaDaEmpresa(id){
 function compartilharForaItem(id){
   const x = foraDaEmpresa.find(f=>f.id===id);
   if(!x) return;
-  let t = `🚛 MANUTENÇÃO FORA DA EMPRESA\n`;
-  t += `━━━━━━━━━━━━━━━━━━━━\n`;
+  let t = `🚛 MANUTENÇÃO FORA DA EMPRESA\n━━━━━━━━━━━━━━━━━━━━\n`;
   t += `📦 Item: ${x.nome}\n`;
   if(x.codigo) t += `🔖 Código: ${x.codigo}\n`;
   if(x.quantidade>1) t += `📊 Quantidade: ${x.quantidade}\n`;
@@ -2940,7 +2845,7 @@ function limparHistorico(){
   }
 }
 
-/* ============ CÂMERA ============ */
+/* ============ CÂMERA (WEBCAM) ============ */
 async function abrirCamera(destino="ferramenta"){
   cameraDestino = destino;
   try{
@@ -2991,7 +2896,7 @@ function fecharScanner(){
 
 /* ============ PDF ============ */
 function checkPDF(){
-  if(!window.jspdf || !window.jspdf.jsPDF){ alert("❌ Biblioteca PDF não carregada. Verifique sua internet e recarregue."); return false; }
+  if(!window.jspdf || !window.jspdf.jsPDF){ alert("❌ Biblioteca PDF não carregada."); return false; }
   return true;
 }
 function cabecalhoPDF(doc, titulo, sub=""){
@@ -3003,34 +2908,21 @@ function cabecalhoPDF(doc, titulo, sub=""){
   if(sub){ doc.setFontSize(10); doc.setFont(undefined,'normal'); doc.setTextColor(176,200,217); doc.text(sub,14,27); }
   doc.setFontSize(9); doc.setTextColor(176,200,217);
   doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, w-14, 18, {align:'right'});
-  if(usuarioAtual){
-    doc.setFontSize(8); doc.setTextColor(176,200,217);
-    doc.text(`Usuário: ${usuarioAtual}`, w-14, 27, {align:'right'});
-  }
+  if(usuarioAtual){ doc.setFontSize(8); doc.setTextColor(176,200,217); doc.text(`Usuário: ${usuarioAtual}`, w-14, 27, {align:'right'}); }
   const h = doc.internal.pageSize.getHeight();
   doc.setDrawColor(200,200,200); doc.line(14,h-15,w-14,h-15);
   doc.setFontSize(8); doc.setTextColor(120,120,120);
   doc.text('PCM de Ferramentas', 14, h-8);
   doc.text(`Página ${doc.internal.getCurrentPageInfo().pageNumber}`, w-14, h-8, {align:'right'});
 }
-
 async function salvarPDF(doc, nome){
   let blob;
-  try { blob = doc.output("blob"); }
-  catch(e){ console.error(e); alert("❌ Erro ao gerar PDF."); return; }
-
+  try { blob = doc.output("blob"); } catch(e){ console.error(e); alert("❌ Erro ao gerar PDF."); return; }
   const file = new File([blob], nome, { type: "application/pdf" });
-
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file], title: nome, text: "📄 Relatório — PCM de Ferramentas" });
-      return;
-    } catch (err) {
-      if (err.name === "AbortError") return;
-      console.warn("Share falhou, abrindo em nova aba...", err);
-    }
+    try { await navigator.share({ files: [file], title: nome, text: "📄 Relatório — PCM de Ferramentas" }); return; }
+    catch (err) { if (err.name === "AbortError") return; console.warn(err); }
   }
-
   try {
     const url = URL.createObjectURL(blob);
     const w = window.open(url, "_blank");
@@ -3039,38 +2931,28 @@ async function salvarPDF(doc, nome){
       a.href = url; a.target = "_blank"; a.rel = "noopener";
       document.body.appendChild(a); a.click();
       setTimeout(() => { try{ document.body.removeChild(a); }catch(e){} }, 2000);
-      setTimeout(() => {
-        alert("⚠️ Seu navegador não suporta compartilhamento direto.\n\nO PDF foi aberto em nova aba — use o menu do visualizador para salvar ou compartilhar.");
-      }, 500);
     }
     setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e){} }, 60000);
-  } catch(e){
-    console.error(e);
-    alert("❌ Não foi possível abrir o PDF.\n\nHospede o app em HTTPS (GitHub Pages já serve).");
-  }
+  } catch(e){ console.error(e); alert("❌ Não foi possível abrir o PDF."); }
 }
-
 function gerarPDFCompleto(){
   if(!checkPDF()) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  cabecalhoPDF(doc,'RELATÓRIO GERAL','PCM de Ferramentas — Ferramentas, Ativos e Manutenção');
+  cabecalhoPDF(doc,'RELATÓRIO GERAL','PCM de Ferramentas');
   const resumo = [
     ['Ferramentas', ferramentas.length],
     ['Disponíveis', ferramentas.filter(f=>f.status==='Disponível').length],
     ['Emprestadas', ferramentas.filter(f=>f.status==='Emprestada').length],
     ['Manutenções internas', manutencoes.length],
-    ['Manutenções abertas', manutencoes.filter(m=>m.status!=='Finalizada'&&m.status!=='Sem conserto').length],
     ['🚛 Fora da empresa', foraDaEmpresa.length],
-    ['🚛 Fora pendentes', foraDaEmpresa.filter(f=>f.status!=='Retornado'&&f.status!=='Cancelado'&&f.status!=='Sem conserto').length],
     ['Alarmes ativos', alarmes.filter(a=>a.ativo).length],
     ['Ativos', ativos.length],
     ['Criados', ativosCriados.length],
     ['Pedidos', pedidosMateriais.length],
-    ['Externas (antigo)', manutencoesExternas.length],
     ['Setores', setores.length]
   ];
-  doc.autoTable({ startY:45, head:[['Indicador','Quantidade']], body:resumo, theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255,fontStyle:'bold'}, styles:{fontSize:10,cellPadding:3}, alternateRowStyles:{fillColor:[245,250,252]}, margin:{left:14,right:14} });
+  doc.autoTable({ startY:45, head:[['Indicador','Quantidade']], body:resumo, theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255}, styles:{fontSize:10,cellPadding:3}, margin:{left:14,right:14} });
   salvarPDF(doc, `Relatorio_Geral_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFFerramentas(){
@@ -3078,7 +2960,7 @@ function gerarPDFFerramentas(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   cabecalhoPDF(doc,'FERRAMENTAS',`Total: ${ferramentas.length}`);
-  doc.autoTable({ startY:45, head:[['Nome','Código','Setor','Qtd','Status']], body: ferramentas.map(f=>[f.nome, f.codigo||'-', f.setor, f.quantidade||1, f.status]), theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255}, styles:{fontSize:9,cellPadding:2}, alternateRowStyles:{fillColor:[245,250,252]}, margin:{left:14,right:14} });
+  doc.autoTable({ startY:45, head:[['Nome','Código','Setor','Qtd','Status']], body: ferramentas.map(f=>[f.nome, f.codigo||'-', f.setor, f.quantidade||1, f.status]), theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
   salvarPDF(doc, `Ferramentas_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFManutencao(){
@@ -3086,11 +2968,9 @@ function gerarPDFManutencao(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   cabecalhoPDF(doc,'FERRAMENTAS EM MANUTENÇÃO',`Total: ${manutencoes.length}`);
-  if(!manutencoes.length){
-    doc.setFontSize(12); doc.setTextColor(100,100,100);
-    doc.text('Nenhuma manutenção cadastrada.',14,55);
-  } else {
-    doc.autoTable({ startY:45, head:[['Nome','Código','Setor','Tipo','Prior.','Status','Resp.','Entrada']], body: manutencoes.map(m=>[m.nome, m.codigo||'-', m.setor, m.tipo, m.prioridade, m.status, m.responsavel||'-', m.dataEntrada ? new Date(m.dataEntrada).toLocaleDateString('pt-BR') : '-']), theme:'grid', headStyles:{fillColor:[211,47,47],textColor:255}, styles:{fontSize:8,cellPadding:2}, alternateRowStyles:{fillColor:[255,240,240]}, margin:{left:14,right:14} });
+  if(!manutencoes.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhuma manutenção.',14,55); }
+  else {
+    doc.autoTable({ startY:45, head:[['Nome','Código','Setor','Tipo','Status','Entrada']], body: manutencoes.map(m=>[m.nome, m.codigo||'-', m.setor, m.tipo, m.status, m.dataEntrada||'-']), theme:'grid', headStyles:{fillColor:[211,47,47],textColor:255}, styles:{fontSize:8,cellPadding:2}, margin:{left:14,right:14} });
   }
   salvarPDF(doc, `Manutencao_${new Date().toISOString().slice(0,10)}.pdf`);
 }
@@ -3110,8 +2990,7 @@ function gerarPDFManutencaoItem(id){
     ['Entrada', m.dataEntrada||'-'],['Saída prevista', m.dataSaida||'-'],
     ['Custo estimado', m.custo ? `R$ ${m.custo}` : '-'],
     ['Descrição', m.descricao||'-'],['Solução', m.solucao||'-'],
-    ['Fotos', (m.fotos?.length||0)+' imagem(ns)'],
-    ['Arquivos', (m.arquivos?.length||0)+' arquivo(s)']
+    ['Fotos', (m.fotos?.length||0)+' imagem(ns)']
   ];
   linhas.forEach(l=>{
     doc.setFont(undefined,'bold'); doc.text(l[0]+':',14,y);
@@ -3122,39 +3001,29 @@ function gerarPDFManutencaoItem(id){
   });
   salvarPDF(doc, `Manutencao_${m.nome.replace(/\s+/g,'_')}.pdf`);
 }
-
 function gerarPDFForaDaEmpresa(){
   if(!checkPDF()) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   cabecalhoPDF(doc,'🚛 FORA DA EMPRESA','Manutenção externa / terceirizada');
-  if(!foraDaEmpresa.length){
-    doc.setFontSize(12); doc.setTextColor(100,100,100);
-    doc.text('Nenhum envio registrado.',14,55);
-  } else {
+  if(!foraDaEmpresa.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum envio.',14,55); }
+  else {
     doc.autoTable({
       startY:45,
       head:[['Item','Empresa','Serviço','Assist.','Saída','Retorno','Status','Valor']],
       body: foraDaEmpresa.map(x=>[
         x.nome + (x.codigo?`\n${x.codigo}`:''),
-        x.empresa || '-',
-        x.tipoServico || '-',
-        x.tipoAssist || '-',
+        x.empresa || '-', x.tipoServico || '-', x.tipoAssist || '-',
         x.dataSaida ? new Date(x.dataSaida).toLocaleDateString('pt-BR') : '-',
         x.dataRetorno ? new Date(x.dataRetorno).toLocaleDateString('pt-BR') : '-',
-        x.status,
-        x.valor ? `R$ ${x.valor}` : '-'
+        x.status, x.valor ? `R$ ${x.valor}` : '-'
       ]),
-      theme:'grid',
-      headStyles:{fillColor:[124,92,191],textColor:255},
-      styles:{fontSize:8,cellPadding:2},
-      alternateRowStyles:{fillColor:[248,245,255]},
-      margin:{left:14,right:14}
+      theme:'grid', headStyles:{fillColor:[124,92,191],textColor:255},
+      styles:{fontSize:8,cellPadding:2}, margin:{left:14,right:14}
     });
   }
   salvarPDF(doc, `ForaDaEmpresa_${new Date().toISOString().slice(0,10)}.pdf`);
 }
-
 function gerarPDFForaItem(id){
   if(!checkPDF()) return;
   const x = foraDaEmpresa.find(f=>f.id===id);
@@ -3165,25 +3034,16 @@ function gerarPDFForaItem(id){
   let y = 48;
   doc.setFontSize(11); doc.setTextColor(20,20,20);
   const linhas = [
-    ['Nome', x.nome],['Código', x.codigo||'-'],['Tipo', x.tipo||'-'],
-    ['Quantidade', x.quantidade||1],
+    ['Nome', x.nome],['Código', x.codigo||'-'],['Tipo', x.tipo||'-'],['Quantidade', x.quantidade||1],
     ['🏢 Empresa', x.empresa||'-'],['📞 Contato', x.contato||'-'],
-    ['👤 Resp. empresa', x.responsavelEmpresa||'-'],
-    ['📤 Enviado por', x.responsavel||'-'],
-    ['📍 Setor', x.setor],
-    ['🔧 Serviço', x.tipoServico||'-'],
-    ['🛡️ Assistência', x.tipoAssist||'-'],
-    ['⚡ Prioridade', x.prioridade||'-'],
-    ['📅 Saída', x.dataSaida||'-'],
-    ['📅 Retorno prev.', x.dataRetorno||'-'],
-    ['📌 Status', x.status],
-    ['📋 OS', x.os||'-'],
-    ['💰 Valor', x.valor ? `R$ ${x.valor}` : '-'],
-    ['🧾 NF', x.notaFiscal||'-'],
-    ['📝 Descrição', x.descricao||'-'],
-    ['🔧 Solução', x.solucao||'-'],
-    ['📎 Observações', x.observacoes||'-'],
-    ['📅 Retorno efetivo', x.dataHoraRetorno||'-'],
+    ['👤 Resp. empresa', x.responsavelEmpresa||'-'],['📤 Enviado por', x.responsavel||'-'],
+    ['📍 Setor', x.setor],['🔧 Serviço', x.tipoServico||'-'],
+    ['🛡️ Assistência', x.tipoAssist||'-'],['⚡ Prioridade', x.prioridade||'-'],
+    ['📅 Saída', x.dataSaida||'-'],['📅 Retorno prev.', x.dataRetorno||'-'],
+    ['📌 Status', x.status],['📋 OS', x.os||'-'],
+    ['💰 Valor', x.valor ? `R$ ${x.valor}` : '-'],['🧾 NF', x.notaFiscal||'-'],
+    ['📝 Descrição', x.descricao||'-'],['🔧 Solução', x.solucao||'-'],
+    ['📎 Observações', x.observacoes||'-'],['📅 Retorno efetivo', x.dataHoraRetorno||'-'],
     ['✍️ Recebido por', x.recebedor||'-'],
     ['📷 Fotos', (x.fotos?.length||0)+' imagem(ns)'],
     ['🎥 Vídeos', (x.videos?.length||0)+' vídeo(s)'],
@@ -3199,18 +3059,13 @@ function gerarPDFForaItem(id){
   });
   salvarPDF(doc, `ForaDaEmpresa_${x.nome.replace(/\s+/g,'_')}.pdf`);
 }
-
 function gerarPDFAtivos(){
   if(!checkPDF()) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   cabecalhoPDF(doc,'ATIVOS',`Total: ${ativos.length}`);
-  if(!ativos.length){
-    doc.setFontSize(12); doc.setTextColor(100,100,100);
-    doc.text('Nenhum ativo cadastrado.',14,55);
-  } else {
-    doc.autoTable({ startY:45, head:[['Nome','TAG','Tipo','Setor','Status']], body: ativos.map(a=>[a.nome, a.codigo||'-', a.tipo, a.setor, a.status]), theme:'grid', headStyles:{fillColor:[124,92,191],textColor:255}, styles:{fontSize:9,cellPadding:2}, alternateRowStyles:{fillColor:[248,245,255]}, margin:{left:14,right:14} });
-  }
+  if(!ativos.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum ativo.',14,55); }
+  else { doc.autoTable({ startY:45, head:[['Nome','TAG','Tipo','Setor','Status']], body: ativos.map(a=>[a.nome, a.codigo||'-', a.tipo, a.setor, a.status]), theme:'grid', headStyles:{fillColor:[124,92,191],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
   salvarPDF(doc, `Ativos_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFCriados(){
@@ -3218,12 +3073,8 @@ function gerarPDFCriados(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   cabecalhoPDF(doc,'CRIADOS',`Total: ${ativosCriados.length}`);
-  if(!ativosCriados.length){
-    doc.setFontSize(12); doc.setTextColor(100,100,100);
-    doc.text('Nenhum ativo criado.',14,55);
-  } else {
-    doc.autoTable({ startY:45, head:[['Nome','Código','Tipo','Resp.','Setor','Status']], body: ativosCriados.map(a=>[a.nome, a.codigo||'-', a.tipo, a.responsavel||'-', a.setor, a.status]), theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, alternateRowStyles:{fillColor:[240,255,245]}, margin:{left:14,right:14} });
-  }
+  if(!ativosCriados.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum criado.',14,55); }
+  else { doc.autoTable({ startY:45, head:[['Nome','Código','Tipo','Resp.','Setor','Status']], body: ativosCriados.map(a=>[a.nome, a.codigo||'-', a.tipo, a.responsavel||'-', a.setor, a.status]), theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
   salvarPDF(doc, `Criados_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFPedidos(){
@@ -3231,12 +3082,8 @@ function gerarPDFPedidos(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   cabecalhoPDF(doc,'PEDIDOS',`Total: ${pedidosMateriais.length}`);
-  if(!pedidosMateriais.length){
-    doc.setFontSize(12); doc.setTextColor(100,100,100);
-    doc.text('Nenhum pedido.',14,55);
-  } else {
-    doc.autoTable({ startY:45, head:[['Material','Qtd','Fornecedor','Setor','Status']], body: pedidosMateriais.map(p=>[p.nome, p.quantidade||'-', p.fornecedor||'-', p.setor, p.status]), theme:'grid', headStyles:{fillColor:[245,166,35],textColor:255}, styles:{fontSize:9,cellPadding:2}, alternateRowStyles:{fillColor:[255,250,240]}, margin:{left:14,right:14} });
-  }
+  if(!pedidosMateriais.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum pedido.',14,55); }
+  else { doc.autoTable({ startY:45, head:[['Material','Qtd','Fornecedor','Setor','Status']], body: pedidosMateriais.map(p=>[p.nome, p.quantidade||'-', p.fornecedor||'-', p.setor, p.status]), theme:'grid', headStyles:{fillColor:[245,166,35],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
   salvarPDF(doc, `Pedidos_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFExternas(){
@@ -3244,12 +3091,8 @@ function gerarPDFExternas(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   cabecalhoPDF(doc,'EXTERNAS',`Total: ${manutencoesExternas.length}`);
-  if(!manutencoesExternas.length){
-    doc.setFontSize(12); doc.setTextColor(100,100,100);
-    doc.text('Nenhuma manutenção externa.',14,55);
-  } else {
-    doc.autoTable({ startY:45, head:[['Item','Tipo','Empresa','Resp.','Status']], body: manutencoesExternas.map(m=>[m.nome, m.tipo, m.empresa||'-', m.responsavel||'-', m.status]), theme:'grid', headStyles:{fillColor:[255,107,157],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
-  }
+  if(!manutencoesExternas.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhuma externa.',14,55); }
+  else { doc.autoTable({ startY:45, head:[['Item','Tipo','Empresa','Resp.','Status']], body: manutencoesExternas.map(m=>[m.nome, m.tipo, m.empresa||'-', m.responsavel||'-', m.status]), theme:'grid', headStyles:{fillColor:[255,107,157],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
   salvarPDF(doc, `Externas_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFSetores(){
@@ -3264,7 +3107,7 @@ function gerarPDFSetores(){
     const fora = foraDaEmpresa.filter(x=>x.setor===nome);
     return [nome, f.length, f.filter(x=>x.status==='Disponível').length, f.filter(x=>x.status==='Emprestada').length, m.length, fora.length, ativos.filter(x=>x.setor===nome).length];
   });
-  doc.autoTable({ startY:45, head:[['Setor','Ferr.','Disp.','Empr.','Manut.','Fora','Ativos']], body:dados, theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, alternateRowStyles:{fillColor:[240,255,245]}, margin:{left:14,right:14} });
+  doc.autoTable({ startY:45, head:[['Setor','Ferr.','Disp.','Empr.','Manut.','Fora','Ativos']], body:dados, theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
   salvarPDF(doc, `Setores_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 
@@ -3291,9 +3134,7 @@ function compartilharRelatorioImagem(){
     ["Fora da Empresa", foraDaEmpresa.length, "#7c5cbf"],
     ["Ativos", ativos.length, "#7c5cbf"],
     ["Criados", ativosCriados.length, "#2ddb7a"],
-    ["Pedidos", pedidosMateriais.length, "#f5a623"],
-    ["Externas", manutencoesExternas.length, "#ff6b9d"],
-    ["Setores", setores.length, "#6ae2ef"]
+    ["Pedidos", pedidosMateriais.length, "#f5a623"]
   ];
   let y = 180;
   dados.forEach(d=>{
@@ -3303,12 +3144,10 @@ function compartilharRelatorioImagem(){
     ctx.fillText(String(d[1]), w-60, y+5); ctx.textAlign = "left";
     y += 70;
   });
-  ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "14px sans-serif";
-  ctx.fillText("PCM de Ferramentas", 40, h-40);
   canvas.toBlob(blob => {
     const file = new File([blob], `relatorio_${Date.now()}.png`, {type: "image/png"});
     if(navigator.share && navigator.canShare && navigator.canShare({files: [file]})){
-      navigator.share({ files: [file], title: "PCM de Ferramentas", text: "Relatório PCM de Ferramentas" }).catch(()=>{ baixarBlob(blob); });
+      navigator.share({ files: [file], title: "PCM de Ferramentas" }).catch(()=>{ baixarBlob(blob); });
     } else { baixarBlob(blob); }
   }, "image/png");
 }
@@ -3325,11 +3164,7 @@ function iniciarAlarme(f){
   const agora = new Date();
   const limite = new Date(agora.getTime() + 24*60*60*1000);
   alarmes = alarmes.filter(a=>a.ferramentaId!==f.id);
-  alarmes.push({
-    id: gerarId(), ferramentaId: f.id, nome: f.nome, codigo: f.codigo,
-    dataEmprestimo: agora.toISOString(), dataLimite: limite.toISOString(), ativo: true,
-    notificado24h:false, notificado12h:false, notificado6h:false, notificado1h:false, notificadoExpirado:false
-  });
+  alarmes.push({ id: gerarId(), ferramentaId: f.id, nome: f.nome, codigo: f.codigo, dataEmprestimo: agora.toISOString(), dataLimite: limite.toISOString(), ativo: true, notificado24h:false, notificado12h:false, notificado6h:false, notificado1h:false, notificadoExpirado:false });
   salvarBanco();
   verificarAlarmes();
 }
@@ -3375,21 +3210,15 @@ function mostrarNotificacaoAlarme(a, tipo){
   c.appendChild(n);
   if(tipo!=='expirado') setTimeout(()=>{ if(n.parentNode) n.remove(); }, 30000);
   if("Notification" in window && Notification.permission === "granted"){
-    try{
-      new Notification(`${emojis[tipo]} ${msgs[tipo]}`, {
-        body: `${a.nome}${a.codigo?` (${a.codigo})`:''} — Prazo: ${new Date(a.dataLimite).toLocaleString('pt-BR')}`
-      });
-    }catch(e){ console.warn(e); }
+    try { new Notification(`${emojis[tipo]} ${msgs[tipo]}`, { body: `${a.nome}${a.codigo?` (${a.codigo})`:''}` }); } catch(e){}
   }
 }
 function devolverFerramenta(id){
   const f = ferramentas.find(x=>x.id===id);
   if(!f) return;
   if(confirm(`Devolver "${f.nome}"?`)){
-    f.status = 'Disponível';
-    f.dataEmprestimo = null;
-    salvarBanco();
-    pararAlarme(id);
+    f.status = 'Disponível'; f.dataEmprestimo = null;
+    salvarBanco(); pararAlarme(id);
     registrarHistorico(f.nome,'devolveu ferramenta');
     mostrarTudo();
     document.querySelectorAll('.alarme-notificacao').forEach(n=>n.remove());
@@ -3398,28 +3227,19 @@ function devolverFerramenta(id){
 function atualizarBadgeAlarme(){
   const count = alarmes.filter(a=>a.ativo).length;
   const btn = document.querySelector('[data-tela="ferramentas"]');
-  if(btn){
-    if(count>0){ btn.classList.add('alarme-badge'); btn.dataset.count = count; }
-    else { btn.classList.remove('alarme-badge'); btn.dataset.count='0'; }
-  }
+  if(btn){ if(count>0){ btn.classList.add('alarme-badge'); btn.dataset.count = count; } else { btn.classList.remove('alarme-badge'); btn.dataset.count='0'; } }
 }
 function atualizarBadgeFora(){
   const count = foraDaEmpresa.filter(x=>x.status!=="Retornado"&&x.status!=="Cancelado"&&x.status!=="Sem conserto").length;
   const btn = document.querySelector('[data-tela="foradaempresa"]');
-  if(btn){
-    if(count>0){ btn.classList.add('fora-badge'); btn.dataset.count = count; }
-    else { btn.classList.remove('fora-badge'); btn.dataset.count='0'; }
-  }
+  if(btn){ if(count>0){ btn.classList.add('fora-badge'); btn.dataset.count = count; } else { btn.classList.remove('fora-badge'); btn.dataset.count='0'; } }
 }
 
 /* ============ BACKUP ============ */
 function exportarBackup(){
-  const dados = {
-    versao: "2.3", gerado: new Date().toISOString(), usuario: usuarioAtual || "—",
-    ferramentas, manutencoes, ativos, ativosCriados,
-    pedidosMateriais, manutencoesExternas, foraDaEmpresa,
-    historico, alarmes, setores, contadores
-  };
+  const dados = { versao: "2.4", gerado: new Date().toISOString(), usuario: usuarioAtual || "—",
+    ferramentas, manutencoes, ativos, ativosCriados, pedidosMateriais, manutencoesExternas,
+    foraDaEmpresa, historico, alarmes, setores, contadores };
   const json = JSON.stringify(dados, null, 2);
   const blob = new Blob([json], {type: "application/json"});
   const a = document.createElement("a");
@@ -3428,7 +3248,7 @@ function exportarBackup(){
   a.click();
   URL.revokeObjectURL(a.href);
   registrarHistorico("Sistema", "exportou backup completo");
-  alert("✅ Backup exportado!\n\nGuarde o arquivo em local seguro.");
+  alert("✅ Backup exportado!");
 }
 function importarBackup(arquivo){
   if(!arquivo) return;
@@ -3489,13 +3309,11 @@ function copiarTexto(t){
 function abrirWhatsApp(t){
   if (navigator.share) {
     navigator.share({ text: t }).catch((err) => {
-      if (err.name !== "AbortError") {
-        copiarTexto(t).then(() => alert("📋 Texto copiado!\n\nAbra o WhatsApp e cole na conversa."));
-      }
+      if (err.name !== "AbortError") copiarTexto(t).then(() => alert("📋 Texto copiado!"));
     });
     return;
   }
-  copiarTexto(t).then(() => alert("📋 Texto copiado!\n\nAbra o WhatsApp e cole na conversa."));
+  copiarTexto(t).then(() => alert("📋 Texto copiado!"));
 }
 function compartilharFerramenta(id){
   const x = ferramentas.find(f=>f.id===id);
@@ -3513,7 +3331,6 @@ function compartilharRelatorio(){
   t += `📦 Pedidos: ${pedidosMateriais.length}\n`;
   t += `🏭 Ativos: ${ativos.length}\n`;
   t += `🔨 Criados: ${ativosCriados.length}\n`;
-  t += `🚚 Externas: ${manutencoesExternas.length}\n`;
   t += `📍 Setores: ${setores.length}\n`;
   t += `\n_${new Date().toLocaleString('pt-BR')}_`;
   abrirWhatsApp(t);
@@ -3536,22 +3353,17 @@ window.addEventListener('beforeinstallprompt', e=>{
   const b = document.createElement('button');
   b.id = 'btnInstalarApp'; b.innerHTML = '📲 Instalar App';
   document.body.appendChild(b);
-  b.onclick = async ()=>{
-    if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt = null; b.remove(); }
-  };
+  b.onclick = async ()=>{ if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt = null; b.remove(); } };
 });
 window.addEventListener('appinstalled', ()=>{ const b = document.getElementById('btnInstalarApp'); if(b) b.remove(); });
-
 function solicitarNotificacoes(){
-  if("Notification" in window && Notification.permission === "default"){
-    Notification.requestPermission();
-  }
+  if("Notification" in window && Notification.permission === "default") Notification.requestPermission();
 }
 
 /* ============ SERVICE WORKER ============ */
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   const swCode = `
-    const CACHE = "pcm-ferramentas-v6";
+    const CACHE = "pcm-ferramentas-v7";
     const ARQUIVOS = [
       "./",
       "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
@@ -3560,28 +3372,20 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
       "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js",
       "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"
     ];
-    self.addEventListener("install", e => {
-      e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARQUIVOS)).then(() => self.skipWaiting()));
-    });
-    self.addEventListener("activate", e => {
-      e.waitUntil(caches.keys().then(keys =>
-        Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-      ).then(() => self.clients.claim()));
-    });
+    self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARQUIVOS)).then(() => self.skipWaiting())); });
+    self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
     self.addEventListener("fetch", e => {
       if (e.request.method !== "GET") return;
-      e.respondWith(
-        caches.match(e.request).then(cached => {
-          if (cached) return cached;
-          return fetch(e.request).then(resp => {
-            if (resp.ok && new URL(e.request.url).origin === location.origin) {
-              const clone = resp.clone();
-              caches.open(CACHE).then(c => c.put(e.request, clone));
-            }
-            return resp;
-          }).catch(() => cached);
-        })
-      );
+      e.respondWith(caches.match(e.request).then(cached => {
+        if (cached) return cached;
+        return fetch(e.request).then(resp => {
+          if (resp.ok && new URL(e.request.url).origin === location.origin) {
+            const clone = resp.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return resp;
+        }).catch(() => cached);
+      }));
     });
   `;
   const blob = new Blob([swCode], {type: "application/javascript"});
