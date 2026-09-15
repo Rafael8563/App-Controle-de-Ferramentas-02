@@ -247,7 +247,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <div class="logo-icon">🛠</div>
       <div class="logo-text">
         <h1>PCM de Ferramentas</h1>
-        <div class="subtitulo">Ferramentas • Ativos • Manutenção</div>
+        <div class="subtitulo">Ferramentas • Ativos • Assistência Técnica</div>
       </div>
     </div>
     <div class="header-actions">
@@ -260,7 +260,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     <button class="ativo" data-tela="painel">📊 Painel</button>
     <button data-tela="ferramentas" class="alarme-badge" data-count="0">🔧 Ferramentas</button>
     <button data-tela="manutencao">🧰 Manutenção</button>
-    <button data-tela="foradaempresa" class="fora-badge" data-count="0">🚛 Fora da Empresa</button>
+    <button data-tela="foradaempresa" class="fora-badge" data-count="0">☠️ Assistência Técnica</button>
     <button data-tela="ativos">🏭 Ativos</button>
     <button data-tela="criados">🔨 Criados</button>
     <button data-tela="pedidos">📦 Pedidos</button>
@@ -305,7 +305,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <button class="btn-pdf" onclick="gerarPDFCompleto()">📊 Relatório Geral</button>
       <button class="btn-pdf" onclick="gerarPDFFerramentas()">🔧 Ferramentas</button>
       <button class="btn-pdf" onclick="gerarPDFManutencao()">🧰 Manutenção</button>
-      <button class="btn-fora-pdf" onclick="gerarPDFForaDaEmpresa()">🚛 Fora da Empresa</button>
+      <button class="btn-fora-pdf" onclick="gerarPDFForaDaEmpresa()">☠️ Assistência Técnica</button>
       <button class="btn-pdf" onclick="gerarPDFAtivos()">🏭 Ativos</button>
       <button class="btn-pdf" onclick="gerarPDFCriados()">🔨 Criados</button>
       <button class="btn-pdf" onclick="gerarPDFPedidos()">📦 Pedidos</button>
@@ -379,14 +379,14 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 
 <section id="foradaempresa" class="hidden">
   <div class="flex-between">
-    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,var(--texto) 30%,var(--roxo),var(--rosa));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🚛 Ferramentas em Manutenção Fora da Empresa</h2>
+    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,var(--texto) 30%,var(--roxo),var(--rosa));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">☠️ Ferramentas em Assistência Técnica</h2>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn-fora-pdf" onclick="gerarPDFForaDaEmpresa()">📄 PDF Fora da Empresa</button>
-      <button class="btn-fora" onclick="abrirForaDaEmpresa()">＋ Nova Saída</button>
+      <button class="btn-fora-pdf" onclick="gerarPDFForaDaEmpresa()">📄 PDF Assistência Técnica</button>
+      <button class="btn-fora" onclick="abrirForaDaEmpresa()">＋ Nova Assistência</button>
     </div>
   </div>
   <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--roxo);">
-    <p class="muted text-sm" style="margin:0;opacity:.85;">🚛 Ferramentas enviadas para manutenção em empresas externas. <b>Use o OCR para ler Ordens de Serviço automaticamente.</b></p>
+    <p class="muted text-sm" style="margin:0;opacity:.85;">☠️ Ferramentas enviadas para assistência técnica externa. <b>Use o OCR para ler Ordens de Serviço automaticamente.</b></p>
   </div>
   <div id="miniEstatisticasFora" class="grid mb-10" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));"></div>
   <div class="search-bar">
@@ -594,7 +594,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 
 <dialog id="dialogForaDaEmpresa">
   <div class="modal">
-    <h2 id="tituloFora">🚛 Manutenção Fora da Empresa</h2>
+    <h2 id="tituloFora">☠️ Assistência Técnica</h2>
     <input type="hidden" id="idFora">
 
     <div class="ocr-panel">
@@ -1129,8 +1129,8 @@ function mostrarEstatisticas(){
     <div class="card estatistica"><span class="icon">🟢</span><span class="label">Disponíveis</span><strong>${disp}</strong></div>
     <div class="card estatistica"><span class="icon">📤</span><span class="label">Emprestadas</span><strong>${emp}</strong></div>
     <div class="card estatistica"><span class="icon">🧰</span><span class="label">Manutenções</span><strong>${manutTotal}</strong></div>
-    <div class="card estatistica"><span class="icon">🚛</span><span class="label">Fora Empresa</span><strong>${foraTotal}</strong></div>
-    <div class="card estatistica"><span class="icon">⏳</span><span class="label">Fora Pend.</span><strong>${foraPend}</strong></div>
+    <div class="card estatistica"><span class="icon">☠️</span><span class="label">Assist. Téc.</span><strong>${foraTotal}</strong></div>
+    <div class="card estatistica"><span class="icon">⏳</span><span class="label">Assist. Pend.</span><strong>${foraPend}</strong></div>
     <div class="card estatistica"><span class="icon">⏰</span><span class="label">Alarmes</span><strong>${alarmesAtivos}</strong></div>
     <div class="card estatistica"><span class="icon">📦</span><span class="label">Pedidos</span><strong>${pedidosTotal}</strong></div>
     <div class="card estatistica"><span class="icon">🏭</span><span class="label">Ativos</span><strong>${ativosTotal}</strong></div>
@@ -1141,7 +1141,7 @@ function mostrarEstatisticas(){
     <div><span class="muted text-sm">🔧 Ferramentas:</span> <strong>${total}</strong></div>
     <div><span class="muted text-sm">📤 Emprestadas:</span> <strong>${emp}</strong></div>
     <div><span class="muted text-sm">🧰 Manutenções:</span> <strong>${manutTotal}</strong></div>
-    <div><span class="muted text-sm">🚛 Fora Empresa:</span> <strong>${foraTotal}</strong></div>
+    <div><span class="muted text-sm">☠️ Assist. Técnica:</span> <strong>${foraTotal}</strong></div>
     <div><span class="muted text-sm">⏰ Alarmes:</span> <strong>${alarmesAtivos}</strong></div>
     <div><span class="muted text-sm">📦 Pedidos:</span> <strong>${pedidosTotal}</strong></div>
     <div><span class="muted text-sm">🏭 Ativos:</span> <strong>${ativosTotal}</strong></div>
@@ -1230,7 +1230,7 @@ function gerarSetoresHTML(){
           <span class="badge badge-success">🟢 ${ferr.filter(x => x.status === "Disponível").length}</span>
           <span class="badge badge-warning">📤 ${ferr.filter(x => x.status === "Emprestada").length}</span>
           <span class="badge badge-manutencao">🧰 ${manut.length}</span>
-          <span class="badge badge-fora">🚛 ${fora.length}</span>
+          <span class="badge badge-fora">☠️ ${fora.length}</span>
           <span class="badge badge-info">🏭 ${ativ.length}</span>
           <span class="badge badge-created">🔨 ${cri.length}</span>
           <span class="badge badge-pedido">📦 ${ped.length}</span>
@@ -2134,7 +2134,7 @@ function fecharResultadoOCR(){
   if(el){ el.style.display = 'none'; el.innerHTML = ''; }
 }
 
-/* ============ FORA DA EMPRESA ============ */
+/* ============ FORA DA EMPRESA (Assistência Técnica) ============ */
 function abrirForaDaEmpresa(id=null){
   midiasFora = [];
   document.getElementById("idFora").value = id||"";
@@ -2145,7 +2145,7 @@ function abrirForaDaEmpresa(id=null){
   if(id){
     const x = foraDaEmpresa.find(f=>f.id===id);
     if(!x) return;
-    document.getElementById("tituloFora").textContent = "✏️ Editar Manutenção Fora da Empresa";
+    document.getElementById("tituloFora").textContent = "✏️ Editar Assistência Técnica";
     document.getElementById("nomeFora").value = x.nome;
     document.getElementById("codigoFora").value = x.codigo||"";
     document.getElementById("tipoFora").value = x.tipo||"Ferramenta";
@@ -2174,7 +2174,7 @@ function abrirForaDaEmpresa(id=null){
     (x.videos||[]).forEach(v=>midiasFora.push({tipo:"video",src:v}));
     (x.arquivos||[]).forEach(a=>midiasFora.push({tipo:"arquivo",nome:a.nome,src:a.src}));
   } else {
-    document.getElementById("tituloFora").textContent = "🚛 Nova Saída Fora da Empresa";
+    document.getElementById("tituloFora").textContent = "☠️ Nova Assistência Técnica";
     ["nomeFora","codigoFora","empresaFora","contatoFora","responsavelEmpresaFora","responsavelFora","dataRetornoFora","osFora","valorFora","notaFiscalFora","descricaoFora","solucaoFora","obsFora","dataHoraRetornoFora","recebedorFora"].forEach(i => { const el = document.getElementById(i); if(el) el.value = ""; });
     document.getElementById("tipoFora").value = "Ferramenta";
     document.getElementById("quantidadeFora").value = 1;
@@ -2295,10 +2295,10 @@ function salvarForaDaEmpresa(){
   };
   if(anterior){
     foraDaEmpresa = foraDaEmpresa.map(x=>x.id===id?f:x);
-    registrarHistorico(nome, `editou envio externo (${empresa})`);
+    registrarHistorico(nome, `editou assistência técnica (${empresa})`);
   } else {
     foraDaEmpresa.push(f);
-    registrarHistorico(nome, `enviou para manutenção externa em "${empresa}"`);
+    registrarHistorico(nome, `enviou para assistência técnica em "${empresa}"`);
   }
   salvarBanco();
   fecharForaDaEmpresa();
@@ -2319,7 +2319,7 @@ function mostrarForaDaEmpresa(){
   const miniEl = document.getElementById("miniEstatisticasFora");
   if(miniEl){
     miniEl.innerHTML = `
-      <div class="card estatistica" style="padding:14px 8px;"><span class="icon" style="font-size:22px;">🚛</span><span class="label">Total</span><strong style="font-size:26px;">${total}</strong></div>
+      <div class="card estatistica" style="padding:14px 8px;"><span class="icon" style="font-size:22px;">☠️</span><span class="label">Total</span><strong style="font-size:26px;">${total}</strong></div>
       <div class="card estatistica" style="padding:14px 8px;"><span class="icon" style="font-size:22px;">⏳</span><span class="label">Pendentes</span><strong style="font-size:26px;">${pend}</strong></div>
       <div class="card estatistica" style="padding:14px 8px;"><span class="icon" style="font-size:22px;">⚠️</span><span class="label">Atrasados</span><strong style="font-size:26px;">${atrasado}</strong></div>
       <div class="card estatistica" style="padding:14px 8px;"><span class="icon" style="font-size:22px;">💰</span><span class="label">Valor Total</span><strong style="font-size:22px;">R$ ${valorTotal.toFixed(2)}</strong></div>
@@ -2341,7 +2341,7 @@ function mostrarForaDaEmpresa(){
   });
 
   if(!lista.length){
-    el.innerHTML = `<div class="card empty-state"><span class="emoji">🚛</span><span>Nenhuma ferramenta em manutenção externa.</span><button class="btn-fora mt-16" onclick="abrirForaDaEmpresa()">＋ Registrar saída</button></div>`;
+    el.innerHTML = `<div class="card empty-state"><span class="emoji">☠️</span><span>Nenhuma ferramenta em assistência técnica.</span><button class="btn-fora mt-16" onclick="abrirForaDaEmpresa()">＋ Registrar assistência</button></div>`;
     return;
   }
 
@@ -2353,7 +2353,7 @@ function mostrarForaDaEmpresa(){
       "Retornado":"badge-success","Sem conserto":"badge-danger","Cancelado":"badge-danger"
     }[x.status] || "badge-info";
     const prioClass = x.prioridade==="Urgente"?"badge-danger":x.prioridade==="Alta"?"badge-warning":"badge-info";
-    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}">` : `<div class="imagem-placeholder">🚛</div>`;
+    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}">` : `<div class="imagem-placeholder">☠️</div>`;
 
     const agora = Date.now();
     let atrasoInfo = '';
@@ -2372,7 +2372,7 @@ function mostrarForaDaEmpresa(){
       <div class="card item" style="border-color:rgba(124,92,191,0.3);">
         ${foto}
         <div class="item-info">
-          <div class="nome">🚛 ${escapar(x.nome)}</div>
+          <div class="nome">☠️ ${escapar(x.nome)}</div>
           <div class="detalhes">
             Código: ${escapar(x.codigo||"-")} • Qtd: ${x.quantidade||1}<br>
             🏢 <b>${escapar(x.empresa)}</b><br>
@@ -2421,7 +2421,7 @@ function excluirForaDaEmpresa(id){
   if(!x) return;
   if(confirm(`Excluir envio de "${x.nome}" para "${x.empresa}"?`)){
     foraDaEmpresa = foraDaEmpresa.filter(f=>f.id!==id);
-    registrarHistorico(x.nome,"excluiu envio externo");
+    registrarHistorico(x.nome,"excluiu assistência técnica");
     salvarBanco();
     mostrarTudo();
   }
@@ -2429,7 +2429,7 @@ function excluirForaDaEmpresa(id){
 function compartilharForaItem(id){
   const x = foraDaEmpresa.find(f=>f.id===id);
   if(!x) return;
-  let t = `🚛 MANUTENÇÃO FORA DA EMPRESA\n━━━━━━━━━━━━━━━━━━━━\n`;
+  let t = `☠️ ASSISTÊNCIA TÉCNICA\n━━━━━━━━━━━━━━━━━━━━\n`;
   t += `📦 Item: ${x.nome}\n`;
   if(x.codigo) t += `🔖 Código: ${x.codigo}\n`;
   if(x.quantidade>1) t += `📊 Quantidade: ${x.quantidade}\n`;
@@ -2945,7 +2945,7 @@ function gerarPDFCompleto(){
     ['Disponíveis', ferramentas.filter(f=>f.status==='Disponível').length],
     ['Emprestadas', ferramentas.filter(f=>f.status==='Emprestada').length],
     ['Manutenções internas', manutencoes.length],
-    ['🚛 Fora da empresa', foraDaEmpresa.length],
+    ['☠️ Assistência Técnica', foraDaEmpresa.length],
     ['Alarmes ativos', alarmes.filter(a=>a.ativo).length],
     ['Ativos', ativos.length],
     ['Criados', ativosCriados.length],
@@ -3005,7 +3005,7 @@ function gerarPDFForaDaEmpresa(){
   if(!checkPDF()) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  cabecalhoPDF(doc,'🚛 FORA DA EMPRESA','Manutenção externa / terceirizada');
+  cabecalhoPDF(doc,'☠️ ASSISTÊNCIA TÉCNICA','Manutenção externa / terceirizada');
   if(!foraDaEmpresa.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum envio.',14,55); }
   else {
     doc.autoTable({
@@ -3022,7 +3022,7 @@ function gerarPDFForaDaEmpresa(){
       styles:{fontSize:8,cellPadding:2}, margin:{left:14,right:14}
     });
   }
-  salvarPDF(doc, `ForaDaEmpresa_${new Date().toISOString().slice(0,10)}.pdf`);
+  salvarPDF(doc, `AssistenciaTecnica_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFForaItem(id){
   if(!checkPDF()) return;
@@ -3030,7 +3030,7 @@ function gerarPDFForaItem(id){
   if(!x) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  cabecalhoPDF(doc,'DETALHE — MANUTENÇÃO FORA DA EMPRESA', x.nome);
+  cabecalhoPDF(doc,'DETALHE — ASSISTÊNCIA TÉCNICA', x.nome);
   let y = 48;
   doc.setFontSize(11); doc.setTextColor(20,20,20);
   const linhas = [
@@ -3057,7 +3057,7 @@ function gerarPDFForaItem(id){
     doc.text(txt,55,y);
     y += txt.length*6 + 2;
   });
-  salvarPDF(doc, `ForaDaEmpresa_${x.nome.replace(/\s+/g,'_')}.pdf`);
+  salvarPDF(doc, `AssistenciaTecnica_${x.nome.replace(/\s+/g,'_')}.pdf`);
 }
 function gerarPDFAtivos(){
   if(!checkPDF()) return;
@@ -3107,7 +3107,7 @@ function gerarPDFSetores(){
     const fora = foraDaEmpresa.filter(x=>x.setor===nome);
     return [nome, f.length, f.filter(x=>x.status==='Disponível').length, f.filter(x=>x.status==='Emprestada').length, m.length, fora.length, ativos.filter(x=>x.setor===nome).length];
   });
-  doc.autoTable({ startY:45, head:[['Setor','Ferr.','Disp.','Empr.','Manut.','Fora','Ativos']], body:dados, theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
+  doc.autoTable({ startY:45, head:[['Setor','Ferr.','Disp.','Empr.','Manut.','Assist.','Ativos']], body:dados, theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
   salvarPDF(doc, `Setores_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 
@@ -3131,7 +3131,7 @@ function compartilharRelatorioImagem(){
     ["Disponíveis", ferramentas.filter(x=>x.status==="Disponível").length, "#2ddb7a"],
     ["Emprestadas", ferramentas.filter(x=>x.status==="Emprestada").length, "#ffd14a"],
     ["Manutenções", manutencoes.length, "#ff6b82"],
-    ["Fora da Empresa", foraDaEmpresa.length, "#7c5cbf"],
+    ["Assistência Técnica", foraDaEmpresa.length, "#7c5cbf"],
     ["Ativos", ativos.length, "#7c5cbf"],
     ["Criados", ativosCriados.length, "#2ddb7a"],
     ["Pedidos", pedidosMateriais.length, "#f5a623"]
@@ -3327,7 +3327,7 @@ function compartilharRelatorio(){
   t += `🟢 Disponíveis: ${ferramentas.filter(x=>x.status==="Disponível").length}\n`;
   t += `📤 Emprestadas: ${ferramentas.filter(x=>x.status==="Emprestada").length}\n`;
   t += `🧰 Manutenções: ${manutencoes.length}\n`;
-  t += `🚛 Fora da Empresa: ${foraDaEmpresa.length}\n`;
+  t += `☠️ Assistência Técnica: ${foraDaEmpresa.length}\n`;
   t += `📦 Pedidos: ${pedidosMateriais.length}\n`;
   t += `🏭 Ativos: ${ativos.length}\n`;
   t += `🔨 Criados: ${ativosCriados.length}\n`;
