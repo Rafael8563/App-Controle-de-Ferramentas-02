@@ -1,18 +1,973 @@
-<script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a1a2e">
+<title>PCM de Ferramentas</title>
+
+<script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<style>
+:root{
+  --fundo1:#060d17;--fundo2:#0a1a2e;--fundo3:#0d2a3d;
+  --card:rgba(255,255,255,0.06);--borda:rgba(255,255,255,0.10);
+  --texto:#fff;--cinza:#b0c8d9;--bg-header:rgba(3,10,20,0.92);
+  --verde:#2ddb7a;--amarelo:#ffd14a;--vermelho:#ff6b82;
+  --azul:#1eb8c9;--azul-claro:#6ae2ef;--roxo:#7c5cbf;
+  --laranja:#f5a623;--rosa:#ff6b9d;
+  --sombra:0 15px 50px rgba(0,0,0,0.5);
+  --radius:16px;--transition:0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+body.tema-claro{
+  --fundo1:#f4f6fa;--fundo2:#e8edf5;--fundo3:#dde5f0;
+  --card:rgba(255,255,255,0.85);--borda:rgba(0,0,0,0.08);
+  --texto:#0a1a2e;--cinza:#4a5b6e;--bg-header:rgba(255,255,255,0.92);
+  --sombra:0 15px 50px rgba(0,0,0,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  color:var(--texto);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 20% 50%,rgba(30,184,201,0.08) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(124,92,191,0.08) 0%,transparent 50%),
+             linear-gradient(180deg,var(--fundo1) 0%,var(--fundo2) 40%,var(--fundo3) 100%);
+  background-attachment:fixed;transition:background 0.4s ease,color 0.4s ease;
+}
+.app-wrapper{position:relative;z-index:1}
+header{
+  position:sticky;top:0;z-index:20;padding:12px 20px 8px;
+  background:var(--bg-header);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--borda);box-shadow:0 4px 30px rgba(0,0,0,0.3);
+  transition:background 0.4s ease;
+}
+.header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.logo-area{display:flex;align-items:center;gap:14px}
+.logo-icon{
+  width:48px;height:48px;border-radius:16px;
+  background:linear-gradient(135deg,var(--azul),var(--roxo),var(--rosa),var(--amarelo));
+  background-size:300% 300%;display:grid;place-items:center;font-size:24px;
+  box-shadow:0 4px 30px rgba(30,184,201,0.3);
+  animation:logoSpin 6s ease-in-out infinite alternate;
+}
+@keyframes logoSpin{0%{background-position:0% 50%;transform:rotateY(0)}50%{transform:rotateY(180deg)}100%{background-position:100% 50%;transform:rotateY(360deg)}}
+.logo-text h1{
+  font-size:22px;font-weight:800;
+  background:linear-gradient(135deg,var(--texto) 30%,var(--azul-claro),var(--roxo),var(--rosa));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;background-size:300% 300%;
+  animation:textGrad 6s ease-in-out infinite alternate;
+}
+@keyframes textGrad{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+.subtitulo{font-size:12px;color:var(--cinza);opacity:.7}
+.header-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.header-actions button{padding:6px 12px;font-size:12px;border-radius:20px}
+#statusRede{font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:rgba(0,0,0,0.2);border:1px solid var(--borda);white-space:nowrap}
+#usuarioAtual{font-size:12px;padding:4px 12px;border-radius:20px;background:rgba(30,184,201,0.15);border:1px solid rgba(30,184,201,0.3);color:var(--azul-claro);cursor:pointer}
+nav{display:flex;gap:5px;overflow-x:auto;padding-top:10px;scrollbar-width:thin}
+nav button{white-space:nowrap;border:none;background:transparent;color:var(--cinza);border-radius:30px;padding:8px 18px;font-weight:600;font-size:13px;cursor:pointer;transition:var(--transition);position:relative}
+nav button:hover{color:var(--texto);background:var(--card);transform:translateY(-3px)}
+nav button.ativo{color:#fff;background:linear-gradient(135deg,var(--azul),var(--roxo),var(--rosa));background-size:200% 200%;animation:btnGrad 3s ease-in-out infinite alternate;box-shadow:0 4px 35px rgba(30,184,201,0.3)}
+@keyframes btnGrad{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+nav button.alarme-badge::after{content:attr(data-count);position:absolute;top:-4px;right:-4px;background:var(--vermelho);color:#fff;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+nav button.fora-badge::after{content:attr(data-count);position:absolute;top:-4px;right:-4px;background:var(--laranja);color:#fff;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.container{max-width:1260px;margin:auto;padding:18px 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--borda);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--sombra);backdrop-filter:blur(16px);transition:var(--transition);position:relative;overflow:hidden}
+.card:hover{transform:translateY(-8px);border-color:rgba(30,184,201,0.3);box-shadow:0 30px 80px rgba(0,0,0,0.3)}
+.card h2,.card h3{margin-top:0;font-weight:600}
+.card h3{font-size:13px;color:var(--cinza);letter-spacing:.5px;text-transform:uppercase;font-weight:500;opacity:.7}
+.estatistica{text-align:center;padding:4px 2px}
+.estatistica .icon{font-size:34px;display:block;margin-bottom:2px}
+.estatistica .label{font-size:11px;color:var(--cinza);opacity:.7;text-transform:uppercase;letter-spacing:.8px}
+.estatistica strong{display:block;font-size:40px;font-weight:800;margin-top:2px;background:linear-gradient(135deg,var(--texto) 20%,var(--azul-claro),var(--roxo),var(--rosa));background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;animation:counterGrad 4s ease-in-out infinite alternate}
+@keyframes counterGrad{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+button{border:none;background:var(--card);color:var(--texto);border-radius:30px;padding:9px 22px;font-weight:600;font-size:13px;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:6px;border:1px solid var(--borda)}
+button:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,0,0,0.3);border-color:rgba(30,184,201,0.4)}
+.btn-primary{background:linear-gradient(135deg,var(--azul),var(--roxo));border-color:transparent;color:#fff}
+.btn-success{background:linear-gradient(135deg,#1a8a5a,#2ddb7a);border-color:transparent;color:#fff}
+.btn-danger{background:linear-gradient(135deg,#a82f4a,#ff6b82);border-color:transparent;color:#fff}
+.btn-outline{background:transparent;border-color:var(--borda)}
+.btn-pdf{background:linear-gradient(135deg,#d32f2f,#ff5722);border-color:transparent;color:#fff}
+.btn-created{background:linear-gradient(135deg,#2ddb7a,#1eb8c9);border-color:transparent;color:#fff}
+.btn-pedido{background:linear-gradient(135deg,#f5a623,#ff6b9d);border-color:transparent;color:#fff}
+.btn-manut{background:linear-gradient(135deg,#ff6b82,#ffd14a);border-color:transparent;color:#fff}
+.btn-fora{background:linear-gradient(135deg,#7c5cbf,#ff6b9d);border-color:transparent;color:#fff}
+.btn-fora-pdf{background:linear-gradient(135deg,#7c5cbf,#1eb8c9);border-color:transparent;color:#fff}
+.btn-ocr{background:linear-gradient(135deg,#1eb8c9,#2ddb7a);border-color:transparent;color:#fff}
+.btn-filtro{padding:6px 14px;font-size:12px;border-radius:20px;background:var(--card);border:1px solid var(--borda)}
+.btn-filtro.ativo{background:linear-gradient(135deg,var(--azul),var(--roxo));border-color:transparent;color:#fff}
+.item{display:grid;grid-template-columns:90px 1fr auto;gap:14px;align-items:center;padding:8px 10px}
+.imagem-mini{width:90px;height:72px;object-fit:cover;border-radius:12px;background:rgba(0,0,0,0.2);border:1px solid var(--borda)}
+.imagem-placeholder{width:90px;height:72px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px dashed var(--borda);display:grid;place-items:center;font-size:32px;color:var(--cinza);opacity:.5}
+.item-info .nome{font-weight:600;font-size:15px}
+.item-info .detalhes{color:var(--cinza);font-size:12px;line-height:1.5;margin:2px 0 4px;opacity:.8}
+.item-info .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.item-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.item-actions button{padding:5px 10px;font-size:13px;border-radius:30px;min-width:34px;justify-content:center}
+.badge{display:inline-block;padding:3px 12px;margin:2px 2px 2px 0;border-radius:999px;font-size:11px;font-weight:500;border:1px solid transparent}
+.badge-success{background:rgba(45,219,122,0.15);color:var(--verde)}
+.badge-warning{background:rgba(255,209,74,0.15);color:#b88a00}
+body:not(.tema-claro) .badge-warning{color:var(--amarelo)}
+.badge-danger{background:rgba(255,107,130,0.15);color:var(--vermelho)}
+.badge-info{background:rgba(30,184,201,0.15);color:var(--azul)}
+.badge-created{background:rgba(45,219,122,0.15);color:var(--verde)}
+.badge-pedido{background:rgba(245,166,35,0.15);color:#c47a00}
+body:not(.tema-claro) .badge-pedido{color:var(--laranja)}
+.badge-tempo{background:rgba(255,209,74,0.15);color:#b88a00;font-weight:600}
+body:not(.tema-claro) .badge-tempo{color:var(--amarelo)}
+.badge-tempo.urgente{background:rgba(255,107,130,0.2);color:var(--vermelho)}
+.badge-manutencao{background:rgba(255,107,130,0.15);color:var(--vermelho)}
+.badge-qtd{background:rgba(124,92,191,0.15);color:var(--roxo);font-weight:600}
+.badge-fora{background:rgba(124,92,191,0.2);color:var(--roxo);font-weight:600}
+dialog{width:min(800px,94vw);padding:0;border:1px solid var(--borda);border-radius:24px;background:var(--bg-header);backdrop-filter:blur(40px);color:var(--texto);box-shadow:0 50px 120px rgba(0,0,0,0.9);animation:modalBounce .5s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes modalBounce{from{opacity:0;transform:scale(.8) translateY(80px)}to{opacity:1;transform:scale(1) translateY(0)}}
+dialog::backdrop{background:rgba(0,0,0,0.8);backdrop-filter:blur(12px)}
+.modal{padding:26px 30px;max-height:90vh;overflow-y:auto}
+.modal h2{font-size:22px;font-weight:700;margin-bottom:18px;background:linear-gradient(135deg,var(--texto) 30%,var(--azul-claro),var(--roxo),var(--rosa));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.modal label{display:block;font-size:13px;font-weight:500;margin:12px 0 4px;color:var(--cinza);opacity:.8}
+.modal input,.modal select,.modal textarea{width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--borda);background:rgba(0,0,0,0.15);color:var(--texto);font-size:14px;font-family:inherit;outline:none}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--azul);box-shadow:0 0 0 4px rgba(30,184,201,0.08)}
+.modal .acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.modal .preview{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.modal .preview img{max-width:150px;max-height:150px;border-radius:12px;border:1px solid var(--borda);object-fit:cover}
+.modal .preview video{max-width:200px;max-height:150px;border-radius:12px;border:1px solid var(--borda);object-fit:cover}
+.setor-card .count{font-size:28px;font-weight:700;margin:2px 0;background:linear-gradient(135deg,var(--texto) 30%,var(--azul-claro),var(--amarelo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.historico-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--borda)}
+.historico-item .acao{font-weight:500;font-size:14px}
+.historico-item .data{font-size:11px;color:var(--cinza);opacity:.6;white-space:nowrap}
+.hidden{display:none !important}
+.muted{color:var(--cinza)}
+.text-sm{font-size:12px}
+.mt-10{margin-top:10px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}.mb-10{margin-bottom:10px}
+.flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.section-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:22px 0 16px}
+.section-header h2{font-weight:700;font-size:19px;background:linear-gradient(135deg,var(--texto) 30%,var(--azul-claro),var(--roxo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.empty-state{text-align:center;padding:50px 20px;color:var(--cinza)}
+.empty-state .emoji{font-size:52px;display:block;margin-bottom:14px;opacity:.4}
+.search-bar input{width:100%;padding:11px 16px;border-radius:12px;background:rgba(0,0,0,0.15);color:var(--texto);outline:none;font-size:14px;border:1px solid var(--borda);margin:4px 0 10px;font-family:inherit}
+.search-bar input:focus{border-color:var(--azul);box-shadow:0 0 0 4px rgba(30,184,201,0.08)}
+footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opacity:.4;border-top:1px solid var(--borda);margin-top:28px}
+.pdf-panel{background:linear-gradient(135deg,rgba(211,47,47,0.08),rgba(255,87,34,0.05));border:1px solid rgba(255,87,34,0.2);border-radius:var(--radius);padding:22px 24px;margin-top:16px}
+.pdf-panel h2{font-size:18px;font-weight:700;margin-bottom:6px;background:linear-gradient(135deg,#ff5722,#ff6b9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pdf-panel p{font-size:13px;color:var(--cinza);opacity:.8;margin-bottom:14px}
+.pdf-botoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.pdf-botoes button{justify-content:center;padding:12px 18px;font-size:13px}
+#btnInstalarApp{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg,var(--azul),var(--roxo));color:#fff;padding:12px 28px;border-radius:30px;font-weight:700;font-size:15px;box-shadow:0 8px 40px rgba(30,184,201,0.4);animation:pulseInstalar 2s ease-in-out infinite}
+@keyframes pulseInstalar{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.05)}}
+.alarme-container{position:fixed;top:80px;right:20px;z-index:1000;max-width:400px;width:100%;pointer-events:none}
+.alarme-notificacao{background:rgba(255,107,130,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,107,130,0.3);border-radius:16px;padding:18px 20px;margin-bottom:12px;box-shadow:0 20px 60px rgba(0,0,0,0.6);animation:slideInAlarme .5s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto}
+.alarme-notificacao.urgente{background:rgba(255,0,0,0.9);animation:pulseAlarme 1s ease-in-out infinite alternate}
+@keyframes slideInAlarme{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulseAlarme{0%{transform:scale(1)}100%{transform:scale(1.02)}}
+.alarme-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.alarme-titulo{font-weight:700;font-size:16px;color:#fff}
+.alarme-detalhes{font-size:13px;margin-top:6px;line-height:1.4;color:#fff}
+.alarme-acoes{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.alarme-acoes button{padding:6px 16px;font-size:12px;border-radius:20px;background:rgba(255,255,255,0.2);color:#fff}
+.filtros-rapidos{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
+.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.chart-container{position:relative;height:250px}
+#reader{width:100%;max-width:400px;margin:auto;border-radius:12px;overflow:hidden}
+#readerNFCe{width:100%;max-width:400px;margin:auto;border-radius:12px;overflow:hidden}
+.anexo-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(0,0,0,0.15);border-radius:10px;border:1px solid var(--borda);margin:4px 0;font-size:12px}
+.anexo-item .icone{font-size:20px}
+.anexo-item .nome{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.anexo-item button{padding:3px 8px;font-size:11px;border-radius:20px}
+
+.ocr-panel{
+  background:linear-gradient(135deg,rgba(30,184,201,0.10),rgba(45,219,122,0.06));
+  border:1px solid rgba(30,184,201,0.35);
+  border-radius:16px;padding:16px;margin-bottom:14px;
+}
+.ocr-panel h4{font-size:14px;font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:8px;}
+.ocr-panel .subt{font-size:11.5px;color:var(--cinza);opacity:0.85;margin-bottom:12px;line-height:1.5;}
+.ocr-botoes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.ocr-botoes button{justify-content:center;padding:10px 12px;font-size:12px;}
+.resultado-ocr{
+  background:rgba(45,219,122,0.08);
+  border:1px solid rgba(45,219,122,0.3);
+  border-radius:12px;padding:14px;margin-top:12px;
+}
+.resultado-ocr .titulo{font-weight:700;color:var(--verde);font-size:13.5px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.resultado-ocr .grid-campos{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;}
+.resultado-ocr .grid-campos .campo b{color:var(--texto);}
+
+.ocr-loading{
+  position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;z-index:99999;padding:20px;
+}
+.ocr-loading-inner{
+  background:var(--bg-header);border:1px solid var(--borda);border-radius:24px;
+  padding:32px 40px;max-width:420px;width:100%;text-align:center;
+  box-shadow:0 30px 80px rgba(0,0,0,0.8);
+}
+.ocr-loading-emoji{font-size:48px;margin-bottom:16px;animation:pulseAlarme 1s ease-in-out infinite alternate;}
+.ocr-loading-titulo{font-weight:800;font-size:18px;margin-bottom:8px;}
+.ocr-loading-sub{font-size:12px;color:var(--cinza);opacity:0.8;margin-bottom:16px;}
+.ocr-progress-bg{background:rgba(30,184,201,0.15);border-radius:30px;height:10px;overflow:hidden;}
+.ocr-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--azul),var(--roxo),var(--rosa));transition:width 0.3s;border-radius:30px;}
+.ocr-progress-texto{font-size:13px;color:var(--azul-claro);margin-top:12px;font-weight:600;}
+.ocr-progress-status{font-size:12px;color:var(--cinza);margin-top:6px;opacity:0.7;}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--bg-header);border:1px solid var(--borda);color:var(--texto);
+  padding:12px 24px;border-radius:30px;font-size:13px;font-weight:600;
+  box-shadow:0 15px 40px rgba(0,0,0,0.5);z-index:99998;
+  animation:toastIn .4s cubic-bezier(0.34,1.56,0.64,1);max-width:90vw;
+  text-align:center;pointer-events:none;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(30px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.toast.toast-success{border-color:rgba(45,219,122,0.4);color:var(--verde)}
+.toast.toast-error{border-color:rgba(255,107,130,0.4);color:var(--vermelho)}
+.toast.toast-warning{border-color:rgba(255,209,74,0.4);color:var(--amarelo)}
+
+@media (max-width:768px){
+  .item{grid-template-columns:1fr;gap:8px;text-align:center}
+  .item .imagem-mini,.item .imagem-placeholder{width:100%;height:130px;margin:0 auto;max-width:200px}
+  .item-actions{justify-content:center}
+  .modal{padding:16px 18px}
+  .modal [style*="grid-template-columns:1fr 1fr"],
+  .modal [style*="grid-template-columns:1fr 1fr 1fr"]{
+    grid-template-columns:1fr !important;
+  }
+  .logo-icon{width:38px;height:38px;font-size:20px}
+  .logo-text h1{font-size:17px}
+  .estatistica strong{font-size:30px}
+  .grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
+  nav button{font-size:11.5px;padding:6px 12px}
+  .alarme-container{top:70px;right:10px;max-width:calc(100% - 20px)}
+  .header-actions{gap:4px}
+  .header-actions button{padding:5px 10px;font-size:11px}
+  .pdf-botoes{grid-template-columns:1fr}
+  .ocr-botoes{grid-template-columns:1fr;}
+  .resultado-ocr .grid-campos{grid-template-columns:1fr;}
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--borda);border-radius:10px}
+</style>
+</head>
+<body>
+
+<div id="alarmeContainer" class="alarme-container"></div>
+
+<div class="app-wrapper">
+<header>
+  <div class="header-top">
+    <div class="logo-area">
+      <div class="logo-icon">🛠</div>
+      <div class="logo-text">
+        <h1>PCM de Ferramentas</h1>
+        <div class="subtitulo">Ferramentas • Ativos • Assistência Técnica</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="usuarioAtual" onclick="trocarUsuario()" title="Trocar usuário">👤 —</span>
+      <button id="btnTema" onclick="alternarTema()" aria-label="Alternar tema">☀️</button>
+      <span id="statusRede">🟢 Online</span>
+    </div>
+  </div>
+  <nav id="navPrincipal">
+    <button type="button" class="ativo" data-tela="painel">📊 Painel</button>
+    <button type="button" data-tela="ferramentas" class="alarme-badge" data-count="0">🔧 Ferramentas</button>
+    <button type="button" data-tela="manutencao">🧰 Manutenção</button>
+    <button type="button" data-tela="foradaempresa" class="fora-badge" data-count="0">☠️ Assistência Técnica</button>
+    <button type="button" data-tela="ativos">🏭 Ativos</button>
+    <button type="button" data-tela="criados">🔨 Criados</button>
+    <button type="button" data-tela="pedidos">📦 Pedidos</button>
+    <button type="button" data-tela="externa">🚚 Externa</button>
+    <button type="button" data-tela="setores">📍 Setores</button>
+    <button type="button" data-tela="historico">📋 Histórico</button>
+  </nav>
+</header>
+
+<main class="container">
+
+<section id="painel">
+  <div id="estatisticas" class="grid"></div>
+  <div class="dashboard-grid mt-20">
+    <div class="card">
+      <h3>📊 Ferramentas por status</h3>
+      <div class="chart-container"><canvas id="graficoStatus"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>🏭 Top 6 setores com mais itens</h3>
+      <div class="chart-container"><canvas id="graficoSetores"></canvas></div>
+    </div>
+  </div>
+  <div class="card mt-20">
+    <h2>🏭 Resumo da Empresa</h2>
+    <div id="resumoEmpresa" style="display:flex;gap:24px;flex-wrap:wrap;margin-top:8px;"></div>
+  </div>
+  <div class="card mt-20" style="border-left:3px solid var(--verde);">
+    <h2>💾 Backup e Restauração</h2>
+    <p class="muted text-sm" style="margin:8px 0 12px;opacity:.8;">Exporte um backup com todos os dados. Guarde em local seguro.</p>
+    <div id="avisoArmazenamento" class="text-sm" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:10px;background:rgba(255,209,74,0.1);border-left:3px solid var(--amarelo);"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button type="button" class="btn-success" onclick="exportarBackup()">💾 Exportar Backup</button>
+      <button type="button" class="btn-primary" onclick="document.getElementById('inputImportarBackup').click()">📥 Importar Backup</button>
+      <input id="inputImportarBackup" type="file" accept=".json" class="hidden" onchange="importarBackup(this.files[0])">
+      <button type="button" class="btn-danger" onclick="apagarTudo()">🗑️ Apagar Tudo</button>
+    </div>
+  </div>
+  <div class="pdf-panel mt-20">
+    <h2>📄 Relatórios em PDF</h2>
+    <p>Clique em qualquer botão — o menu de compartilhamento do celular abre com o PDF pronto para enviar.</p>
+    <div class="pdf-botoes">
+      <button type="button" class="btn-pdf" onclick="gerarPDFCompleto()">📊 Relatório Geral</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFFerramentas()">🔧 Ferramentas</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFManutencao()">🧰 Manutenção</button>
+      <button type="button" class="btn-fora-pdf" onclick="gerarPDFForaDaEmpresa()">☠️ Assistência Técnica</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFAtivos()">🏭 Ativos</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFCriados()">🔨 Criados</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFPedidos()">📦 Pedidos</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFExternas()">🚚 Externas</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFSetores()">📍 Setores</button>
+    </div>
+    <p class="text-sm muted" style="margin-top:12px;opacity:.7;">
+      💡 Abre o menu nativo (WhatsApp, Gmail, Drive…). Se o navegador não suportar, o PDF abre em nova aba.
+    </p>
+  </div>
+  <div class="card mt-16">
+    <h2>📲 Compartilhar Relatório Rápido</h2>
+    <div class="acoes" style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button type="button" class="btn-success" onclick="compartilharRelatorio()">📱 Compartilhar Texto</button>
+      <button type="button" class="btn-primary" onclick="compartilharRelatorioImagem()">🖼️ Imagem PNG</button>
+      <button type="button" class="btn-outline" onclick="window.print()">🖨️ Imprimir</button>
+    </div>
+    <p class="text-sm muted" style="margin-top:12px;opacity:.7;">💡 Em <b>HTTPS</b>, abre o menu nativo. Em <b>HTTP</b>, copia para a área de transferência.</p>
+  </div>
+  <div class="section-header">
+    <h2>📍 Setores</h2>
+    <button type="button" class="btn-primary" onclick="abrirFerramenta()">＋ Nova ferramenta</button>
+  </div>
+  <div id="cartoesSetores" class="grid"></div>
+</section>
+
+<section id="ferramentas" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;">🔧 Ferramentas</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" class="btn-outline" onclick="abrirScanner()">📷 Escanear</button>
+      <button type="button" class="btn-primary" onclick="abrirFerramenta()">＋ Cadastrar</button>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaFerramenta" placeholder="🔎 Pesquisar ferramenta, código ou setor..." oninput="mostrarFerramentas()">
+  </div>
+  <div class="filtros-rapidos" id="filtrosFerramentas">
+    <button type="button" class="btn-filtro ativo" data-filtro="todas" onclick="setFiltro('todas')">Todas</button>
+    <button type="button" class="btn-filtro" data-filtro="disponivel" onclick="setFiltro('disponivel')">🟢 Disponíveis</button>
+    <button type="button" class="btn-filtro" data-filtro="emprestada" onclick="setFiltro('emprestada')">📤 Emprestadas</button>
+    <button type="button" class="btn-filtro" data-filtro="manutencao" onclick="setFiltro('manutencao')">🧰 Manutenção</button>
+    <button type="button" class="btn-filtro" data-filtro="atrasada" onclick="setFiltro('atrasada')">⚠️ Atrasadas</button>
+  </div>
+  <div id="listaFerramentas" class="grid"></div>
+</section>
+
+<section id="manutencao" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,var(--texto) 30%,var(--vermelho),var(--laranja));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🧰 Ferramentas em Manutenção</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" class="btn-pdf" onclick="gerarPDFManutencao()">📄 PDF Manutenção</button>
+      <button type="button" class="btn-manut" onclick="abrirManutencao()">＋ Cadastrar Manutenção</button>
+    </div>
+  </div>
+  <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--vermelho);">
+    <p class="muted text-sm" style="margin:0;opacity:.8;">🔴 Ferramentas indisponíveis em manutenção interna.</p>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaManutencao" placeholder="🔎 Pesquisar..." oninput="mostrarManutencoes()">
+  </div>
+  <div class="filtros-rapidos" id="filtrosManutencao">
+    <button type="button" class="btn-filtro ativo" data-filtro="todas" onclick="setFiltroManutencao('todas')">Todas</button>
+    <button type="button" class="btn-filtro" data-filtro="aberta" onclick="setFiltroManutencao('aberta')">🔴 Abertas</button>
+    <button type="button" class="btn-filtro" data-filtro="andamento" onclick="setFiltroManutencao('andamento')">⚙️ Em andamento</button>
+    <button type="button" class="btn-filtro" data-filtro="peca" onclick="setFiltroManutencao('peca')">⏳ Aguard. peça</button>
+    <button type="button" class="btn-filtro" data-filtro="finalizada" onclick="setFiltroManutencao('finalizada')">✅ Finalizadas</button>
+  </div>
+  <div id="listaManutencoes" class="grid"></div>
+</section>
+
+<section id="foradaempresa" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;background:linear-gradient(135deg,var(--texto) 30%,var(--roxo),var(--rosa));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">☠️ Ferramentas em Assistência Técnica</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" class="btn-fora-pdf" onclick="gerarPDFForaDaEmpresa()">📄 PDF Assistência Técnica</button>
+      <button type="button" class="btn-fora" onclick="abrirForaDaEmpresa()">＋ Nova Assistência</button>
+    </div>
+  </div>
+  <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--roxo);">
+    <p class="muted text-sm" style="margin:0;opacity:.85;">☠️ Ferramentas enviadas para assistência técnica externa. <b>Use o OCR para ler Ordens de Serviço automaticamente.</b></p>
+  </div>
+  <div id="miniEstatisticasFora" class="grid mb-10" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));"></div>
+  <div class="search-bar">
+    <input id="pesquisaFora" placeholder="🔎 Pesquisar por nome, código, empresa, responsável..." oninput="mostrarForaDaEmpresa()">
+  </div>
+  <div class="filtros-rapidos" id="filtrosFora">
+    <button type="button" class="btn-filtro ativo" data-filtro="todas" onclick="setFiltroFora('todas')">Todas</button>
+    <button type="button" class="btn-filtro" data-filtro="enviado" onclick="setFiltroFora('enviado')">📤 Enviados</button>
+    <button type="button" class="btn-filtro" data-filtro="orcamento" onclick="setFiltroFora('orcamento')">💰 Aguard. orçamento</button>
+    <button type="button" class="btn-filtro" data-filtro="manutencao" onclick="setFiltroFora('manutencao')">⚙️ Em manutenção</button>
+    <button type="button" class="btn-filtro" data-filtro="peca" onclick="setFiltroFora('peca')">⏳ Aguard. peça</button>
+    <button type="button" class="btn-filtro" data-filtro="pronto" onclick="setFiltroFora('pronto')">📬 Pronto p/ retorno</button>
+    <button type="button" class="btn-filtro" data-filtro="retornado" onclick="setFiltroFora('retornado')">✅ Retornados</button>
+    <button type="button" class="btn-filtro" data-filtro="atrasado" onclick="setFiltroFora('atrasado')">⚠️ Atrasados</button>
+  </div>
+  <div id="listaForaDaEmpresa" class="grid"></div>
+</section>
+
+<section id="ativos" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;">🏭 Ativos</h2>
+    <button type="button" class="btn-primary" onclick="abrirAtivo()">＋ Novo ativo</button>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaAtivo" placeholder="🔎 Pesquisar..." oninput="mostrarAtivos()">
+  </div>
+  <div id="listaAtivos" class="grid"></div>
+</section>
+
+<section id="criados" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;">🔨 Criados pela Manutenção</h2>
+    <button type="button" class="btn-created" onclick="abrirCriado()">＋ Criar Ativo</button>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaCriado" placeholder="🔎 Pesquisar..." oninput="mostrarCriados()">
+  </div>
+  <div id="listaCriados" class="grid"></div>
+</section>
+
+<section id="pedidos" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;">📦 Pedidos</h2>
+    <button type="button" class="btn-pedido" onclick="abrirPedido()">＋ Novo Pedido</button>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaPedido" placeholder="🔎 Pesquisar..." oninput="mostrarPedidos()">
+  </div>
+  <div id="listaPedidos" class="grid"></div>
+</section>
+
+<section id="externa" class="hidden">
+  <div class="flex-between">
+    <h2 style="font-weight:700;font-size:18px;">🚚 Manutenção Externa</h2>
+    <button type="button" class="btn-primary" onclick="abrirManutencaoExterna()">＋ Enviar</button>
+  </div>
+  <div id="listaManutencaoExterna" class="grid"></div>
+</section>
+
+<section id="setores" class="hidden">
+  <div class="flex-between" style="margin-bottom:16px;">
+    <h2 style="font-weight:700;font-size:19px;">📍 Mapa dos Setores</h2>
+    <button type="button" class="btn-primary" onclick="abrirSetorNovo()">＋ Novo Setor</button>
+  </div>
+  <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--azul);">
+    <p class="muted text-sm" style="margin:0;opacity:.85;">👆 Toque em um setor para editar.</p>
+  </div>
+  <div id="mapaSetores" class="grid mt-10"></div>
+</section>
+
+<section id="historico" class="hidden">
+  <div class="flex-between" style="margin-bottom:16px;">
+    <h2 style="font-weight:700;font-size:19px;">📋 Histórico Geral</h2>
+    <button type="button" class="btn-outline" onclick="limparHistorico()">🗑️ Limpar Histórico</button>
+  </div>
+  <div class="search-bar">
+    <input id="pesquisaHistorico" placeholder="🔎 Filtrar histórico..." oninput="mostrarHistorico()">
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+    <input type="date" id="filtroDataHistorico" onchange="mostrarHistorico()" style="padding:8px 14px;border-radius:12px;border:1px solid var(--borda);background:rgba(0,0,0,0.15);color:var(--texto);font-family:inherit;">
+    <button type="button" class="btn-outline" onclick="document.getElementById('filtroDataHistorico').value='';mostrarHistorico()">Limpar data</button>
+  </div>
+  <div id="listaHistorico" class="card mt-10" style="padding:8px 16px;"></div>
+</section>
+
+</main>
+<footer>✦ PCM de Ferramentas ✦</footer>
+</div>
+
+<!-- MODAIS -->
+<dialog id="dialogUsuario">
+  <div class="modal" style="max-width:420px;">
+    <h2>👤 Quem está usando?</h2>
+    <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Digite seu nome para registrar no histórico.</p>
+    <label>Nome do usuário</label>
+    <input id="nomeUsuarioInput" placeholder="Ex.: João Silva" maxlength="40">
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="document.getElementById('dialogUsuario').close()">Cancelar</button>
+      <button type="button" class="btn-primary" onclick="salvarUsuario()">💾 Confirmar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogScanner">
+  <div class="modal" style="max-width:500px;">
+    <h2>📷 Escanear Código</h2>
+    <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Aponte a câmera para o código da ferramenta.</p>
+    <div id="reader"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="fecharScanner()">Fechar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogScannerNFCe">
+  <div class="modal" style="max-width:500px;">
+    <h2>🧾 Ler QR Code da NFC-e</h2>
+    <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Aponte a câmera para o QR Code da Nota Fiscal Eletrônica.</p>
+    <div id="readerNFCe"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="fecharScannerNFCe()">Fechar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogHistoricoItem">
+  <div class="modal" style="max-width:600px;">
+    <h2 id="tituloHistoricoItem">📜 Histórico do Item</h2>
+    <div id="conteudoHistoricoItem"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="document.getElementById('dialogHistoricoItem').close()">Fechar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogFerramenta">
+  <div class="modal">
+    <h2 id="tituloFerramenta">Cadastrar ferramenta</h2>
+    <input type="hidden" id="idFerramenta">
+    <label>Nome</label><input id="nomeFerramenta" placeholder="Ex.: Furadeira">
+    <label>Código</label><input id="codigoFerramenta" placeholder="Deixe vazio para gerar">
+    <label>Quantidade</label><input id="quantidadeFerramenta" type="number" min="1" value="1">
+    <label>Setor</label><select id="setorFerramenta"></select>
+    <label>Status</label>
+    <select id="statusFerramenta">
+      <option>Disponível</option><option>Emprestada</option><option>Manutenção</option>
+    </select>
+    <label>Observações</label><textarea id="obsFerramenta" rows="3"></textarea>
+    <div class="acoes">
+      <button type="button" class="btn-outline" onclick="document.getElementById('entradaFoto').click()">📷 Foto (celular)</button>
+      <button type="button" class="btn-outline" onclick="document.getElementById('entradaGaleria').click()">🖼️ Galeria</button>
+      <button type="button" class="btn-outline" onclick="abrirCamera('ferramenta')">📹 Webcam (PC)</button>
+    </div>
+    <input id="entradaFoto" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotos(this.files)">
+    <input id="entradaGaleria" class="hidden" type="file" accept="image/*" multiple onchange="adicionarFotos(this.files)">
+    <div id="previewFerramenta" class="preview"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="fecharFerramenta()">Cancelar</button>
+      <button type="button" class="btn-primary" onclick="salvarFerramenta()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogManutencao">
+  <div class="modal">
+    <h2 id="tituloManutencao">🧰 Cadastrar Manutenção</h2>
+    <input type="hidden" id="idManutencao">
+    <label>Nome da ferramenta *</label><input id="nomeManutencao">
+    <label>Código</label><input id="codigoManutencao">
+    <label>Setor</label><select id="setorManutencao"></select>
+    <label>Tipo</label>
+    <select id="tipoManutencao">
+      <option>Corretiva</option><option>Preventiva</option><option>Preditiva</option>
+      <option>Reparo elétrico</option><option>Reparo mecânico</option>
+      <option>Troca de peça</option><option>Outro</option>
+    </select>
+    <label>Prioridade</label>
+    <select id="prioridadeManutencao">
+      <option>Baixa</option><option selected>Média</option><option>Alta</option><option>Urgente</option>
+    </select>
+    <label>Responsável técnico</label><input id="responsavelManutencao">
+    <label>Data de entrada *</label><input id="dataEntradaManutencao" type="date">
+    <label>Previsão de saída</label><input id="dataSaidaManutencao" type="date">
+    <label>Status</label>
+    <select id="statusManutencao">
+      <option>Aguardando análise</option><option>Em andamento</option>
+      <option>Aguardando peça</option><option>Em teste</option>
+      <option>Finalizada</option><option>Sem conserto</option>
+    </select>
+    <label>Custo estimado (R$)</label><input id="custoManutencao">
+    <label>Descrição do problema</label><textarea id="descricaoManutencao" rows="3"></textarea>
+    <label>Solução aplicada</label><textarea id="solucaoManutencao" rows="3"></textarea>
+    <div class="acoes">
+      <button type="button" class="btn-outline" onclick="document.getElementById('entradaFotoManutencao').click()">📷 Foto (celular)</button>
+      <button type="button" class="btn-outline" onclick="document.getElementById('entradaGaleriaManutencao').click()">🖼️ Galeria</button>
+      <button type="button" class="btn-outline" onclick="document.getElementById('entradaArquivoManutencao').click()">📎 Arquivos</button>
+      <button type="button" class="btn-outline" onclick="abrirCamera('manutencao')">📹 Webcam (PC)</button>
+    </div>
+    <input id="entradaFotoManutencao" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotosManutencao(this.files)">
+    <input id="entradaGaleriaManutencao" class="hidden" type="file" accept="image/*" multiple onchange="adicionarFotosManutencao(this.files)">
+    <input id="entradaArquivoManutencao" class="hidden" type="file" multiple onchange="adicionarArquivosManutencao(this.files)">
+    <div id="previewManutencao" class="preview"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="fecharManutencao()">Cancelar</button>
+      <button type="button" class="btn-manut" onclick="salvarManutencao()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogForaDaEmpresa">
+  <div class="modal">
+    <h2 id="tituloFora">☠️ Assistência Técnica</h2>
+    <input type="hidden" id="idFora">
+
+    <div class="ocr-panel">
+      <h4>🔍 Preenchimento automático</h4>
+      <div class="subt">Tire foto, escolha da galeria ou leia o QR Code da NFC-e. O app preenche os campos sozinho.</div>
+      <div class="ocr-botoes">
+        <button type="button" class="btn-ocr" onclick="lerNotaOCR('camera')">📷 Tirar foto</button>
+        <button type="button" class="btn-ocr" onclick="lerNotaOCR('galeria')">🖼️ Da galeria</button>
+        <button type="button" class="btn-ocr" onclick="abrirScannerNFCe()">🧾 QR NFC-e</button>
+      </div>
+      <input id="entradaOCR_camera" class="hidden" type="file" accept="image/*" capture="environment" onchange="processarOCR(this.files[0])">
+      <input id="entradaOCR_galeria" class="hidden" type="file" accept="image/*" onchange="processarOCR(this.files[0])">
+      <div id="resultadoOCR"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <label style="margin-top:0;">Nome da ferramenta *</label>
+        <input id="nomeFora" placeholder="Ex.: Serra Circular Bosch">
+      </div>
+      <div>
+        <label style="margin-top:0;">Código</label>
+        <input id="codigoFora" placeholder="Deixe vazio para gerar">
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <label>Tipo</label>
+        <select id="tipoFora">
+          <option>Ferramenta</option><option>Ativo</option><option>Equipamento</option>
+          <option>Máquina</option><option>Veículo</option><option>Outro</option>
+        </select>
+      </div>
+      <div>
+        <label>Quantidade enviada</label>
+        <input id="quantidadeFora" type="number" min="1" value="1">
+      </div>
+    </div>
+
+    <label>Empresa terceirizada *</label>
+    <input id="empresaFora" placeholder="Ex.: Retífica Central Ltda">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <label>CNPJ / Contato</label>
+        <input id="contatoFora" placeholder="Telefone, e-mail...">
+      </div>
+      <div>
+        <label>Responsável na empresa</label>
+        <input id="responsavelEmpresaFora" placeholder="Ex.: Sr. Carlos">
+      </div>
+    </div>
+
+    <label>Responsável pelo envio (interno)</label>
+    <input id="responsavelFora" placeholder="Quem enviou">
+
+    <label>Setor de origem</label>
+    <select id="setorFora"></select>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <label>Tipo de serviço</label>
+        <select id="tipoServicoFora">
+          <option>Reparo mecânico</option><option>Reparo elétrico</option>
+          <option>Retífica</option><option>Calibração</option>
+          <option>Solda</option><option>Usinagem</option>
+          <option>Pintura</option><option>Manutenção preventiva</option>
+          <option>Laudo técnico</option><option>Garantia</option><option>Outro</option>
+        </select>
+      </div>
+      <div>
+        <label>Tipo de assistência</label>
+        <select id="tipoAssistFora">
+          <option value="">— Não informado —</option>
+          <option>Garantia</option>
+          <option>Particular</option>
+          <option>Contrato</option>
+          <option>Seguro</option>
+          <option>Orçamento</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div>
+        <label>Prioridade</label>
+        <select id="prioridadeFora">
+          <option>Baixa</option><option selected>Média</option>
+          <option>Alta</option><option>Urgente</option>
+        </select>
+      </div>
+      <div>
+        <label>Data de saída *</label>
+        <input id="dataSaidaFora" type="date">
+      </div>
+      <div>
+        <label>Retorno previsto</label>
+        <input id="dataRetornoFora" type="date">
+      </div>
+    </div>
+
+    <label>Status</label>
+    <select id="statusFora">
+      <option>Enviado</option>
+      <option>Aguardando orçamento</option>
+      <option>Orçamento aprovado</option>
+      <option>Em manutenção</option>
+      <option>Aguardando peça</option>
+      <option>Pronto para retorno</option>
+      <option>Retornado</option>
+      <option>Sem conserto</option>
+      <option>Cancelado</option>
+    </select>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <label>Nº Ordem de Serviço</label>
+        <input id="osFora" placeholder="Ex.: OS-2024/1234">
+      </div>
+      <div>
+        <label>Valor do serviço (R$)</label>
+        <input id="valorFora" placeholder="Ex.: 450,00">
+      </div>
+    </div>
+
+    <label>Nota Fiscal / Referência</label>
+    <input id="notaFiscalFora" placeholder="Nº NF ou documento">
+
+    <label>Descrição do problema / serviço solicitado</label>
+    <textarea id="descricaoFora" rows="3" placeholder="Descreva o defeito..."></textarea>
+
+    <label>Diagnóstico / Solução aplicada pela empresa</label>
+    <textarea id="solucaoFora" rows="3" placeholder="Preenchido quando retornar..."></textarea>
+
+    <label>Observações gerais</label>
+    <textarea id="obsFora" rows="3"></textarea>
+
+    <label>Data/hora do retorno efetivo</label>
+    <input id="dataHoraRetornoFora" type="datetime-local">
+
+    <label>Recebido por (na devolução)</label>
+    <input id="recebedorFora" placeholder="Quem recebeu de volta">
+
+    <div style="margin-top:14px;">
+      <label style="margin-bottom:8px;">📎 Anexos</label>
+      <div class="acoes">
+        <button type="button" class="btn-outline" onclick="document.getElementById('entradaFotoFora').click()">📷 Foto (celular)</button>
+        <button type="button" class="btn-outline" onclick="document.getElementById('entradaGaleriaFora').click()">🖼️ Galeria</button>
+        <button type="button" class="btn-outline" onclick="document.getElementById('entradaVideoFora').click()">🎥 Vídeos</button>
+        <button type="button" class="btn-outline" onclick="document.getElementById('entradaArquivoFora').click()">📎 Arquivos</button>
+        <button type="button" class="btn-outline" onclick="abrirCamera('foradaempresa')">📹 Webcam (PC)</button>
+      </div>
+      <input id="entradaFotoFora" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarFotosFora(this.files)">
+      <input id="entradaGaleriaFora" class="hidden" type="file" accept="image/*" multiple onchange="adicionarFotosFora(this.files)">
+      <input id="entradaVideoFora" class="hidden" type="file" accept="video/*" multiple onchange="adicionarVideosFora(this.files)">
+      <input id="entradaArquivoFora" class="hidden" type="file" multiple onchange="adicionarArquivosFora(this.files)">
+    </div>
+
+    <div id="previewFora" class="preview" style="margin-top:12px;"></div>
+
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="fecharForaDaEmpresa()">Cancelar</button>
+      <button type="button" class="btn-fora" onclick="salvarForaDaEmpresa()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogVisualizarMidia">
+  <div class="modal" style="max-width:900px;text-align:center;">
+    <h2 id="tituloMidia">Visualizar</h2>
+    <div id="conteudoMidia" style="margin-top:12px;"></div>
+    <div class="acoes" style="margin-top:18px;justify-content:center;">
+      <button type="button" class="btn-outline" onclick="document.getElementById('dialogVisualizarMidia').close()">Fechar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogAtivo">
+  <div class="modal">
+    <h2>🏭 Cadastro de Ativo</h2>
+    <input type="hidden" id="idAtivo">
+    <label>Nome</label><input id="nomeAtivo">
+    <label>TAG</label><input id="codigoAtivo" placeholder="Deixe vazio para gerar">
+    <label>Tipo</label>
+    <select id="tipoAtivo">
+      <option>Máquina</option><option>Equipamento</option><option>Veículo</option>
+      <option>Instalação</option><option>Outro</option>
+    </select>
+    <label>Setor</label><select id="setorAtivo"></select>
+    <label>Status</label>
+    <select id="statusAtivo">
+      <option>Operando</option><option>Parado</option>
+      <option>Manutenção</option><option>Manutenção Externa</option>
+    </select>
+    <label>Observações</label><textarea id="obsAtivo" rows="3"></textarea>
+    <div class="acoes">
+      <button type="button" class="btn-outline" onclick="document.getElementById('entradaFotoAtivo').click()">📷 Foto (celular)</button>
+      <button type="button" class="btn-outline" onclick="document.getElementById('entradaGaleriaAtivo').click()">🖼️ Galeria</button>
+      <button type="button" class="btn-outline" onclick="abrirCamera('ativo')">📹 Webcam (PC)</button>
+    </div>
+    <input id="entradaFotoAtivo" class="hidden" type="file" accept="image/*" capture="environment" onchange="adicionarFotoAtivo(this.files[0])">
+    <input id="entradaGaleriaAtivo" class="hidden" type="file" accept="image/*" onchange="adicionarFotoAtivo(this.files[0])">
+    <div id="previewAtivo" class="preview"></div>
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="fecharAtivo()">Cancelar</button>
+      <button type="button" class="btn-primary" onclick="salvarAtivo()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogCriado">
+  <div class="modal">
+    <h2>🔨 Ativo Criado</h2>
+    <input type="hidden" id="idCriado">
+    <label>Nome</label><input id="nomeCriado">
+    <label>Código</label><input id="codigoCriado" placeholder="Deixe vazio para gerar">
+    <label>Tipo</label>
+    <select id="tipoCriado">
+      <option>Máquina</option><option>Equipamento</option><option>Ferramenta</option>
+      <option>Instalação</option><option>Estrutura</option><option>Outro</option>
+    </select>
+    <label>Responsável</label><input id="responsavelCriado">
+    <label>Setor</label><select id="setorCriado"></select>
+    <label>Data</label><input id="dataCriado" type="date">
+    <label>Status</label>
+    <select id="statusCriado">
+      <option>Em produção</option><option>Finalizado</option><option>Instalado</option>
+      <option>Em teste</option><option>Em manutenção</option>
+    </select>
+    <label>Materiais</label><textarea id="materiaisCriado" rows="3"></textarea>
+    <label>Observações</label><textarea id="obsCriado" rows="3"></textarea>
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="fecharCriado()">Cancelar</button>
+      <button type="button" class="btn-created" onclick="salvarCriado()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogPedido">
+  <div class="modal">
+    <h2 id="tituloPedido">📦 Pedido</h2>
+    <input type="hidden" id="idPedido">
+    <label>Material</label><input id="nomePedido">
+    <label>Quantidade</label><input id="quantidadePedido">
+    <label>Fornecedor</label><input id="fornecedorPedido">
+    <label>Setor</label><select id="setorPedido"></select>
+    <label>Data</label><input id="dataPedido" type="date">
+    <label>Status</label>
+    <select id="statusPedido">
+      <option>Pendente</option><option>Comprado</option>
+      <option>Parcialmente recebido</option><option>Recebido</option>
+      <option>Cancelado</option>
+    </select>
+    <label>Recebedor</label><input id="recebedorPedido">
+    <label>Data/hora recebimento</label><input id="dataHoraRecebimentoPedido" type="datetime-local">
+    <label>Observações</label><textarea id="obsPedido" rows="3"></textarea>
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="fecharPedido()">Cancelar</button>
+      <button type="button" class="btn-pedido" onclick="salvarPedido()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogExterna">
+  <div class="modal">
+    <h2>🚚 Manutenção Externa</h2>
+    <input type="hidden" id="idExterna">
+    <label>Tipo</label>
+    <select id="tipoExterno"><option>Ferramenta</option><option>Ativo</option></select>
+    <label>Nome</label><input id="nomeExterno">
+    <label>Código</label><input id="codigoExterno">
+    <label>Empresa</label><input id="empresaExterna">
+    <label>Responsável</label><input id="responsavelExterno">
+    <label>Saída</label><input id="dataSaida" type="date">
+    <label>Retorno previsto</label><input id="dataRetorno" type="date">
+    <label>Status</label>
+    <select id="statusExterno">
+      <option>Enviado</option><option>Em manutenção</option>
+      <option>Aguardando orçamento</option><option>Aguardando peça</option>
+      <option>Pronto para retorno</option><option>Retornado</option>
+    </select>
+    <label>Serviço</label><textarea id="servicoExterno" rows="4"></textarea>
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="fecharExterna()">Cancelar</button>
+      <button type="button" class="btn-primary" onclick="salvarExterna()">💾 Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogSetor">
+  <div class="modal" style="max-width:900px;">
+    <h2 id="tituloSetor">📍 Editar Setor</h2>
+    <input type="hidden" id="idSetorOriginal">
+    <label>Nome do setor *</label>
+    <input id="nomeSetor" placeholder="Ex.: Acabamento 03">
+    <label>📝 Anotações do setor</label>
+    <textarea id="obsSetor" rows="3"></textarea>
+    <div id="blocoFerramentasSetor" style="margin-top:22px;border-top:1px solid var(--borda);padding-top:16px;">
+      <div class="flex-between" style="margin-bottom:12px;">
+        <h3 style="font-size:15px;font-weight:700;color:var(--texto);margin:0;">🔧 Ferramentas deste setor</h3>
+        <button type="button" class="btn-primary" style="padding:7px 16px;font-size:12px;" onclick="abrirAdicionarFerramentaSetor()">＋ Adicionar ferramenta</button>
+      </div>
+      <div id="formAdicionarFerramenta" class="hidden" style="background:rgba(30,184,201,0.06);border:1px solid rgba(30,184,201,0.25);border-radius:14px;padding:14px;margin-bottom:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <label style="margin-top:0;">Nome *</label>
+            <input id="novaFerrNome" placeholder="Ex.: Furadeira Bosch">
+          </div>
+          <div>
+            <label style="margin-top:0;">Código</label>
+            <input id="novaFerrCodigo" placeholder="Deixe vazio para gerar">
+          </div>
+        </div>
+        <label>Status</label>
+        <select id="novaFerrStatus">
+          <option>Disponível</option><option>Emprestada</option><option>Manutenção</option>
+        </select>
+        <div class="acoes" style="margin-top:12px;">
+          <button type="button" class="btn-outline" style="padding:7px 16px;font-size:12px;" onclick="cancelarAdicionarFerramenta()">Cancelar</button>
+          <button type="button" class="btn-success" style="padding:7px 16px;font-size:12px;" onclick="confirmarAdicionarFerramenta()">💾 Adicionar</button>
+        </div>
+      </div>
+      <div id="listaFerramentasSetor" class="grid" style="grid-template-columns:1fr;"></div>
+    </div>
+    <div id="acoesExclusaoSetor" class="hidden" style="margin-top:16px;padding:14px;border:1px solid rgba(255,107,130,0.3);border-radius:12px;background:rgba(255,107,130,0.05);">
+      <p class="text-sm" style="margin-bottom:8px;color:var(--vermelho);">⚠️ Ao excluir, itens restantes vão para outro setor.</p>
+      <label>Mover itens para:</label>
+      <select id="moverParaSetor"></select>
+    </div>
+    <div class="acoes" style="margin-top:18px;">
+      <button type="button" class="btn-outline" onclick="fecharSetor()">Fechar</button>
+      <button type="button" class="btn-danger" id="btnExcluirSetor" onclick="excluirSetor()">🗑️ Excluir Setor</button>
+      <button type="button" class="btn-primary" onclick="salvarSetor()">💾 Salvar Alterações</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dialogCamera">
+  <div class="modal">
+    <h2>📹 Webcam</h2>
+    <video id="camera" autoplay playsinline style="width:100%;border-radius:12px;"></video>
+    <div class="acoes" style="margin-top:12px;">
+      <button type="button" class="btn-primary" onclick="tirarFoto()">📸 Capturar</button>
+      <button type="button" class="btn-outline" onclick="fecharCamera()">Fechar</button>
+    </div>
+  </div>
+</dialog><script>
 /* ============================================================
    PCM DE FERRAMENTAS — JavaScript v2.5 (corrigido)
-   Correções aplicadas:
-   ✅ Parar câmera/scanner ao fechar dialog (ESC)
-   ✅ OCR corrigido (tipoServicoFora / tipoAssistFora)
-   ✅ Compressão de imagens antes de salvar (evita estourar localStorage)
-   ✅ Validação de duplicata em manutenção/ativos/criados/pedidos
-   ✅ Filtro "Atrasadas" robusto
-   ✅ Botão "Reabrir" para itens retornados
-   ✅ Toast em vez de alert (feedback não-bloqueante)
-   ✅ Aviso de armazenamento cheio
-   ✅ Filtro por data no histórico
-   ✅ escapar() seguro com textContent
-   ✅ Wizard de alarme mais robusto
    ============================================================ */
 
 /* ============ ESTADO GLOBAL ============ */
@@ -248,7 +1203,6 @@ function iniciar(){
     };
   });
 
-  // ✅ FIX: para streams de câmera/scanner quando dialog fecha (ESC inclusive)
   ["dialogCamera","dialogScanner","dialogScannerNFCe"].forEach(id=>{
     const dlg = document.getElementById(id);
     if(!dlg) return;
@@ -831,7 +1785,6 @@ async function adicionarFotos(arquivos){
       r.onload = function(){ res(this.result); };
       r.readAsDataURL(a);
     });
-    // ✅ Comprime antes de guardar
     const comprimida = await comprimirImagem(dataUrl);
     midiasFerramenta.push({tipo:"foto", src: comprimida});
   }
@@ -946,7 +1899,6 @@ function salvarManutencao(){
   const ehEdicao = !!document.getElementById("idManutencao").value;
   const setor = document.getElementById("setorManutencao").value;
 
-  // ✅ Validação de duplicata
   const dup = manutencoes.find(m =>
     m.id !== (ehEdicao ? id : null) &&
     String(m.nome||'').trim().toLowerCase() === nome.toLowerCase() &&
@@ -1140,7 +2092,7 @@ async function processarOCR(arquivo){
 }
 
 function extrairDadosOS(texto){
-  const t = texto.replace(/\r/g,'').replace(/[ \t]+/g,' ').replace(/[“”"']/g,'').trim();
+  const t = texto.replace(/\r/g,'').replace(/[ \t]+/g,' ').replace(/[""'']/g,'').trim();
   const linhas = t.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
   const dados = { os:'', empresa:'', cnpj:'', ie:'', dataEntrada:'', endereco:'', bairro:'',
@@ -1222,7 +2174,6 @@ function preencherFormularioFora(d){
   if(d.dataEntrada){ const el = document.getElementById('dataSaidaFora'); if(el) el.value = d.dataEntrada; }
   if(d.notaFiscal){ const el = document.getElementById('notaFiscalFora'); if(el) el.value = d.notaFiscal; }
 
-  // ✅ FIX: OCR — só usa "Garantia" em tipoAssistFora, tipoServicoFora só recebe valores válidos
   if(d.tipoAssist){
     const t = d.tipoAssist.toUpperCase();
     const elServ = document.getElementById('tipoServicoFora');
@@ -1235,7 +2186,7 @@ function preencherFormularioFora(d){
       else if(t.includes('USINAGEM')) elServ.value = 'Usinagem';
       else if(t.includes('PINTURA')) elServ.value = 'Pintura';
       else if(t.includes('PREVENTIVA')) elServ.value = 'Manutenção preventiva';
-      // "Garantia" é tipoAssist, não tipoServico — deixa o padrão
+      else if(t.includes('GARANTIA')) elServ.value = 'Garantia';
     }
     const elAssist = document.getElementById('tipoAssistFora');
     if(elAssist){
@@ -1816,7 +2767,6 @@ function salvarAtivo(){
   const setor = document.getElementById("setorAtivo").value;
   let codigo = document.getElementById("codigoAtivo").value.trim();
 
-  // ✅ Validação de duplicata
   if(codigo){
     const dup = ativos.find(a =>
       a.id !== (ehEdicao ? id : null) &&
@@ -1936,7 +2886,6 @@ function salvarCriado(){
   const setor = document.getElementById("setorCriado").value;
   let codigo = document.getElementById("codigoCriado").value.trim();
 
-  // ✅ Validação de duplicata
   if(codigo){
     const dup = ativosCriados.find(a =>
       a.id !== (ehEdicao ? id : null) &&
@@ -2818,7 +3767,6 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
 
 /* ============ START ============ */
 document.addEventListener("DOMContentLoaded", () => {
-  // Aguarda libs defer carregarem
   setTimeout(() => {
     try { iniciar(); }
     catch(e){ console.error("Erro no iniciar:", e); toast("Erro ao iniciar: " + e.message, "error"); }
