@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0a1a2e">
-<title>PCM de Ferramentas</title>
+<title>PCM de Ferramentas v2.6</title>
 
 <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
@@ -159,6 +159,8 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 .pdf-botoes button{justify-content:center;padding:12px 18px;font-size:13px}
 #btnInstalarApp{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg,var(--azul),var(--roxo));color:#fff;padding:12px 28px;border-radius:30px;font-weight:700;font-size:15px;box-shadow:0 8px 40px rgba(30,184,201,0.4);animation:pulseInstalar 2s ease-in-out infinite}
 @keyframes pulseInstalar{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.05)}}
+.banner-ios{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,var(--azul),var(--roxo));color:#fff;padding:14px 20px;z-index:9999;text-align:center;font-size:13px;box-shadow:0 -4px 20px rgba(0,0,0,0.4);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.banner-ios button{background:rgba(255,255,255,0.2);color:#fff;padding:6px 14px;font-size:12px;border-radius:20px}
 .alarme-container{position:fixed;top:80px;right:20px;z-index:1000;max-width:400px;width:100%;pointer-events:none}
 .alarme-notificacao{background:rgba(255,107,130,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,107,130,0.3);border-radius:16px;padding:18px 20px;margin-bottom:12px;box-shadow:0 20px 60px rgba(0,0,0,0.6);animation:slideInAlarme .5s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto}
 .alarme-notificacao.urgente{background:rgba(255,0,0,0.9);animation:pulseAlarme 1s ease-in-out infinite alternate}
@@ -188,6 +190,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 .ocr-panel .subt{font-size:11.5px;color:var(--cinza);opacity:0.85;margin-bottom:12px;line-height:1.5;}
 .ocr-botoes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 .ocr-botoes button{justify-content:center;padding:10px 12px;font-size:12px;}
+.ocr-botoes button:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 .resultado-ocr{
   background:rgba(45,219,122,0.08);
   border:1px solid rgba(45,219,122,0.3);
@@ -214,7 +217,6 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 .ocr-progress-texto{font-size:13px;color:var(--azul-claro);margin-top:12px;font-weight:600;}
 .ocr-progress-status{font-size:12px;color:var(--cinza);margin-top:6px;opacity:0.7;}
 
-/* TOAST */
 .toast{
   position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
   background:var(--bg-header);border:1px solid var(--borda);color:var(--texto);
@@ -265,7 +267,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <div class="logo-icon">🛠</div>
       <div class="logo-text">
         <h1>PCM de Ferramentas</h1>
-        <div class="subtitulo">Ferramentas • Ativos • Assistência Técnica</div>
+        <div class="subtitulo">Ferramentas • Ativos • Assistência Técnica • v2.6</div>
       </div>
     </div>
     <div class="header-actions">
@@ -492,13 +494,13 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 </section>
 
 </main>
-<footer>✦ PCM de Ferramentas ✦</footer>
+<footer>✦ PCM de Ferramentas v2.6 ✦</footer>
 </div>
 
 <!-- MODAIS -->
-<dialog id="dialogUsuario">
+<dialog id="dialogUsuario" aria-labelledby="tituloDialogUsuario">
   <div class="modal" style="max-width:420px;">
-    <h2>👤 Quem está usando?</h2>
+    <h2 id="tituloDialogUsuario">👤 Quem está usando?</h2>
     <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Digite seu nome para registrar no histórico.</p>
     <label>Nome do usuário</label>
     <input id="nomeUsuarioInput" placeholder="Ex.: João Silva" maxlength="40">
@@ -509,9 +511,9 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogScanner">
+<dialog id="dialogScanner" aria-labelledby="tituloDialogScanner">
   <div class="modal" style="max-width:500px;">
-    <h2>📷 Escanear Código</h2>
+    <h2 id="tituloDialogScanner">📷 Escanear Código</h2>
     <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Aponte a câmera para o código da ferramenta.</p>
     <div id="reader"></div>
     <div class="acoes" style="margin-top:18px;">
@@ -520,9 +522,9 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogScannerNFCe">
+<dialog id="dialogScannerNFCe" aria-labelledby="tituloDialogScannerNFCe">
   <div class="modal" style="max-width:500px;">
-    <h2>🧾 Ler QR Code da NFC-e</h2>
+    <h2 id="tituloDialogScannerNFCe">🧾 Ler QR Code da NFC-e</h2>
     <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Aponte a câmera para o QR Code da Nota Fiscal Eletrônica.</p>
     <div id="readerNFCe"></div>
     <div class="acoes" style="margin-top:18px;">
@@ -531,7 +533,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogHistoricoItem">
+<dialog id="dialogHistoricoItem" aria-labelledby="tituloHistoricoItem">
   <div class="modal" style="max-width:600px;">
     <h2 id="tituloHistoricoItem">📜 Histórico do Item</h2>
     <div id="conteudoHistoricoItem"></div>
@@ -541,7 +543,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogFerramenta">
+<dialog id="dialogFerramenta" aria-labelledby="tituloFerramenta">
   <div class="modal">
     <h2 id="tituloFerramenta">Cadastrar ferramenta</h2>
     <input type="hidden" id="idFerramenta">
@@ -569,7 +571,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogManutencao">
+<dialog id="dialogManutencao" aria-labelledby="tituloManutencao">
   <div class="modal">
     <h2 id="tituloManutencao">🧰 Cadastrar Manutenção</h2>
     <input type="hidden" id="idManutencao">
@@ -615,7 +617,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogForaDaEmpresa">
+<dialog id="dialogForaDaEmpresa" aria-labelledby="tituloFora">
   <div class="modal">
     <h2 id="tituloFora">☠️ Assistência Técnica</h2>
     <input type="hidden" id="idFora">
@@ -624,9 +626,9 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <h4>🔍 Preenchimento automático</h4>
       <div class="subt">Tire foto, escolha da galeria ou leia o QR Code da NFC-e. O app preenche os campos sozinho.</div>
       <div class="ocr-botoes">
-        <button type="button" class="btn-ocr" onclick="lerNotaOCR('camera')">📷 Tirar foto</button>
-        <button type="button" class="btn-ocr" onclick="lerNotaOCR('galeria')">🖼️ Da galeria</button>
-        <button type="button" class="btn-ocr" onclick="abrirScannerNFCe()">🧾 QR NFC-e</button>
+        <button type="button" class="btn-ocr" id="btnOCRCamera" onclick="lerNotaOCR('camera')">📷 Tirar foto</button>
+        <button type="button" class="btn-ocr" id="btnOCRCGaleria" onclick="lerNotaOCR('galeria')">🖼️ Da galeria</button>
+        <button type="button" class="btn-ocr" id="btnOCRNFCe" onclick="abrirScannerNFCe()">🧾 QR NFC-e</button>
       </div>
       <input id="entradaOCR_camera" class="hidden" type="file" accept="image/*" capture="environment" onchange="processarOCR(this.files[0])">
       <input id="entradaOCR_galeria" class="hidden" type="file" accept="image/*" onchange="processarOCR(this.files[0])">
@@ -786,7 +788,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogVisualizarMidia">
+<dialog id="dialogVisualizarMidia" aria-labelledby="tituloMidia">
   <div class="modal" style="max-width:900px;text-align:center;">
     <h2 id="tituloMidia">Visualizar</h2>
     <div id="conteudoMidia" style="margin-top:12px;"></div>
@@ -796,9 +798,9 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogAtivo">
+<dialog id="dialogAtivo" aria-labelledby="tituloDialogAtivo">
   <div class="modal">
-    <h2>🏭 Cadastro de Ativo</h2>
+    <h2 id="tituloDialogAtivo">🏭 Cadastro de Ativo</h2>
     <input type="hidden" id="idAtivo">
     <label>Nome</label><input id="nomeAtivo">
     <label>TAG</label><input id="codigoAtivo" placeholder="Deixe vazio para gerar">
@@ -829,9 +831,9 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogCriado">
+<dialog id="dialogCriado" aria-labelledby="tituloDialogCriado">
   <div class="modal">
-    <h2>🔨 Ativo Criado</h2>
+    <h2 id="tituloDialogCriado">🔨 Ativo Criado</h2>
     <input type="hidden" id="idCriado">
     <label>Nome</label><input id="nomeCriado">
     <label>Código</label><input id="codigoCriado" placeholder="Deixe vazio para gerar">
@@ -857,7 +859,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogPedido">
+<dialog id="dialogPedido" aria-labelledby="tituloPedido">
   <div class="modal">
     <h2 id="tituloPedido">📦 Pedido</h2>
     <input type="hidden" id="idPedido">
@@ -882,9 +884,9 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogExterna">
+<dialog id="dialogExterna" aria-labelledby="tituloDialogExterna">
   <div class="modal">
-    <h2>🚚 Manutenção Externa</h2>
+    <h2 id="tituloDialogExterna">🚚 Manutenção Externa</h2>
     <input type="hidden" id="idExterna">
     <label>Tipo</label>
     <select id="tipoExterno"><option>Ferramenta</option><option>Ativo</option></select>
@@ -908,7 +910,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogSetor">
+<dialog id="dialogSetor" aria-labelledby="tituloSetor">
   <div class="modal" style="max-width:900px;">
     <h2 id="tituloSetor">📍 Editar Setor</h2>
     <input type="hidden" id="idSetorOriginal">
@@ -956,18 +958,23 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<dialog id="dialogCamera">
+<dialog id="dialogCamera" aria-labelledby="tituloDialogCamera">
   <div class="modal">
-    <h2>📹 Webcam</h2>
+    <h2 id="tituloDialogCamera">📹 Webcam</h2>
     <video id="camera" autoplay playsinline style="width:100%;border-radius:12px;"></video>
     <div class="acoes" style="margin-top:12px;">
       <button type="button" class="btn-primary" onclick="tirarFoto()">📸 Capturar</button>
       <button type="button" class="btn-outline" onclick="fecharCamera()">Fechar</button>
     </div>
   </div>
-</dialog><script>
+</dialog>
+
+<script>
 /* ============================================================
-   PCM DE FERRAMENTAS — JavaScript v2.5 (corrigido)
+   PCM DE FERRAMENTAS — JavaScript v2.6
+   Correções: autoTable validation, iOS banner, XSS fix, OCR lock,
+   debounce gráficos, apagarTudo restrito, SW scope, trim em códigos,
+   setarSeVazio no OCR, aria-labels.
    ============================================================ */
 
 /* ============ ESTADO GLOBAL ============ */
@@ -1025,6 +1032,12 @@ let scannerNFCe = null;
 let graficoStatus = null;
 let graficoSetores = null;
 
+/* v2.6: flag que impede duplo clique no OCR */
+let ocrEmAndamento = false;
+
+/* v2.6: timer para debounce dos gráficos */
+let _graficoTimeout = null;
+
 /* ============ HELPERS ============ */
 function escapar(t=""){
   const div = document.createElement("div");
@@ -1052,6 +1065,20 @@ function toast(msg, tipo = "info"){
     t.style.transition = "opacity 0.3s";
     setTimeout(() => t.remove(), 350);
   }, 3000);
+}
+
+/* v2.6: helper para preencher só se vazio (usado no OCR) */
+function setarSeVazio(id, valor){
+  const el = document.getElementById(id);
+  if(el && !el.value && valor) el.value = valor;
+}
+
+/* v2.6: comparação case-insensitive + trim */
+function codigoIgual(a, b){
+  return String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase();
+}
+function nomeSetorIgual(a, b){
+  return String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase();
 }
 
 function sincronizarGlobais(){
@@ -1173,6 +1200,21 @@ function alternarTema(){
   mostrarTudo();
 }
 
+/* v2.6: banner iOS para instalar PWA */
+function mostrarBannerIOS(){
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const jaMostrou = localStorage.getItem("controleBannerIOSVisto") === "1";
+  const standalone = window.navigator.standalone === true;
+  if(!isIOS || jaMostrou || standalone) return;
+  const b = document.createElement("div");
+  b.className = "banner-ios";
+  b.innerHTML = `
+    <span>📲 Para instalar: toque em <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b></span>
+    <button type="button" onclick="this.parentNode.remove();localStorage.setItem('controleBannerIOSVisto','1')">Entendi</button>
+  `;
+  document.body.appendChild(b);
+}
+
 /* ============ INIT ============ */
 function iniciar(){
   if(localStorage.getItem("controleTema") === "claro"){
@@ -1227,6 +1269,7 @@ function iniciar(){
   setTimeout(verificarAlarmes, 1000);
   mostrarTudo();
   verificarArmazenamento();
+  mostrarBannerIOS(); // v2.6
 }
 
 function atualizarSelectsSetores(){
@@ -1293,8 +1336,13 @@ function mostrarEstatisticas(){
   `;
 }
 
-/* ============ GRÁFICOS ============ */
+/* v2.6: debounce dos gráficos */
 function mostrarGraficos(){
+  clearTimeout(_graficoTimeout);
+  _graficoTimeout = setTimeout(_renderGraficos, 150);
+}
+
+function _renderGraficos(){
   if(!window.Chart) return;
   const claro = document.body.classList.contains("tema-claro");
   const corTexto = claro ? "#0a1a2e" : "#ffffff";
@@ -1356,7 +1404,7 @@ function gerarSetoresHTML(){
   if(!setores.length){
     return `<div class="card empty-state"><span class="emoji">📍</span><span>Nenhum setor cadastrado.</span><button type="button" class="btn-primary mt-16" onclick="abrirSetorNovo()">＋ Criar primeiro setor</button></div>`;
   }
-  return setores.map(s => {
+  return setores.map((s, idx) => {
     const nome = s.nome;
     const ferr = ferramentas.filter(x => x.setor === nome);
     const manut = manutencoes.filter(x => x.setor === nome);
@@ -1366,9 +1414,8 @@ function gerarSetoresHTML(){
     const fora = foraDaEmpresa.filter(x => x.setor === nome);
     const total = ferr.length + manut.length + ativ.length + cri.length + ped.length + fora.length;
     const temObs = s.observacoes && s.observacoes.trim().length > 0;
-    const idSeguro = "setor_" + btoa(unescape(encodeURIComponent(nome))).replace(/=/g,"");
     return `
-      <div class="card setor-card" onclick="abrirSetorPorIndice('${idSeguro}')" style="cursor:pointer;">
+      <div class="card setor-card" onclick="abrirSetorPorIndice(${idx})" style="cursor:pointer;" role="button" tabindex="0" aria-label="Editar setor ${escapar(nome)}">
         <h3>📍 ${escapar(nome)}</h3>
         <div class="count">${total}</div>
         <div style="font-size:12px;color:var(--cinza);opacity:0.6;text-transform:uppercase;">itens no total</div>
@@ -1388,12 +1435,9 @@ function gerarSetoresHTML(){
   }).join("");
 }
 
-function abrirSetorPorIndice(idSeguro){
-  const idx = setores.findIndex(s => {
-    const id = "setor_" + btoa(unescape(encodeURIComponent(s.nome))).replace(/=/g,"");
-    return id === idSeguro;
-  });
-  if(idx >= 0) abrirSetor(setores[idx].nome);
+/* v2.6: usa índice direto (sem btoa) */
+function abrirSetorPorIndice(idx){
+  if(idx >= 0 && idx < setores.length) abrirSetor(setores[idx].nome);
 }
 
 function mostrarSetores(){
@@ -1450,7 +1494,7 @@ function renderizarFerramentasDoSetor(nomeSetor){
         </div>
         <div class="item-actions">
           <button type="button" onclick="abrirHistoricoItem('ferramenta','${x.id}')" aria-label="Histórico">📜</button>
-          <button type="button" onclick="moverFerramenta('${x.id}')" aria-label="Mover">🔀</button>
+          <button type="button" onclick="moverFerramenta('${x.id}')" aria-label="Mover para outro setor">🔀</button>
           <button type="button" onclick="abrirFerramenta('${x.id}')" aria-label="Editar">✏️</button>
           <button type="button" onclick="excluirFerramentaDoSetor('${x.id}')" aria-label="Excluir">🗑️</button>
         </div>
@@ -1480,7 +1524,7 @@ function confirmarAdicionarFerramenta(){
   if(!nomeSetor){ toast("Setor inválido.", "error"); return; }
 
   if(codigo){
-    const dupCod = ferramentas.find(f => String(f.codigo||'').trim().toLowerCase() === codigo.toLowerCase());
+    const dupCod = ferramentas.find(f => codigoIgual(f.codigo, codigo));
     if(dupCod){
       toast(`⚠️ Código "${dupCod.codigo}" já usado por "${dupCod.nome}".`, "warning");
       return;
@@ -1488,8 +1532,7 @@ function confirmarAdicionarFerramenta(){
   }
 
   const dupNomeSetor = ferramentas.find(f =>
-    String(f.nome||'').trim().toLowerCase() === nome.toLowerCase() &&
-    String(f.setor||'').trim().toLowerCase() === nomeSetor.toLowerCase()
+    nomeSetorIgual(f.nome, nome) && nomeSetorIgual(f.setor, nomeSetor)
   );
   if(dupNomeSetor){
     toast(`⚠️ "${dupNomeSetor.nome}" já existe neste setor.`, "warning");
@@ -1550,7 +1593,7 @@ function salvarSetor(){
   const obs = document.getElementById("obsSetor").value.trim();
   if(!nome){ toast("Digite o nome do setor.", "error"); return; }
 
-  const duplicado = setores.find(s => s.nome.toLowerCase() === nome.toLowerCase() && s.nome !== nomeOriginal);
+  const duplicado = setores.find(s => nomeSetorIgual(s.nome, nome) && s.nome !== nomeOriginal);
   if(duplicado){ toast("Já existe um setor com esse nome.", "warning"); return; }
 
   if(nomeOriginal){
@@ -1716,8 +1759,7 @@ function salvarFerramenta(){
 
   if(codigo){
     const dupCod = ferramentas.find(f =>
-      f.id !== (ehEdicao ? id : null) &&
-      String(f.codigo||'').trim().toLowerCase() === codigo.toLowerCase()
+      f.id !== (ehEdicao ? id : null) && codigoIgual(f.codigo, codigo)
     );
     if(dupCod){
       toast(`⚠️ Código "${dupCod.codigo}" já usado por "${dupCod.nome}".`, "warning");
@@ -1727,8 +1769,7 @@ function salvarFerramenta(){
 
   const dupNomeSetor = ferramentas.find(f =>
     f.id !== (ehEdicao ? id : null) &&
-    String(f.nome||'').trim().toLowerCase() === nome.toLowerCase() &&
-    String(f.setor||'').trim().toLowerCase() === setor.toLowerCase()
+    nomeSetorIgual(f.nome, nome) && nomeSetorIgual(f.setor, setor)
   );
   if(dupNomeSetor){
     toast(`⚠️ "${dupNomeSetor.nome}" já existe neste setor.`, "warning");
@@ -1792,7 +1833,7 @@ async function adicionarFotos(arquivos){
 }
 
 function mostrarPreviewFerramenta(){
-  document.getElementById("previewFerramenta").innerHTML = midiasFerramenta.map(m=>`<img src="${m.src}">`).join("");
+  document.getElementById("previewFerramenta").innerHTML = midiasFerramenta.map(m=>`<img src="${m.src}" alt="Foto ferramenta">`).join("");
 }
 
 function abrirHistoricoItem(tipo, id){
@@ -1886,7 +1927,7 @@ function adicionarArquivosManutencao(arquivos){
 function mostrarPreviewManutencao(){
   const el = document.getElementById("previewManutencao");
   el.innerHTML = midiasManutencao.map(m=>{
-    if(m.tipo==="foto") return `<img src="${m.src}">`;
+    if(m.tipo==="foto") return `<img src="${m.src}" alt="Foto manutenção">`;
     const isPdf = m.nome?.toLowerCase().endsWith(".pdf");
     return `<div style="padding:10px 14px;border:1px solid var(--borda);border-radius:12px;background:rgba(0,0,0,0.15);font-size:12px;">${isPdf?"📄":"📎"} ${escapar(m.nome||"arquivo")}</div>`;
   }).join("");
@@ -1901,8 +1942,7 @@ function salvarManutencao(){
 
   const dup = manutencoes.find(m =>
     m.id !== (ehEdicao ? id : null) &&
-    String(m.nome||'').trim().toLowerCase() === nome.toLowerCase() &&
-    String(m.setor||'') === setor &&
+    nomeSetorIgual(m.nome, nome) && m.setor === setor &&
     !["Finalizada","Sem conserto"].includes(m.status)
   );
   if(dup){
@@ -1961,7 +2001,7 @@ function mostrarManutencoes(){
   el.innerHTML = lista.slice().reverse().map(x=>{
     const prioClass = x.prioridade==="Urgente"?"badge-danger":x.prioridade==="Alta"?"badge-warning":"badge-info";
     const statusClass = x.status==="Finalizada"?"badge-success":x.status==="Sem conserto"?"badge-danger":x.status==="Aguardando peça"?"badge-warning":"badge-info";
-    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}">` : `<div class="imagem-placeholder">🧰</div>`;
+    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}" alt="">` : `<div class="imagem-placeholder">🧰</div>`;
     const arquivosInfo = x.arquivos?.length ? `<br>📎 ${x.arquivos.length} arquivo(s)` : '';
     return `
       <div class="card item" style="border-color:rgba(255,107,130,0.25);">
@@ -2005,11 +2045,20 @@ function excluirManutencao(id){
 
 /* ============ OCR ============ */
 function lerNotaOCR(origem = 'camera'){
+  if(ocrEmAndamento){ toast("Aguarde o OCR terminar.", "warning"); return; }
   const id = origem === 'galeria' ? 'entradaOCR_galeria' : 'entradaOCR_camera';
   const input = document.getElementById(id);
   if(!input) return;
   input.value = '';
   input.click();
+}
+
+/* v2.6: bloqueia botões durante o OCR */
+function travarBotoesOCR(travar){
+  ['btnOCRCamera','btnOCRCGaleria','btnOCRNFCe'].forEach(id=>{
+    const b = document.getElementById(id);
+    if(b) b.disabled = travar;
+  });
 }
 
 function mostrarLoadingOCR(){
@@ -2031,6 +2080,8 @@ function mostrarLoadingOCR(){
 }
 function cancelarOCR(){
   removerLoadingOCR();
+  ocrEmAndamento = false;
+  travarBotoesOCR(false);
   toast("OCR cancelado.", "warning");
 }
 function atualizarProgressoOCR(m){
@@ -2055,11 +2106,14 @@ function removerLoadingOCR(){
 
 async function processarOCR(arquivo){
   if(!arquivo){ toast("Nenhum arquivo selecionado.", "error"); return; }
+  if(ocrEmAndamento){ toast("OCR já em andamento.", "warning"); return; }
   if(typeof Tesseract === 'undefined'){
     toast("Biblioteca OCR não carregou. Verifique sua internet.", "error");
     return;
   }
 
+  ocrEmAndamento = true;
+  travarBotoesOCR(true);
   mostrarLoadingOCR();
 
   const reader = new FileReader();
@@ -2088,6 +2142,9 @@ async function processarOCR(arquivo){
     console.error(e);
     removerLoadingOCR();
     toast("Erro ao ler OS: " + e.message, "error");
+  } finally {
+    ocrEmAndamento = false;
+    travarBotoesOCR(false);
   }
 }
 
@@ -2158,21 +2215,27 @@ function extrairDadosOS(texto){
   return dados;
 }
 
+/* v2.6: usa setarSeVazio para não sobrescrever campos já preenchidos */
 function preencherFormularioFora(d){
   const nomeComposto = [d.equipamento, d.marca, d.modelo].filter(Boolean).join(' ').trim();
-  if(nomeComposto){ const el = document.getElementById('nomeFora'); if(el) el.value = nomeComposto; }
-  if(d.codigo){ const el = document.getElementById('codigoFora'); if(el && !el.value) el.value = d.codigo; }
-  if(d.empresa){ const el = document.getElementById('empresaFora'); if(el) el.value = d.empresa; }
+  setarSeVazio('nomeFora', nomeComposto);
+  setarSeVazio('codigoFora', d.codigo);
+  setarSeVazio('empresaFora', d.empresa);
+
   const contatos = [];
   if(d.cnpj) contatos.push('CNPJ: ' + d.cnpj);
   if(d.ie) contatos.push('IE: ' + d.ie);
   if(d.telefone) contatos.push(d.telefone);
-  if(contatos.length){ const el = document.getElementById('contatoFora'); if(el) el.value = contatos.join(' • '); }
-  if(d.tecnico){ const el = document.getElementById('responsavelEmpresaFora'); if(el) el.value = d.tecnico; }
-  if(d.atendente){ const el = document.getElementById('responsavelFora'); if(el) el.value = d.atendente; }
-  if(d.os){ const el = document.getElementById('osFora'); if(el) el.value = d.os; }
-  if(d.dataEntrada){ const el = document.getElementById('dataSaidaFora'); if(el) el.value = d.dataEntrada; }
-  if(d.notaFiscal){ const el = document.getElementById('notaFiscalFora'); if(el) el.value = d.notaFiscal; }
+  if(contatos.length){
+    const el = document.getElementById('contatoFora');
+    if(el && !el.value) el.value = contatos.join(' • ');
+  }
+
+  setarSeVazio('responsavelEmpresaFora', d.tecnico);
+  setarSeVazio('responsavelFora', d.atendente);
+  setarSeVazio('osFora', d.os);
+  setarSeVazio('dataSaidaFora', d.dataEntrada);
+  setarSeVazio('notaFiscalFora', d.notaFiscal);
 
   if(d.tipoAssist){
     const t = d.tipoAssist.toUpperCase();
@@ -2201,12 +2264,18 @@ function preencherFormularioFora(d){
   const descPartes = [];
   if(d.defeito && d.defeito.length > 2) descPartes.push('Defeito: ' + d.defeito);
   if(d.acessorios && d.acessorios.length > 2 && d.acessorios.toUpperCase() !== 'ND') descPartes.push('Acessórios: ' + d.acessorios);
-  if(descPartes.length){ const el = document.getElementById('descricaoFora'); if(el && !el.value) el.value = descPartes.join('\n'); }
+  if(descPartes.length){
+    const el = document.getElementById('descricaoFora');
+    if(el && !el.value) el.value = descPartes.join('\n');
+  }
 
   const obsPartes = [];
   if(d.observacoes && d.observacoes.length > 2) obsPartes.push(d.observacoes);
   if(d.endereco) obsPartes.push('Endereço: ' + d.endereco + (d.bairro ? ' - ' + d.bairro : '') + (d.cidade ? ', ' + d.cidade : ''));
-  if(obsPartes.length){ const el = document.getElementById('obsFora'); if(el && !el.value) el.value = obsPartes.join('\n'); }
+  if(obsPartes.length){
+    const el = document.getElementById('obsFora');
+    if(el && !el.value) el.value = obsPartes.join('\n');
+  }
 }
 
 function mostrarResultadoOCR(dados, textoBruto){
@@ -2448,20 +2517,22 @@ function adicionarArquivosFora(arquivos){
   });
 }
 
+/* v2.6: usa data-* para evitar XSS em nomes com aspas */
 function mostrarPreviewFora(){
   const el = document.getElementById("previewFora");
   el.innerHTML = midiasFora.map((m, idx)=>{
-    if(m.tipo==="foto") return `<div style="position:relative;display:inline-block;"><img src="${m.src}" onclick="visualizarMidia('foto','${m.src}')" style="cursor:pointer;"><button type="button" onclick="removerMidiaFora(${idx})" style="position:absolute;top:2px;right:2px;padding:2px 6px;font-size:11px;background:rgba(255,0,0,0.8);">✕</button></div>`;
-    if(m.tipo==="video") return `<div style="position:relative;display:inline-block;"><video src="${m.src}" onclick="visualizarMidia('video','${m.src}')" style="cursor:pointer;"></video><button type="button" onclick="removerMidiaFora(${idx})" style="position:absolute;top:2px;right:2px;padding:2px 6px;font-size:11px;background:rgba(255,0,0,0.8);">✕</button></div>`;
+    if(m.tipo==="foto") return `<div style="position:relative;display:inline-block;"><img src="${m.src}" alt="Foto" data-tipo="foto" data-src="${escapar(m.src)}" onclick="visualizarMidia(this.dataset.tipo, this.dataset.src, '')" style="cursor:pointer;"><button type="button" onclick="removerMidiaFora(${idx})" aria-label="Remover">✕</button></div>`;
+    if(m.tipo==="video") return `<div style="position:relative;display:inline-block;"><video src="${m.src}" data-tipo="video" data-src="${escapar(m.src)}" onclick="visualizarMidia(this.dataset.tipo, this.dataset.src, '')" style="cursor:pointer;"></video><button type="button" onclick="removerMidiaFora(${idx})" aria-label="Remover">✕</button></div>`;
     const isPdf = m.nome?.toLowerCase().endsWith(".pdf");
     const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(m.nome||"");
     const isVid = /\.(mp4|webm|mov|avi)$/i.test(m.nome||"");
     let icone = "📎"; if(isPdf) icone = "📄"; else if(isImg) icone = "🖼️"; else if(isVid) icone = "🎥";
+    const nomeEscapado = escapar(m.nome||"arquivo");
     return `<div class="anexo-item" style="display:inline-flex;max-width:220px;">
       <span class="icone">${icone}</span>
-      <span class="nome" title="${escapar(m.nome||"")}">${escapar(m.nome||"arquivo")}</span>
-      <button type="button" onclick="visualizarMidia('arquivo','${m.src}','${escapar(m.nome||"")}')">👁️</button>
-      <button type="button" onclick="removerMidiaFora(${idx})">✕</button>
+      <span class="nome" title="${nomeEscapado}">${nomeEscapado}</span>
+      <button type="button" data-tipo="arquivo" data-src="${escapar(m.src)}" data-nome="${nomeEscapado}" onclick="visualizarMidia(this.dataset.tipo, this.dataset.src, this.dataset.nome)" aria-label="Visualizar">👁️</button>
+      <button type="button" onclick="removerMidiaFora(${idx})" aria-label="Remover">✕</button>
     </div>`;
   }).join("");
 }
@@ -2471,14 +2542,14 @@ function visualizarMidia(tipo, src, nome=""){
   const c = document.getElementById("conteudoMidia");
   const t = document.getElementById("tituloMidia");
   t.textContent = nome || (tipo === "foto" ? "🖼️ Foto" : tipo === "video" ? "🎥 Vídeo" : "📎 Arquivo");
-  if(tipo === "foto") c.innerHTML = `<img src="${src}" style="max-width:100%;max-height:75vh;border-radius:12px;">`;
+  if(tipo === "foto") c.innerHTML = `<img src="${src}" alt="" style="max-width:100%;max-height:75vh;border-radius:12px;">`;
   else if(tipo === "video") c.innerHTML = `<video src="${src}" controls style="max-width:100%;max-height:75vh;border-radius:12px;"></video>`;
   else {
     const isPdf = (nome||"").toLowerCase().endsWith(".pdf");
     const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(nome||"");
     const isVid = /\.(mp4|webm|mov|avi)$/i.test(nome||"");
     if(isPdf) c.innerHTML = `<iframe src="${src}" style="width:100%;height:75vh;border-radius:12px;border:1px solid var(--borda);"></iframe>`;
-    else if(isImg) c.innerHTML = `<img src="${src}" style="max-width:100%;max-height:75vh;border-radius:12px;">`;
+    else if(isImg) c.innerHTML = `<img src="${src}" alt="" style="max-width:100%;max-height:75vh;border-radius:12px;">`;
     else if(isVid) c.innerHTML = `<video src="${src}" controls style="max-width:100%;max-height:75vh;border-radius:12px;"></video>`;
     else c.innerHTML = `<div style="padding:20px;"><p class="muted">Arquivo: <b>${escapar(nome||"arquivo")}</b></p><a href="${src}" download="${escapar(nome||"arquivo")}" class="btn-primary" style="display:inline-flex;text-decoration:none;padding:10px 20px;border-radius:30px;margin-top:12px;">⬇️ Baixar arquivo</a></div>`;
   }
@@ -2596,7 +2667,7 @@ function mostrarForaDaEmpresa(){
       "Retornado":"badge-success","Sem conserto":"badge-danger","Cancelado":"badge-danger"
     }[x.status] || "badge-info";
     const prioClass = x.prioridade==="Urgente"?"badge-danger":x.prioridade==="Alta"?"badge-warning":"badge-info";
-    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}">` : `<div class="imagem-placeholder">☠️</div>`;
+    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}" alt="">` : `<div class="imagem-placeholder">☠️</div>`;
 
     const agora = Date.now();
     let atrasoInfo = '';
@@ -2756,7 +2827,7 @@ async function adicionarFotoAtivo(a){
   mostrarPreviewAtivo();
 }
 function mostrarPreviewAtivo(){
-  document.getElementById("previewAtivo").innerHTML = midiasAtivo.map(m=>`<img src="${m.src}">`).join("");
+  document.getElementById("previewAtivo").innerHTML = midiasAtivo.map(m=>`<img src="${m.src}" alt="">`).join("");
 }
 
 function salvarAtivo(){
@@ -2769,8 +2840,7 @@ function salvarAtivo(){
 
   if(codigo){
     const dup = ativos.find(a =>
-      a.id !== (ehEdicao ? id : null) &&
-      String(a.codigo||'').trim().toLowerCase() === codigo.toLowerCase()
+      a.id !== (ehEdicao ? id : null) && codigoIgual(a.codigo, codigo)
     );
     if(dup){
       toast(`⚠️ TAG "${dup.codigo}" já usada por "${dup.nome}".`, "warning");
@@ -2779,8 +2849,7 @@ function salvarAtivo(){
   }
   const dupNomeSetor = ativos.find(a =>
     a.id !== (ehEdicao ? id : null) &&
-    String(a.nome||'').trim().toLowerCase() === nome.toLowerCase() &&
-    String(a.setor||'') === setor
+    nomeSetorIgual(a.nome, nome) && a.setor === setor
   );
   if(dupNomeSetor){
     toast(`⚠️ Já existe ativo "${dupNomeSetor.nome}" neste setor.`, "warning");
@@ -2819,7 +2888,7 @@ function mostrarAtivos(){
   if(!lista.length){ el.innerHTML = `<div class="card empty-state"><span class="emoji">🏭</span><span>Nenhum ativo.</span></div>`; return; }
   el.innerHTML = lista.map(x=>{
     const sc = x.status==="Operando"?"badge-success":x.status==="Parado"?"badge-warning":x.status==="Manutenção"?"badge-danger":"badge-info";
-    const foto = x.fotos?.[0]?`<img class="imagem-mini" src="${x.fotos[0]}">`:`<div class="imagem-placeholder">🏭</div>`;
+    const foto = x.fotos?.[0]?`<img class="imagem-mini" src="${x.fotos[0]}" alt="">`:`<div class="imagem-placeholder">🏭</div>`;
     return `
       <div class="card item">
         ${foto}
@@ -2888,8 +2957,7 @@ function salvarCriado(){
 
   if(codigo){
     const dup = ativosCriados.find(a =>
-      a.id !== (ehEdicao ? id : null) &&
-      String(a.codigo||'').trim().toLowerCase() === codigo.toLowerCase()
+      a.id !== (ehEdicao ? id : null) && codigoIgual(a.codigo, codigo)
     );
     if(dup){
       toast(`⚠️ Código "${dup.codigo}" já usado por "${dup.nome}".`, "warning");
@@ -2898,8 +2966,7 @@ function salvarCriado(){
   }
   const dupNomeSetor = ativosCriados.find(a =>
     a.id !== (ehEdicao ? id : null) &&
-    String(a.nome||'').trim().toLowerCase() === nome.toLowerCase() &&
-    String(a.setor||'') === setor
+    nomeSetorIgual(a.nome, nome) && a.setor === setor
   );
   if(dupNomeSetor){
     toast(`⚠️ Já existe "${dupNomeSetor.nome}" neste setor.`, "warning");
@@ -3222,7 +3289,7 @@ function abrirScanner(){
     { facingMode: "environment" },
     { fps: 10, qrbox: { width: 250, height: 250 } },
     (textoDecodificado) => {
-      const f = ferramentas.find(x => x.codigo && x.codigo.toLowerCase() === textoDecodificado.toLowerCase().trim());
+      const f = ferramentas.find(x => codigoIgual(x.codigo, textoDecodificado));
       if(f){ fecharScanner(); abrirFerramenta(f.id); }
       else { toast(`Nenhuma ferramenta com código "${textoDecodificado}".`, "warning"); }
     },
@@ -3240,10 +3307,20 @@ function fecharScanner(){
 }
 
 /* ============ PDF ============ */
+/* v2.6: valida autoTable também */
 function checkPDF(){
-  if(!window.jspdf || !window.jspdf.jsPDF){ toast("Biblioteca PDF não carregada.", "error"); return false; }
+  if(!window.jspdf || !window.jspdf.jsPDF){
+    toast("Biblioteca PDF não carregada. Recarregue a página.", "error");
+    return false;
+  }
+  const temAutoTable = !!(window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable) || !!window.jspdf.autoTable;
+  if(!temAutoTable){
+    toast("Plugin autoTable não carregou. Recarregue a página.", "error");
+    return false;
+  }
   return true;
 }
+
 function cabecalhoPDF(doc, titulo, sub=""){
   const w = doc.internal.pageSize.getWidth();
   doc.setFillColor(13,42,61); doc.rect(0,0,w,35,'F');
@@ -3257,7 +3334,7 @@ function cabecalhoPDF(doc, titulo, sub=""){
   const h = doc.internal.pageSize.getHeight();
   doc.setDrawColor(200,200,200); doc.line(14,h-15,w-14,h-15);
   doc.setFontSize(8); doc.setTextColor(120,120,120);
-  doc.text('PCM de Ferramentas', 14, h-8);
+  doc.text('PCM de Ferramentas v2.6', 14, h-8);
   doc.text(`Página ${doc.internal.getCurrentPageInfo().pageNumber}`, w-14, h-8, {align:'right'});
 }
 async function salvarPDF(doc, nome){
@@ -3281,6 +3358,17 @@ async function salvarPDF(doc, nome){
   } catch(e){ console.error(e); toast("Não foi possível abrir o PDF.", "error"); }
 }
 
+/* v2.6: wrapper que sempre chama autoTable corretamente */
+function chamarAutoTable(doc, opts){
+  if(window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable){
+    return doc.autoTable(opts);
+  }
+  if(window.jspdf.autoTable){
+    return window.jspdf.autoTable(doc, opts);
+  }
+  throw new Error("autoTable não disponível");
+}
+
 function gerarPDFCompleto(){
   if(!checkPDF()) return;
   const { jsPDF } = window.jspdf;
@@ -3298,7 +3386,7 @@ function gerarPDFCompleto(){
     ['Pedidos', pedidosMateriais.length],
     ['Setores', setores.length]
   ];
-  doc.autoTable({ startY:45, head:[['Indicador','Quantidade']], body:resumo, theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255}, styles:{fontSize:10,cellPadding:3}, margin:{left:14,right:14} });
+  chamarAutoTable(doc, { startY:45, head:[['Indicador','Quantidade']], body:resumo, theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255}, styles:{fontSize:10,cellPadding:3}, margin:{left:14,right:14} });
   salvarPDF(doc, `Relatorio_Geral_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFFerramentas(){
@@ -3306,7 +3394,7 @@ function gerarPDFFerramentas(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   cabecalhoPDF(doc,'FERRAMENTAS',`Total: ${ferramentas.length}`);
-  doc.autoTable({ startY:45, head:[['Nome','Código','Setor','Qtd','Status']], body: ferramentas.map(f=>[f.nome, f.codigo||'-', f.setor, f.quantidade||1, f.status]), theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
+  chamarAutoTable(doc, { startY:45, head:[['Nome','Código','Setor','Qtd','Status']], body: ferramentas.map(f=>[f.nome, f.codigo||'-', f.setor, f.quantidade||1, f.status]), theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
   salvarPDF(doc, `Ferramentas_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFManutencao(){
@@ -3316,7 +3404,7 @@ function gerarPDFManutencao(){
   cabecalhoPDF(doc,'FERRAMENTAS EM MANUTENÇÃO',`Total: ${manutencoes.length}`);
   if(!manutencoes.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhuma manutenção.',14,55); }
   else {
-    doc.autoTable({ startY:45, head:[['Nome','Código','Setor','Tipo','Status','Entrada']], body: manutencoes.map(m=>[m.nome, m.codigo||'-', m.setor, m.tipo, m.status, m.dataEntrada||'-']), theme:'grid', headStyles:{fillColor:[211,47,47],textColor:255}, styles:{fontSize:8,cellPadding:2}, margin:{left:14,right:14} });
+    chamarAutoTable(doc, { startY:45, head:[['Nome','Código','Setor','Tipo','Status','Entrada']], body: manutencoes.map(m=>[m.nome, m.codigo||'-', m.setor, m.tipo, m.status, m.dataEntrada||'-']), theme:'grid', headStyles:{fillColor:[211,47,47],textColor:255}, styles:{fontSize:8,cellPadding:2}, margin:{left:14,right:14} });
   }
   salvarPDF(doc, `Manutencao_${new Date().toISOString().slice(0,10)}.pdf`);
 }
@@ -3355,7 +3443,7 @@ function gerarPDFForaDaEmpresa(){
   cabecalhoPDF(doc,'☠️ ASSISTÊNCIA TÉCNICA','Manutenção externa / terceirizada');
   if(!foraDaEmpresa.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum envio.',14,55); }
   else {
-    doc.autoTable({
+    chamarAutoTable(doc, {
       startY:45,
       head:[['Item','Empresa','Serviço','Assist.','Saída','Retorno','Status','Valor']],
       body: foraDaEmpresa.map(x=>[
@@ -3412,7 +3500,7 @@ function gerarPDFAtivos(){
   const doc = new jsPDF();
   cabecalhoPDF(doc,'ATIVOS',`Total: ${ativos.length}`);
   if(!ativos.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum ativo.',14,55); }
-  else { doc.autoTable({ startY:45, head:[['Nome','TAG','Tipo','Setor','Status']], body: ativos.map(a=>[a.nome, a.codigo||'-', a.tipo, a.setor, a.status]), theme:'grid', headStyles:{fillColor:[124,92,191],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
+  else { chamarAutoTable(doc, { startY:45, head:[['Nome','TAG','Tipo','Setor','Status']], body: ativos.map(a=>[a.nome, a.codigo||'-', a.tipo, a.setor, a.status]), theme:'grid', headStyles:{fillColor:[124,92,191],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
   salvarPDF(doc, `Ativos_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFCriados(){
@@ -3421,7 +3509,7 @@ function gerarPDFCriados(){
   const doc = new jsPDF();
   cabecalhoPDF(doc,'CRIADOS',`Total: ${ativosCriados.length}`);
   if(!ativosCriados.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum criado.',14,55); }
-  else { doc.autoTable({ startY:45, head:[['Nome','Código','Tipo','Resp.','Setor','Status']], body: ativosCriados.map(a=>[a.nome, a.codigo||'-', a.tipo, a.responsavel||'-', a.setor, a.status]), theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
+  else { chamarAutoTable(doc, { startY:45, head:[['Nome','Código','Tipo','Resp.','Setor','Status']], body: ativosCriados.map(a=>[a.nome, a.codigo||'-', a.tipo, a.responsavel||'-', a.setor, a.status]), theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
   salvarPDF(doc, `Criados_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFPedidos(){
@@ -3430,7 +3518,7 @@ function gerarPDFPedidos(){
   const doc = new jsPDF();
   cabecalhoPDF(doc,'PEDIDOS',`Total: ${pedidosMateriais.length}`);
   if(!pedidosMateriais.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum pedido.',14,55); }
-  else { doc.autoTable({ startY:45, head:[['Material','Qtd','Fornecedor','Setor','Status']], body: pedidosMateriais.map(p=>[p.nome, p.quantidade||'-', p.fornecedor||'-', p.setor, p.status]), theme:'grid', headStyles:{fillColor:[245,166,35],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
+  else { chamarAutoTable(doc, { startY:45, head:[['Material','Qtd','Fornecedor','Setor','Status']], body: pedidosMateriais.map(p=>[p.nome, p.quantidade||'-', p.fornecedor||'-', p.setor, p.status]), theme:'grid', headStyles:{fillColor:[245,166,35],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
   salvarPDF(doc, `Pedidos_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFExternas(){
@@ -3439,7 +3527,7 @@ function gerarPDFExternas(){
   const doc = new jsPDF();
   cabecalhoPDF(doc,'EXTERNAS',`Total: ${manutencoesExternas.length}`);
   if(!manutencoesExternas.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhuma externa.',14,55); }
-  else { doc.autoTable({ startY:45, head:[['Item','Tipo','Empresa','Resp.','Status']], body: manutencoesExternas.map(m=>[m.nome, m.tipo, m.empresa||'-', m.responsavel||'-', m.status]), theme:'grid', headStyles:{fillColor:[255,107,157],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
+  else { chamarAutoTable(doc, { startY:45, head:[['Item','Tipo','Empresa','Resp.','Status']], body: manutencoesExternas.map(m=>[m.nome, m.tipo, m.empresa||'-', m.responsavel||'-', m.status]), theme:'grid', headStyles:{fillColor:[255,107,157],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
   salvarPDF(doc, `Externas_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 function gerarPDFSetores(){
@@ -3454,7 +3542,7 @@ function gerarPDFSetores(){
     const fora = foraDaEmpresa.filter(x=>x.setor===nome);
     return [nome, f.length, f.filter(x=>x.status==='Disponível').length, f.filter(x=>x.status==='Emprestada').length, m.length, fora.length, ativos.filter(x=>x.setor===nome).length];
   });
-  doc.autoTable({ startY:45, head:[['Setor','Ferr.','Disp.','Empr.','Manut.','Assist.','Ativos']], body:dados, theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
+  chamarAutoTable(doc, { startY:45, head:[['Setor','Ferr.','Disp.','Empr.','Manut.','Assist.','Ativos']], body:dados, theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
   salvarPDF(doc, `Setores_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 
@@ -3597,7 +3685,7 @@ function atualizarBadgeFora(){
 /* ============ BACKUP ============ */
 function exportarBackup(){
   const dados = {
-    versao: "2.5",
+    versao: "2.6",
     gerado: new Date().toISOString(),
     usuario: usuarioAtual || "—",
     ferramentas, manutencoes, ativos, ativosCriados, pedidosMateriais,
@@ -3645,10 +3733,17 @@ function importarBackup(arquivo){
   if(inp) inp.value = "";
 }
 
+/* v2.6: remove só as chaves do app */
 function apagarTudo(){
-  if(!confirm("⚠️ Vai APAGAR TUDO. Tem certeza?")) return;
-  if(!confirm("🚨 ÚLTIMA CONFIRMAÇÃO 🚨")) return;
-  localStorage.clear();
+  if(!confirm("⚠️ Vai APAGAR TUDO do PCM de Ferramentas. Tem certeza?")) return;
+  if(!confirm("🚨 ÚLTIMA CONFIRMAÇÃO — não há como desfazer!")) return;
+  const chaves = [
+    "controleFerramentas","controleManutencoes","controleAtivos",
+    "controleAtivosCriados","controlePedidosMateriais","controleManutencoesExternas",
+    "controleForaDaEmpresa","controleHistorico","controleAlarmes",
+    "controleSetores","controleContadores","controleUsuario"
+  ];
+  chaves.forEach(k => localStorage.removeItem(k));
   location.reload();
 }
 
@@ -3735,7 +3830,7 @@ function solicitarNotificacoes(){
 /* ============ SERVICE WORKER ============ */
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   const swCode = `
-    const CACHE = "pcm-ferramentas-v8";
+    const CACHE = "pcm-ferramentas-v9";
     const ARQUIVOS = [
       "./",
       "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
@@ -3762,7 +3857,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
   `;
   const blob = new Blob([swCode], {type: "application/javascript"});
   const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl).then(()=>console.log('✅ SW registrado')).catch(e=>console.log('SW:', e));
+  navigator.serviceWorker.register(swUrl, { scope: './' }).then(()=>console.log('✅ SW registrado')).catch(e=>console.log('SW:', e));
 }
 
 /* ============ START ============ */
@@ -3776,19 +3871,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ============ DIAGNÓSTICO ============ */
 window.diagnostico = function(){
-  console.log('=== DIAGNÓSTICO PCM ===');
+  console.log('=== DIAGNÓSTICO PCM v2.6 ===');
   console.log('1. localStorage:', (()=>{try{localStorage.setItem('t','1');localStorage.removeItem('t');return 'OK';}catch(e){return 'FALHOU: '+e.message;}})());
   console.log('2. Protocolo:', location.protocol);
   console.log('3. jsPDF:', !!(window.jspdf && window.jspdf.jsPDF));
-  console.log('4. autoTable:', !!(window.jspdf && window.jspdf.jsPDF && window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable));
-  console.log('5. Chart.js:', !!window.Chart);
-  console.log('6. Html5Qrcode:', !!window.Html5Qrcode);
-  console.log('7. Tesseract:', typeof Tesseract);
-  console.log('8. Ferramentas no storage:', carregarArray('controleFerramentas').length);
-  console.log('9. Usuário salvo:', localStorage.getItem('controleUsuario'));
-  console.log('10. Service Worker:', 'serviceWorker' in navigator ? 'suportado' : 'não suportado');
-  try { mostrarTudo(); console.log('mostrarTudo rodou sem erro'); }
-  catch(e){ console.log('ERRO em mostrarTudo:', e.message, e.stack); }
+  console.log('4. autoTable API:', !!(window.jspdf && window.jspdf.jsPDF && window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable));
+  console.log('5. autoTable global:', !!(window.jspdf && window.jspdf.autoTable));
+  console.log('6. Chart.js:', !!window.Chart);
+  console.log('7. Html5Qrcode:', !!window.Html5Qrcode);
+  console.log('8. Tesseract:', typeof Tesseract);
+  console.log('9. Ferramentas no storage:', carregarArray('controleFerramentas').length);
+  console.log('10. Usuário salvo:', localStorage.getItem('controleUsuario'));
+  console.log('11. Service Worker:', 'serviceWorker' in navigator ? 'suportado' : 'não suportado');
+  try { mostrarTudo(); console.log('✅ mostrarTudo rodou sem erro'); }
+  catch(e){ console.log('❌ ERRO em mostrarTudo:', e.message, e.stack); }
 };
 </script>
 </body>
