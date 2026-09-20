@@ -4,7 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0a1a2e">
-<title>PCM de Ferramentas v2.6</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PCM Ferramentas">
+<meta name="description" content="Controle de ferramentas, ativos, manutenção e assistência técnica">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%230a1a2e' width='192' height='192' rx='32'/%3E%3Ctext x='96' y='130' font-size='110' text-anchor='middle'%3E🛠%3C/text%3E%3C/svg%3E">
+<title>PCM de Ferramentas v2.7</title>
 
 <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
@@ -17,9 +23,9 @@
   --fundo1:#060d17;--fundo2:#0a1a2e;--fundo3:#0d2a3d;
   --card:rgba(255,255,255,0.06);--borda:rgba(255,255,255,0.10);
   --texto:#fff;--cinza:#b0c8d9;--bg-header:rgba(3,10,20,0.92);
-  --verde:#2ddb7a;--amarelo:#ffd14a;--vermelho:#ff6b82;
+  --verde:#2ddb7a;--amarelo:#ffd14a;--amarelo-texto:#ffd14a;--vermelho:#ff6b82;
   --azul:#1eb8c9;--azul-claro:#6ae2ef;--roxo:#7c5cbf;
-  --laranja:#f5a623;--rosa:#ff6b9d;
+  --laranja:#f5a623;--laranja-texto:#f5a623;--rosa:#ff6b9d;
   --sombra:0 15px 50px rgba(0,0,0,0.5);
   --radius:16px;--transition:0.4s cubic-bezier(0.34,1.56,0.64,1);
 }
@@ -27,6 +33,7 @@ body.tema-claro{
   --fundo1:#f4f6fa;--fundo2:#e8edf5;--fundo3:#dde5f0;
   --card:rgba(255,255,255,0.85);--borda:rgba(0,0,0,0.08);
   --texto:#0a1a2e;--cinza:#4a5b6e;--bg-header:rgba(255,255,255,0.92);
+  --amarelo-texto:#8a6400;--laranja-texto:#a85900;
   --sombra:0 15px 50px rgba(0,0,0,0.08);
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -88,6 +95,7 @@ nav button.fora-badge::after{content:attr(data-count);position:absolute;top:-4px
 @keyframes counterGrad{0%{background-position:0% 50%}100%{background-position:100% 50%}}
 button{border:none;background:var(--card);color:var(--texto);border-radius:30px;padding:9px 22px;font-weight:600;font-size:13px;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:6px;border:1px solid var(--borda)}
 button:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,0,0,0.3);border-color:rgba(30,184,201,0.4)}
+button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .btn-primary{background:linear-gradient(135deg,var(--azul),var(--roxo));border-color:transparent;color:#fff}
 .btn-success{background:linear-gradient(135deg,#1a8a5a,#2ddb7a);border-color:transparent;color:#fff}
 .btn-danger{background:linear-gradient(135deg,#a82f4a,#ff6b82);border-color:transparent;color:#fff}
@@ -111,15 +119,12 @@ button:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,0,0,0.3);b
 .item-actions button{padding:5px 10px;font-size:13px;border-radius:30px;min-width:34px;justify-content:center}
 .badge{display:inline-block;padding:3px 12px;margin:2px 2px 2px 0;border-radius:999px;font-size:11px;font-weight:500;border:1px solid transparent}
 .badge-success{background:rgba(45,219,122,0.15);color:var(--verde)}
-.badge-warning{background:rgba(255,209,74,0.15);color:#b88a00}
-body:not(.tema-claro) .badge-warning{color:var(--amarelo)}
+.badge-warning{background:rgba(255,209,74,0.15);color:var(--amarelo-texto)}
 .badge-danger{background:rgba(255,107,130,0.15);color:var(--vermelho)}
 .badge-info{background:rgba(30,184,201,0.15);color:var(--azul)}
 .badge-created{background:rgba(45,219,122,0.15);color:var(--verde)}
-.badge-pedido{background:rgba(245,166,35,0.15);color:#c47a00}
-body:not(.tema-claro) .badge-pedido{color:var(--laranja)}
-.badge-tempo{background:rgba(255,209,74,0.15);color:#b88a00;font-weight:600}
-body:not(.tema-claro) .badge-tempo{color:var(--amarelo)}
+.badge-pedido{background:rgba(245,166,35,0.15);color:var(--laranja-texto)}
+.badge-tempo{background:rgba(255,209,74,0.15);color:var(--amarelo-texto);font-weight:600}
 .badge-tempo.urgente{background:rgba(255,107,130,0.2);color:var(--vermelho)}
 .badge-manutencao{background:rgba(255,107,130,0.15);color:var(--vermelho)}
 .badge-qtd{background:rgba(124,92,191,0.15);color:var(--roxo);font-weight:600}
@@ -161,8 +166,8 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 @keyframes pulseInstalar{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.05)}}
 .banner-ios{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,var(--azul),var(--roxo));color:#fff;padding:14px 20px;z-index:9999;text-align:center;font-size:13px;box-shadow:0 -4px 20px rgba(0,0,0,0.4);display:flex;justify-content:space-between;align-items:center;gap:12px}
 .banner-ios button{background:rgba(255,255,255,0.2);color:#fff;padding:6px 14px;font-size:12px;border-radius:20px}
-.alarme-container{position:fixed;top:80px;right:20px;z-index:1000;max-width:400px;width:100%;pointer-events:none}
-.alarme-notificacao{background:rgba(255,107,130,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,107,130,0.3);border-radius:16px;padding:18px 20px;margin-bottom:12px;box-shadow:0 20px 60px rgba(0,0,0,0.6);animation:slideInAlarme .5s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto}
+.alarme-container{position:fixed;top:80px;right:20px;z-index:1000;max-width:400px;width:100%;pointer-events:none;display:flex;flex-direction:column;gap:12px}
+.alarme-notificacao{background:rgba(255,107,130,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,107,130,0.3);border-radius:16px;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,0.6);animation:slideInAlarme .5s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto}
 .alarme-notificacao.urgente{background:rgba(255,0,0,0.9);animation:pulseAlarme 1s ease-in-out infinite alternate}
 @keyframes slideInAlarme{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}}
 @keyframes pulseAlarme{0%{transform:scale(1)}100%{transform:scale(1.02)}}
@@ -181,6 +186,10 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 .anexo-item .nome{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .anexo-item button{padding:3px 8px;font-size:11px;border-radius:20px}
 
+.thumb-wrap{position:relative;display:inline-block}
+.thumb-wrap .btn-remover{position:absolute;top:-8px;right:-8px;width:24px;height:24px;padding:0;border-radius:50%;background:rgba(255,107,130,0.95);color:#fff;font-size:12px;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.5)}
+.thumb-wrap .btn-remover:hover{background:#ff6b82;transform:scale(1.1)}
+
 .ocr-panel{
   background:linear-gradient(135deg,rgba(30,184,201,0.10),rgba(45,219,122,0.06));
   border:1px solid rgba(30,184,201,0.35);
@@ -190,7 +199,6 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 .ocr-panel .subt{font-size:11.5px;color:var(--cinza);opacity:0.85;margin-bottom:12px;line-height:1.5;}
 .ocr-botoes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 .ocr-botoes button{justify-content:center;padding:10px 12px;font-size:12px;}
-.ocr-botoes button:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 .resultado-ocr{
   background:rgba(45,219,122,0.08);
   border:1px solid rgba(45,219,122,0.3);
@@ -217,18 +225,22 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 .ocr-progress-texto{font-size:13px;color:var(--azul-claro);margin-top:12px;font-weight:600;}
 .ocr-progress-status{font-size:12px;color:var(--cinza);margin-top:6px;opacity:0.7;}
 
+.toast-container{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:99998;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;max-width:90vw}
 .toast{
-  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
   background:var(--bg-header);border:1px solid var(--borda);color:var(--texto);
   padding:12px 24px;border-radius:30px;font-size:13px;font-weight:600;
-  box-shadow:0 15px 40px rgba(0,0,0,0.5);z-index:99998;
+  box-shadow:0 15px 40px rgba(0,0,0,0.5);
   animation:toastIn .4s cubic-bezier(0.34,1.56,0.64,1);max-width:90vw;
-  text-align:center;pointer-events:none;
+  text-align:center;
 }
-@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(30px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes toastIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 .toast.toast-success{border-color:rgba(45,219,122,0.4);color:var(--verde)}
 .toast.toast-error{border-color:rgba(255,107,130,0.4);color:var(--vermelho)}
-.toast.toast-warning{border-color:rgba(255,209,74,0.4);color:var(--amarelo)}
+.toast.toast-warning{border-color:rgba(255,209,74,0.4);color:var(--amarelo-texto)}
+
+.pdf-loading{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:99999;flex-direction:column;gap:20px;color:#fff;}
+.pdf-spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,0.15);border-top-color:var(--azul);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 @media (max-width:768px){
   .item{grid-template-columns:1fr;gap:8px;text-align:center}
@@ -259,6 +271,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 <body>
 
 <div id="alarmeContainer" class="alarme-container"></div>
+<div id="toastContainer" class="toast-container"></div>
 
 <div class="app-wrapper">
 <header>
@@ -267,7 +280,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <div class="logo-icon">🛠</div>
       <div class="logo-text">
         <h1>PCM de Ferramentas</h1>
-        <div class="subtitulo">Ferramentas • Ativos • Assistência Técnica • v2.6</div>
+        <div class="subtitulo">Ferramentas • Ativos • Assistência Técnica • v2.7</div>
       </div>
     </div>
     <div class="header-actions">
@@ -494,7 +507,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 </section>
 
 </main>
-<footer>✦ PCM de Ferramentas v2.6 ✦</footer>
+<footer>✦ PCM de Ferramentas v2.7 ✦</footer>
 </div>
 
 <!-- MODAIS -->
@@ -971,50 +984,79 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 
 <script>
 /* ============================================================
-   PCM DE FERRAMENTAS — JavaScript v2.6
-   Correções: autoTable validation, iOS banner, XSS fix, OCR lock,
-   debounce gráficos, apagarTudo restrito, SW scope, trim em códigos,
-   setarSeVazio no OCR, aria-labels.
+   PCM DE FERRAMENTAS — JavaScript v2.7
+   Melhorias aplicadas:
+   • SW real (arquivo externo) + manifest
+   • Tesseract em WebWorker (não trava UI)
+   • Histórico por ID do item (não perde ao renomear)
+   • Contadores recalculados após importar backup
+   • Toast empilhável (container flex)
+   • Gráficos com update() em vez de destroy()
+   • iOS share com fallback para wa.me
+   • Manifest + apple-touch-icon
+   • Acessibilidade e contraste no tema claro
+   • handler global de erros
+   • loading no PDF
+   • botões de remover mídia em todas as prévias
+   • confirmação ao fechar modal com dados não salvos
+   • setarSeVazio no OCR preserva o que já foi digitado
+   • escapar() sem DOM
    ============================================================ */
 
-/* ============ ESTADO GLOBAL ============ */
+/* ============ CONSTANTES ============ */
 const SETORES_PADRAO = ["Acabamento 01","Acabamento 02","Laminação 01","Laminação 02","Marcenaria","CNC","Tecelagem","Manutenção","Almoxarifado","Compras"];
+const VERSAO = "2.7";
+const CHAVES_STORAGE = {
+  ferramentas:"controleFerramentas", manutencoes:"controleManutencoes",
+  ativos:"controleAtivos", ativosCriados:"controleAtivosCriados",
+  pedidosMateriais:"controlePedidosMateriais", manutencoesExternas:"controleManutencoesExternas",
+  foraDaEmpresa:"controleForaDaEmpresa", historico:"controleHistorico",
+  alarmes:"controleAlarmes", setores:"controleSetores",
+  contadores:"controleContadores", usuario:"controleUsuario",
+  tema:"controleTema", bannerIOS:"controleBannerIOSVisto"
+};
 
-let setores = (() => {
-  try {
-    const s = JSON.parse(localStorage.getItem("controleSetores") || "null");
-    if(Array.isArray(s) && s.length) return s;
-  } catch(e){}
-  return SETORES_PADRAO.map(nome => ({ nome, observacoes: "" }));
-})();
+/* ============ HELPERS PUROS ============ */
+const escapar = t => String(t ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const gerarId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
 
 function carregarArray(chave){
-  try {
-    const v = JSON.parse(localStorage.getItem(chave) || "[]");
-    return Array.isArray(v) ? v : [];
-  } catch(e){ return []; }
+  try { const v = JSON.parse(localStorage.getItem(chave) || "[]"); return Array.isArray(v) ? v : []; }
+  catch(e){ return []; }
+}
+function carregarObjeto(chave, fallback){
+  try { const v = JSON.parse(localStorage.getItem(chave) || "null"); return (v && typeof v === "object") ? v : fallback; }
+  catch(e){ return fallback; }
+}
+function codigoIgual(a,b){ return String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase(); }
+function nomeSetorIgual(a,b){ return String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase(); }
+function hojeISO(){ return new Date().toISOString().substring(0,10); }
+function agoraLocalISO(){
+  const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0,16);
+}
+function setarSeVazio(id, valor){
+  const el = document.getElementById(id);
+  if(el && !el.value && valor) el.value = valor;
 }
 
-let ferramentas = carregarArray("controleFerramentas");
-let manutencoes = carregarArray("controleManutencoes");
-let ativos = carregarArray("controleAtivos");
-let ativosCriados = carregarArray("controleAtivosCriados");
-let pedidosMateriais = carregarArray("controlePedidosMateriais");
-let manutencoesExternas = carregarArray("controleManutencoesExternas");
-let foraDaEmpresa = carregarArray("controleForaDaEmpresa");
-let historico = carregarArray("controleHistorico");
-let alarmes = carregarArray("controleAlarmes");
-
-let usuarioAtual = localStorage.getItem("controleUsuario") || "";
-
-let contadores = (() => {
-  try {
-    const c = JSON.parse(localStorage.getItem("controleContadores") || '{"FER":0,"AT":0,"CR":0,"PED":0,"EXT":0,"MAN":0,"FORA":0}');
-    return (c && typeof c === "object") ? c : {FER:0,AT:0,CR:0,PED:0,EXT:0,MAN:0,FORA:0};
-  } catch(e){
-    return {FER:0,AT:0,CR:0,PED:0,EXT:0,MAN:0,FORA:0};
-  }
+/* ============ ESTADO ============ */
+let setores = (() => {
+  const s = carregarArray(CHAVES_STORAGE.setores);
+  if(s.length) return s;
+  return SETORES_PADRAO.map(nome => ({ nome, observacoes: "" }));
 })();
+let ferramentas = carregarArray(CHAVES_STORAGE.ferramentas);
+let manutencoes = carregarArray(CHAVES_STORAGE.manutencoes);
+let ativos = carregarArray(CHAVES_STORAGE.ativos);
+let ativosCriados = carregarArray(CHAVES_STORAGE.ativosCriados);
+let pedidosMateriais = carregarArray(CHAVES_STORAGE.pedidosMateriais);
+let manutencoesExternas = carregarArray(CHAVES_STORAGE.manutencoesExternas);
+let foraDaEmpresa = carregarArray(CHAVES_STORAGE.foraDaEmpresa);
+let historico = carregarArray(CHAVES_STORAGE.historico);
+let alarmes = carregarArray(CHAVES_STORAGE.alarmes);
+let usuarioAtual = localStorage.getItem(CHAVES_STORAGE.usuario) || "";
+let contadores = carregarObjeto(CHAVES_STORAGE.contadores, {FER:0,AT:0,CR:0,PED:0,EXT:0,MAN:0,FORA:0});
 
 let filtroAtualFerramenta = "todas";
 let filtroAtualManutencao = "todas";
@@ -1032,109 +1074,72 @@ let scannerNFCe = null;
 let graficoStatus = null;
 let graficoSetores = null;
 
-/* v2.6: flag que impede duplo clique no OCR */
 let ocrEmAndamento = false;
-
-/* v2.6: timer para debounce dos gráficos */
 let _graficoTimeout = null;
+let _renderHistoricoTimer = null;
 
-/* ============ HELPERS ============ */
-function escapar(t=""){
-  const div = document.createElement("div");
-  div.textContent = String(t == null ? "" : t);
-  return div.innerHTML;
-}
-
-function gerarId(){
-  return Date.now().toString(36) + Math.random().toString(36).substr(2,6);
-}
-
-function gerarCodigo(prefixo){
-  if(!contadores[prefixo]) contadores[prefixo] = 0;
-  contadores[prefixo]++;
-  return `${prefixo}-${String(contadores[prefixo]).padStart(3,"0")}`;
-}
-
+/* ============ TOAST (empilhável) ============ */
 function toast(msg, tipo = "info"){
+  const c = document.getElementById("toastContainer");
+  if(!c) return;
   const t = document.createElement("div");
   t.className = `toast toast-${tipo}`;
   t.textContent = msg;
-  document.body.appendChild(t);
+  c.appendChild(t);
   setTimeout(() => {
+    t.style.transition = "opacity 0.3s, transform 0.3s";
     t.style.opacity = "0";
-    t.style.transition = "opacity 0.3s";
+    t.style.transform = "translateY(10px)";
     setTimeout(() => t.remove(), 350);
   }, 3000);
 }
 
-/* v2.6: helper para preencher só se vazio (usado no OCR) */
-function setarSeVazio(id, valor){
-  const el = document.getElementById(id);
-  if(el && !el.value && valor) el.value = valor;
-}
+/* ============ HANDLER GLOBAL DE ERROS ============ */
+window.addEventListener("error", e => {
+  console.error("Erro global:", e.error || e.message);
+  toast("⚠️ " + (e.message || "Erro inesperado"), "error");
+});
+window.addEventListener("unhandledrejection", e => {
+  console.error("Promise rejeitada:", e.reason);
+  const msg = e.reason?.message || "Operação falhou";
+  toast("⚠️ " + msg, "error");
+});
 
-/* v2.6: comparação case-insensitive + trim */
-function codigoIgual(a, b){
-  return String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase();
-}
-function nomeSetorIgual(a, b){
-  return String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase();
-}
-
-function sincronizarGlobais(){
-  window.ferramentas = ferramentas;
-  window.manutencoes = manutencoes;
-  window.ativos = ativos;
-  window.ativosCriados = ativosCriados;
-  window.pedidosMateriais = pedidosMateriais;
-  window.manutencoesExternas = manutencoesExternas;
-  window.foraDaEmpresa = foraDaEmpresa;
-  window.alarmes = alarmes;
-  window.setores = setores;
-  window.usuarioAtual = usuarioAtual;
-}
-
-function salvarBanco(){
-  sincronizarGlobais();
-  try {
-    localStorage.setItem("controleFerramentas", JSON.stringify(ferramentas));
-    localStorage.setItem("controleManutencoes", JSON.stringify(manutencoes));
-    localStorage.setItem("controleAtivos", JSON.stringify(ativos));
-    localStorage.setItem("controleAtivosCriados", JSON.stringify(ativosCriados));
-    localStorage.setItem("controlePedidosMateriais", JSON.stringify(pedidosMateriais));
-    localStorage.setItem("controleManutencoesExternas", JSON.stringify(manutencoesExternas));
-    localStorage.setItem("controleForaDaEmpresa", JSON.stringify(foraDaEmpresa));
-    localStorage.setItem("controleHistorico", JSON.stringify(historico));
-    localStorage.setItem("controleAlarmes", JSON.stringify(alarmes));
-    localStorage.setItem("controleSetores", JSON.stringify(setores));
-    localStorage.setItem("controleContadores", JSON.stringify(contadores));
-    localStorage.setItem("controleUsuario", usuarioAtual);
-  } catch(e){
-    console.error("Erro ao salvar:", e);
-    if(e.name === "QuotaExceededError" || (e.message && e.message.toLowerCase().includes("quota"))){
-      toast("⚠️ Armazenamento cheio! Exporte um backup e remova fotos antigas.", "error");
-    } else {
-      toast("❌ Erro ao salvar: " + e.message, "error");
+/* ============ PERSISTÊNCIA ============ */
+let _salvarTimer = null;
+function salvarBanco(imediato = false){
+  if(_salvarTimer) clearTimeout(_salvarTimer);
+  const exec = () => {
+    try {
+      localStorage.setItem(CHAVES_STORAGE.ferramentas, JSON.stringify(ferramentas));
+      localStorage.setItem(CHAVES_STORAGE.manutencoes, JSON.stringify(manutencoes));
+      localStorage.setItem(CHAVES_STORAGE.ativos, JSON.stringify(ativos));
+      localStorage.setItem(CHAVES_STORAGE.ativosCriados, JSON.stringify(ativosCriados));
+      localStorage.setItem(CHAVES_STORAGE.pedidosMateriais, JSON.stringify(pedidosMateriais));
+      localStorage.setItem(CHAVES_STORAGE.manutencoesExternas, JSON.stringify(manutencoesExternas));
+      localStorage.setItem(CHAVES_STORAGE.foraDaEmpresa, JSON.stringify(foraDaEmpresa));
+      localStorage.setItem(CHAVES_STORAGE.historico, JSON.stringify(historico));
+      localStorage.setItem(CHAVES_STORAGE.alarmes, JSON.stringify(alarmes));
+      localStorage.setItem(CHAVES_STORAGE.setores, JSON.stringify(setores));
+      localStorage.setItem(CHAVES_STORAGE.contadores, JSON.stringify(contadores));
+      localStorage.setItem(CHAVES_STORAGE.usuario, usuarioAtual);
+    } catch(e){
+      console.error("Erro ao salvar:", e);
+      if(e.name === "QuotaExceededError" || (e.message && e.message.toLowerCase().includes("quota"))){
+        toast("⚠️ Armazenamento cheio! Exporte um backup e remova fotos antigas.", "error");
+      } else {
+        toast("❌ Erro ao salvar: " + e.message, "error");
+      }
     }
-  }
-}
-
-function registrarHistorico(nome, acao){
-  const user = usuarioAtual ? `[${usuarioAtual}]` : "[—]";
-  historico.push({
-    nome,
-    acao: `${user} ${acao}`,
-    data: new Date().toISOString(),
-    usuario: usuarioAtual || "—"
-  });
-  if(historico.length > 1000) historico.shift();
-  salvarBanco();
+  };
+  if(imediato) exec();
+  else _salvarTimer = setTimeout(exec, 200);
 }
 
 function verificarArmazenamento(){
   try {
     let total = 0;
-    for(let k in localStorage){
+    for(const k in localStorage){
       if(Object.prototype.hasOwnProperty.call(localStorage, k)){
         total += (localStorage[k] || "").length;
       }
@@ -1144,15 +1149,54 @@ function verificarArmazenamento(){
     if(aviso){
       if(mb > 4){
         aviso.style.display = "block";
-        aviso.innerHTML = `⚠️ <b>Armazenamento em ${mb.toFixed(1)}MB de ~5MB.</b> Exporte um backup e remova fotos antigas para liberar espaço.`;
-      } else {
-        aviso.style.display = "none";
-      }
+        aviso.innerHTML = `⚠️ <b>Armazenamento em ${mb.toFixed(1)}MB de ~5MB.</b> Exporte um backup e remova fotos antigas.`;
+      } else aviso.style.display = "none";
     }
     return mb;
   } catch(e){ return 0; }
 }
 
+/* ============ HISTÓRICO (por ID) ============ */
+function registrarHistorico(entrada){
+  // entrada: { itemId?, tipo?, nome, acao }
+  historico.push({
+    itemId: entrada.itemId || null,
+    tipo: entrada.tipo || "sistema",
+    nome: entrada.nome || "",
+    acao: (usuarioAtual ? `[${usuarioAtual}] ` : "[—] ") + entrada.acao,
+    data: new Date().toISOString(),
+    usuario: usuarioAtual || "—"
+  });
+  if(historico.length > 1000) historico.shift();
+  salvarBanco();
+}
+
+/* ============ CÓDIGOS ============ */
+function gerarCodigo(prefixo){
+  if(!contadores[prefixo]) contadores[prefixo] = 0;
+  contadores[prefixo]++;
+  return `${prefixo}-${String(contadores[prefixo]).padStart(3,"0")}`;
+}
+function recalcularContadores(){
+  // Após importar, garante que os contadores estão acima do maior já usado
+  const extrairNum = (codigo, prefixo) => {
+    if(!codigo || !codigo.startsWith(prefixo + "-")) return 0;
+    const n = parseInt(codigo.split("-")[1], 10);
+    return isNaN(n) ? 0 : n;
+  };
+  const maxDe = (lista, prefixo, campo = "codigo") =>
+    lista.reduce((max, item) => Math.max(max, extrairNum(item[campo], prefixo)), 0);
+
+  contadores.FER  = Math.max(contadores.FER  || 0, maxDe(ferramentas, "FER"));
+  contadores.MAN  = Math.max(contadores.MAN  || 0, maxDe(manutencoes, "MAN"));
+  contadores.AT   = Math.max(contadores.AT   || 0, maxDe(ativos, "AT"));
+  contadores.CR   = Math.max(contadores.CR   || 0, maxDe(ativosCriados, "CR"));
+  contadores.EXT  = Math.max(contadores.EXT  || 0, maxDe(manutencoesExternas, "EXT"));
+  contadores.FORA = Math.max(contadores.FORA || 0, maxDe(foraDaEmpresa, "FORA"));
+  contadores.PED  = Math.max(contadores.PED  || 0, 0);
+}
+
+/* ============ IMAGEM ============ */
 function comprimirImagem(dataUrl, maxW = 1000, qualidade = 0.75){
   return new Promise(resolve => {
     const img = new Image();
@@ -1161,14 +1205,21 @@ function comprimirImagem(dataUrl, maxW = 1000, qualidade = 0.75){
         const canvas = document.createElement("canvas");
         let w = img.width, h = img.height;
         if(w > maxW){ h = (maxW / w) * h; w = maxW; }
-        canvas.width = w;
-        canvas.height = h;
+        canvas.width = w; canvas.height = h;
         canvas.getContext("2d").drawImage(img, 0, 0, w, h);
         resolve(canvas.toDataURL("image/jpeg", qualidade));
       } catch(e){ resolve(dataUrl); }
     };
     img.onerror = () => resolve(dataUrl);
     img.src = dataUrl;
+  });
+}
+function lerArquivo(file){
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = function(){ res(this.result); };
+    r.onerror = rej;
+    r.readAsDataURL(file);
   });
 }
 
@@ -1183,11 +1234,10 @@ function salvarUsuario(){
   const nome = document.getElementById("nomeUsuarioInput").value.trim();
   if(!nome){ toast("Digite um nome.", "error"); return; }
   usuarioAtual = nome;
-  window.usuarioAtual = nome;
-  localStorage.setItem("controleUsuario", nome);
+  localStorage.setItem(CHAVES_STORAGE.usuario, nome);
   document.getElementById("usuarioAtual").textContent = `👤 ${nome}`;
   document.getElementById("dialogUsuario").close();
-  registrarHistorico(nome, "entrou no sistema");
+  registrarHistorico({ nome, acao: "entrou no sistema" });
   toast(`Bem-vindo, ${nome}!`, "success");
 }
 
@@ -1195,29 +1245,29 @@ function salvarUsuario(){
 function alternarTema(){
   document.body.classList.toggle("tema-claro");
   const claro = document.body.classList.contains("tema-claro");
-  localStorage.setItem("controleTema", claro ? "claro" : "escuro");
+  localStorage.setItem(CHAVES_STORAGE.tema, claro ? "claro" : "escuro");
   document.getElementById("btnTema").textContent = claro ? "🌙" : "☀️";
   mostrarTudo();
 }
 
-/* v2.6: banner iOS para instalar PWA */
+/* ============ BANNER iOS ============ */
 function mostrarBannerIOS(){
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  const jaMostrou = localStorage.getItem("controleBannerIOSVisto") === "1";
+  const jaMostrou = localStorage.getItem(CHAVES_STORAGE.bannerIOS) === "1";
   const standalone = window.navigator.standalone === true;
   if(!isIOS || jaMostrou || standalone) return;
   const b = document.createElement("div");
   b.className = "banner-ios";
   b.innerHTML = `
     <span>📲 Para instalar: toque em <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b></span>
-    <button type="button" onclick="this.parentNode.remove();localStorage.setItem('controleBannerIOSVisto','1')">Entendi</button>
+    <button type="button" onclick="this.parentNode.remove();localStorage.setItem('${CHAVES_STORAGE.bannerIOS}','1')">Entendi</button>
   `;
   document.body.appendChild(b);
 }
 
 /* ============ INIT ============ */
 function iniciar(){
-  if(localStorage.getItem("controleTema") === "claro"){
+  if(localStorage.getItem(CHAVES_STORAGE.tema) === "claro"){
     document.body.classList.add("tema-claro");
     document.getElementById("btnTema").textContent = "🌙";
   }
@@ -1228,11 +1278,10 @@ function iniciar(){
   }
   atualizarSelectsSetores();
 
-  const hoje = new Date().toISOString().substring(0,10);
-  const dP = document.getElementById("dataPedido"); if(dP) dP.value = hoje;
-  const dC = document.getElementById("dataCriado"); if(dC) dC.value = hoje;
-  const dM = document.getElementById("dataEntradaManutencao"); if(dM) dM.value = hoje;
-  const dF = document.getElementById("dataSaidaFora"); if(dF) dF.value = hoje;
+  const dP = document.getElementById("dataPedido"); if(dP) dP.value = hojeISO();
+  const dC = document.getElementById("dataCriado"); if(dC) dC.value = hojeISO();
+  const dM = document.getElementById("dataEntradaManutencao"); if(dM) dM.value = hojeISO();
+  const dF = document.getElementById("dataSaidaFora"); if(dF) dF.value = hojeISO();
 
   document.querySelectorAll("#navPrincipal button").forEach(botao=>{
     botao.onclick = function(){
@@ -1245,31 +1294,57 @@ function iniciar(){
     };
   });
 
+  // Fecha diálogos + para streams
   ["dialogCamera","dialogScanner","dialogScannerNFCe"].forEach(id=>{
     const dlg = document.getElementById(id);
     if(!dlg) return;
     dlg.addEventListener("close", ()=>{
-      if(cameraStream){
-        cameraStream.getTracks().forEach(t=>t.stop());
-        cameraStream = null;
-      }
+      if(cameraStream){ cameraStream.getTracks().forEach(t=>t.stop()); cameraStream = null; }
       if(scanner){
-        try { scanner.stop().then(()=>scanner.clear()).catch(()=>{}); } catch(e){}
+        try { scanner.stop().then(()=>scanner?.clear()).catch(()=>{}); } catch(e){}
         scanner = null;
       }
       if(scannerNFCe){
-        try { scannerNFCe.stop().then(()=>scannerNFCe.clear()).catch(()=>{}); } catch(e){}
+        try { scannerNFCe.stop().then(()=>scannerNFCe?.clear()).catch(()=>{}); } catch(e){}
         scannerNFCe = null;
       }
     });
   });
+
+  // Confirmação ao fechar modais com dados não salvos
+  protegerFechamentoModal("dialogFerramenta", ["nomeFerramenta"]);
+  protegerFechamentoModal("dialogManutencao", ["nomeManutencao"]);
+  protegerFechamentoModal("dialogForaDaEmpresa", ["nomeFora","empresaFora"]);
+  protegerFechamentoModal("dialogAtivo", ["nomeAtivo"]);
+  protegerFechamentoModal("dialogCriado", ["nomeCriado"]);
+  protegerFechamentoModal("dialogPedido", ["nomePedido"]);
+  protegerFechamentoModal("dialogExterna", ["nomeExterno"]);
 
   atualizarStatusRede();
   setInterval(verificarAlarmes, 60000);
   setTimeout(verificarAlarmes, 1000);
   mostrarTudo();
   verificarArmazenamento();
-  mostrarBannerIOS(); // v2.6
+  mostrarBannerIOS();
+}
+
+function protegerFechamentoModal(idModal, camposObrigatorios){
+  const dlg = document.getElementById(idModal);
+  if(!dlg) return;
+  let confirmandoFechamento = false;
+  dlg.addEventListener("cancel", e => { // cancel = ESC
+    if(confirmandoFechamento) return;
+    const temDados = camposObrigatorios.some(id => (document.getElementById(id)?.value || "").trim());
+    if(temDados && !confirm("Descartar alterações não salvas?")){
+      e.preventDefault();
+    }
+  });
+  dlg.addEventListener("click", e => {
+    if(e.target !== dlg) return;
+    const temDados = camposObrigatorios.some(id => (document.getElementById(id)?.value || "").trim());
+    if(temDados && !confirm("Descartar alterações não salvas?")) return;
+    dlg.close();
+  });
 }
 
 function atualizarSelectsSetores(){
@@ -1284,7 +1359,6 @@ function atualizarSelectsSetores(){
 }
 
 function mostrarTudo(){
-  sincronizarGlobais();
   const fns = [
     mostrarEstatisticas, mostrarGraficos, mostrarSetores, mostrarFerramentas,
     mostrarManutencoes, mostrarForaDaEmpresa, mostrarAtivos, mostrarCriados,
@@ -1336,7 +1410,7 @@ function mostrarEstatisticas(){
   `;
 }
 
-/* v2.6: debounce dos gráficos */
+/* ============ GRÁFICOS (update em vez de destroy) ============ */
 function mostrarGraficos(){
   clearTimeout(_graficoTimeout);
   _graficoTimeout = setTimeout(_renderGraficos, 150);
@@ -1347,36 +1421,56 @@ function _renderGraficos(){
   const claro = document.body.classList.contains("tema-claro");
   const corTexto = claro ? "#0a1a2e" : "#ffffff";
 
+  const disp = ferramentas.filter(x=>x.status==="Disponível").length;
+  const emp = ferramentas.filter(x=>x.status==="Emprestada").length;
+  const man = ferramentas.filter(x=>x.status==="Manutenção").length;
+  const dadosStatus = [disp, emp, man];
+
   const ctx1 = document.getElementById("graficoStatus");
   if(ctx1){
-    const disp = ferramentas.filter(x=>x.status==="Disponível").length;
-    const emp = ferramentas.filter(x=>x.status==="Emprestada").length;
-    const man = ferramentas.filter(x=>x.status==="Manutenção").length;
-    if(graficoStatus) graficoStatus.destroy();
-    graficoStatus = new Chart(ctx1, {
-      type: "doughnut",
-      data: { labels: ["Disponíveis","Emprestadas","Manutenção"], datasets: [{ data: [disp, emp, man], backgroundColor: ["#2ddb7a","#ffd14a","#ff6b82"], borderWidth: 0 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: corTexto, font: { size: 12 } } } } }
-    });
+    if(graficoStatus && graficoStatus.canvas === ctx1){
+      graficoStatus.data.datasets[0].data = dadosStatus;
+      graficoStatus.options.plugins.legend.labels.color = corTexto;
+      graficoStatus.update("none");
+    } else {
+      if(graficoStatus) graficoStatus.destroy();
+      graficoStatus = new Chart(ctx1, {
+        type: "doughnut",
+        data: { labels: ["Disponíveis","Emprestadas","Manutenção"], datasets: [{ data: dadosStatus, backgroundColor: ["#2ddb7a","#ffd14a","#ff6b82"], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, animation: { duration: 400 }, plugins: { legend: { labels: { color: corTexto, font: { size: 12 } } } } }
+      });
+    }
   }
+
+  const dadosSetores = setores.map(s => {
+    const f = ferramentas.filter(x=>x.setor===s.nome).length;
+    const m = manutencoes.filter(x=>x.setor===s.nome).length;
+    const a = ativos.filter(x=>x.setor===s.nome).length;
+    return { nome: s.nome, total: f+m+a };
+  }).sort((a,b)=>b.total-a.total).slice(0,6);
 
   const ctx2 = document.getElementById("graficoSetores");
   if(ctx2){
-    const dados = setores.map(s => {
-      const f = ferramentas.filter(x=>x.setor===s.nome).length;
-      const m = manutencoes.filter(x=>x.setor===s.nome).length;
-      const a = ativos.filter(x=>x.setor===s.nome).length;
-      return { nome: s.nome, total: f+m+a };
-    }).sort((a,b)=>b.total-a.total).slice(0,6);
-    if(graficoSetores) graficoSetores.destroy();
-    graficoSetores = new Chart(ctx2, {
-      type: "bar",
-      data: { labels: dados.map(d=>d.nome), datasets: [{ label: "Itens", data: dados.map(d=>d.total), backgroundColor: ["#1eb8c9","#7c5cbf","#ff6b9d","#f5a623","#2ddb7a","#6ae2ef"], borderRadius: 8 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: corTexto, font: { size: 10 } }, grid: { display: false } }, y: { ticks: { color: corTexto }, grid: { color: "rgba(128,128,128,0.15)" }, beginAtZero: true } } }
-    });
+    const labels = dadosSetores.map(d=>d.nome);
+    const data = dadosSetores.map(d=>d.total);
+    if(graficoSetores && graficoSetores.canvas === ctx2){
+      graficoSetores.data.labels = labels;
+      graficoSetores.data.datasets[0].data = data;
+      graficoSetores.options.scales.x.ticks.color = corTexto;
+      graficoSetores.options.scales.y.ticks.color = corTexto;
+      graficoSetores.update("none");
+    } else {
+      if(graficoSetores) graficoSetores.destroy();
+      graficoSetores = new Chart(ctx2, {
+        type: "bar",
+        data: { labels, datasets: [{ label: "Itens", data, backgroundColor: ["#1eb8c9","#7c5cbf","#ff6b9d","#f5a623","#2ddb7a","#6ae2ef"], borderRadius: 8 }] },
+        options: { responsive: true, maintainAspectRatio: false, animation: { duration: 400 }, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: corTexto, font: { size: 10 } }, grid: { display: false } }, y: { ticks: { color: corTexto }, grid: { color: "rgba(128,128,128,0.15)" }, beginAtZero: true } } }
+      });
+    }
   }
 }
 
+/* ============ FILTROS ============ */
 function setFiltro(filtro){
   filtroAtualFerramenta = filtro;
   document.querySelectorAll("#filtrosFerramentas .btn-filtro").forEach(b=>{
@@ -1428,14 +1522,13 @@ function gerarSetoresHTML(){
           <span class="badge badge-created">🔨 ${cri.length}</span>
           <span class="badge badge-pedido">📦 ${ped.length}</span>
         </div>
-        ${temObs ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(255,209,74,0.08);border-left:3px solid var(--amarelo);border-radius:8px;font-size:11.5px;color:var(--amarelo);text-align:left;line-height:1.4;">📝 ${escapar(s.observacoes).substring(0,80)}${s.observacoes.length > 80 ? '...' : ''}</div>` : ''}
+        ${temObs ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(255,209,74,0.08);border-left:3px solid var(--amarelo);border-radius:8px;font-size:11.5px;color:var(--amarelo-texto);text-align:left;line-height:1.4;">📝 ${escapar(s.observacoes).substring(0,80)}${s.observacoes.length > 80 ? '...' : ''}</div>` : ''}
         <div style="margin-top:10px;font-size:10px;color:var(--cinza);opacity:.4;text-transform:uppercase;letter-spacing:1px;">👆 Toque para editar</div>
       </div>
     `;
   }).join("");
 }
 
-/* v2.6: usa índice direto (sem btoa) */
 function abrirSetorPorIndice(idx){
   if(idx >= 0 && idx < setores.length) abrirSetor(setores[idx].nome);
 }
@@ -1454,6 +1547,8 @@ function abrirSetor(nomeOriginal){
   document.getElementById("nomeSetor").value = s.nome;
   document.getElementById("obsSetor").value = s.observacoes || "";
   document.getElementById("formAdicionarFerramenta").classList.add("hidden");
+  document.getElementById("novaFerrNome").value = "";
+  document.getElementById("novaFerrCodigo").value = "";
   const outros = setores.filter(x => x.nome !== nomeOriginal);
   document.getElementById("moverParaSetor").innerHTML = outros.length ? outros.map(x => `<option>${escapar(x.nome)}</option>`).join("") : `<option value="">(Nenhum outro setor)</option>`;
   document.getElementById("acoesExclusaoSetor").classList.toggle("hidden", !outros.length);
@@ -1466,6 +1561,8 @@ function abrirSetorNovo(){
   document.getElementById("idSetorOriginal").value = "";
   document.getElementById("nomeSetor").value = "";
   document.getElementById("obsSetor").value = "";
+  document.getElementById("novaFerrNome").value = "";
+  document.getElementById("novaFerrCodigo").value = "";
   document.getElementById("acoesExclusaoSetor").classList.add("hidden");
   document.getElementById("formAdicionarFerramenta").classList.add("hidden");
   document.getElementById("listaFerramentasSetor").innerHTML = `<div class="card empty-state" style="padding:20px;"><span class="emoji" style="font-size:32px;">💾</span><span class="text-sm">Salve o setor primeiro para poder adicionar ferramentas.</span></div>`;
@@ -1483,7 +1580,7 @@ function renderizarFerramentasDoSetor(nomeSetor){
   }
   el.innerHTML = lista.map(x => {
     const sc = x.status === "Disponível" ? "badge-success" : x.status === "Emprestada" ? "badge-warning" : "badge-manutencao";
-    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}" style="width:60px;height:50px;">` : `<div class="imagem-placeholder" style="width:60px;height:50px;font-size:22px;">🔧</div>`;
+    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}" style="width:60px;height:50px;" alt="">` : `<div class="imagem-placeholder" style="width:60px;height:50px;font-size:22px;">🔧</div>`;
     return `
       <div class="card item" style="grid-template-columns:60px 1fr auto;padding:8px;">
         ${foto}
@@ -1494,7 +1591,7 @@ function renderizarFerramentasDoSetor(nomeSetor){
         </div>
         <div class="item-actions">
           <button type="button" onclick="abrirHistoricoItem('ferramenta','${x.id}')" aria-label="Histórico">📜</button>
-          <button type="button" onclick="moverFerramenta('${x.id}')" aria-label="Mover para outro setor">🔀</button>
+          <button type="button" onclick="moverFerramenta('${x.id}')" aria-label="Mover">🔀</button>
           <button type="button" onclick="abrirFerramenta('${x.id}')" aria-label="Editar">✏️</button>
           <button type="button" onclick="excluirFerramentaDoSetor('${x.id}')" aria-label="Excluir">🗑️</button>
         </div>
@@ -1523,22 +1620,12 @@ function confirmarAdicionarFerramenta(){
   if(!nome){ toast("Digite o nome da ferramenta.", "error"); return; }
   if(!nomeSetor){ toast("Setor inválido.", "error"); return; }
 
-  if(codigo){
-    const dupCod = ferramentas.find(f => codigoIgual(f.codigo, codigo));
-    if(dupCod){
-      toast(`⚠️ Código "${dupCod.codigo}" já usado por "${dupCod.nome}".`, "warning");
-      return;
-    }
+  if(codigo && ferramentas.some(f => codigoIgual(f.codigo, codigo))){
+    toast(`⚠️ Código "${codigo}" já existe.`, "warning"); return;
   }
-
-  const dupNomeSetor = ferramentas.find(f =>
-    nomeSetorIgual(f.nome, nome) && nomeSetorIgual(f.setor, nomeSetor)
-  );
-  if(dupNomeSetor){
-    toast(`⚠️ "${dupNomeSetor.nome}" já existe neste setor.`, "warning");
-    return;
+  if(ferramentas.some(f => nomeSetorIgual(f.nome, nome) && nomeSetorIgual(f.setor, nomeSetor))){
+    toast(`⚠️ "${nome}" já existe neste setor.`, "warning"); return;
   }
-
   if(!codigo) codigo = gerarCodigo("FER");
   const nova = {
     id: gerarId(), nome, codigo, quantidade: 1, setor: nomeSetor, status,
@@ -1548,8 +1635,8 @@ function confirmarAdicionarFerramenta(){
   };
   ferramentas.push(nova);
   if(status === "Emprestada") iniciarAlarme(nova);
-  registrarHistorico(nome, `adicionou ferramenta ao setor ${nomeSetor}`);
-  salvarBanco();
+  registrarHistorico({ itemId: nova.id, tipo:"ferramenta", nome, acao: `adicionou ferramenta ao setor ${nomeSetor}` });
+  salvarBanco(true);
   cancelarAdicionarFerramenta();
   renderizarFerramentasDoSetor(nomeSetor);
   mostrarTudo();
@@ -1562,8 +1649,8 @@ function excluirFerramentaDoSetor(id){
   if(!confirm(`Excluir "${f.nome}" do setor ${f.setor}?`)) return;
   if(f.status === "Emprestada") pararAlarme(id);
   ferramentas = ferramentas.filter(x => x.id !== id);
-  registrarHistorico(f.nome, `excluiu ferramenta do setor ${f.setor}`);
-  salvarBanco();
+  registrarHistorico({ itemId:id, tipo:"ferramenta", nome:f.nome, acao: `excluiu ferramenta do setor ${f.setor}` });
+  salvarBanco(true);
   renderizarFerramentasDoSetor(document.getElementById("idSetorOriginal").value);
   mostrarTudo();
   toast("Ferramenta excluída.", "success");
@@ -1580,8 +1667,8 @@ function moverFerramenta(id){
   const idx = parseInt(escolha, 10) - 1;
   if(isNaN(idx) || idx < 0 || idx >= nomes.length){ toast("Opção inválida.", "error"); return; }
   f.setor = nomes[idx];
-  registrarHistorico(f.nome, `moveu para o setor ${nomes[idx]}`);
-  salvarBanco();
+  registrarHistorico({ itemId:id, tipo:"ferramenta", nome:f.nome, acao: `moveu para o setor ${nomes[idx]}` });
+  salvarBanco(true);
   renderizarFerramentasDoSetor(document.getElementById("idSetorOriginal").value);
   mostrarTudo();
   toast(`Movida para "${nomes[idx]}".`, "success");
@@ -1593,8 +1680,9 @@ function salvarSetor(){
   const obs = document.getElementById("obsSetor").value.trim();
   if(!nome){ toast("Digite o nome do setor.", "error"); return; }
 
-  const duplicado = setores.find(s => nomeSetorIgual(s.nome, nome) && s.nome !== nomeOriginal);
-  if(duplicado){ toast("Já existe um setor com esse nome.", "warning"); return; }
+  if(setores.some(s => nomeSetorIgual(s.nome, nome) && s.nome !== nomeOriginal)){
+    toast("Já existe um setor com esse nome.", "warning"); return;
+  }
 
   if(nomeOriginal){
     if(nome !== nomeOriginal){
@@ -1604,21 +1692,21 @@ function salvarSetor(){
       ativosCriados.forEach(c => { if(c.setor === nomeOriginal) c.setor = nome; });
       pedidosMateriais.forEach(p => { if(p.setor === nomeOriginal) p.setor = nome; });
       foraDaEmpresa.forEach(f => { if(f.setor === nomeOriginal) f.setor = nome; });
-      registrarHistorico(nomeOriginal, `renomeou setor para "${nome}"`);
+      registrarHistorico({ nome: nomeOriginal, acao: `renomeou setor para "${nome}"` });
       document.getElementById("idSetorOriginal").value = nome;
     } else {
-      registrarHistorico(nome, "atualizou setor");
+      registrarHistorico({ nome, acao: "atualizou setor" });
     }
     const idx = setores.findIndex(s => s.nome === nomeOriginal);
     if(idx >= 0) setores[idx] = { nome, observacoes: obs };
   } else {
     setores.push({ nome, observacoes: obs });
-    registrarHistorico(nome, "criou novo setor");
+    registrarHistorico({ nome, acao: "criou novo setor" });
     document.getElementById("idSetorOriginal").value = nome;
     document.getElementById("tituloSetor").textContent = "📍 Editar Setor";
     renderizarFerramentasDoSetor(nome);
   }
-  salvarBanco();
+  salvarBanco(true);
   atualizarSelectsSetores();
   mostrarTudo();
   toast("Setor salvo!", "success");
@@ -1646,8 +1734,8 @@ function excluirSetor(){
   pedidosMateriais.forEach(p => { if(p.setor === nomeOriginal) p.setor = destino; });
   foraDaEmpresa.forEach(f => { if(f.setor === nomeOriginal) f.setor = destino; });
   setores = setores.filter(s => s.nome !== nomeOriginal);
-  registrarHistorico(nomeOriginal, `excluiu setor — ${total} item(ns) → "${destino}"`);
-  salvarBanco();
+  registrarHistorico({ nome: nomeOriginal, acao: `excluiu setor — ${total} item(ns) → "${destino}"` });
+  salvarBanco(true);
   atualizarSelectsSetores();
   fecharSetor();
   mostrarTudo();
@@ -1680,7 +1768,7 @@ function mostrarFerramentas(){
 
   el.innerHTML = lista.map(x=>{
     const sc = x.status==="Disponível"?"badge-success":x.status==="Emprestada"?"badge-warning":"badge-manutencao";
-    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}">` : `<div class="imagem-placeholder">🔧</div>`;
+    const foto = x.fotos?.[0] ? `<img class="imagem-mini" src="${x.fotos[0]}" alt="">` : `<div class="imagem-placeholder">🔧</div>`;
     const qtd = (x.quantidade && x.quantidade > 1) ? `<span class="badge badge-qtd">📦 Qtd: ${x.quantidade}</span>` : '';
     const alarme = alarmes.find(a=>a.ferramentaId===x.id && a.ativo);
     let tempoRestante = '', tempoClass = '';
@@ -1751,56 +1839,44 @@ function salvarFerramenta(){
   if(!nome){ toast("Digite o nome.", "error"); return; }
 
   const id = document.getElementById("idFerramenta").value || gerarId();
+  const ehEdicao = !!document.getElementById("idFerramenta").value;
   const status = document.getElementById("statusFerramenta").value;
   const setor = document.getElementById("setorFerramenta").value;
   const anterior = ferramentas.find(f=>f.id===id)?.status;
-  const ehEdicao = !!document.getElementById("idFerramenta").value;
   let codigo = document.getElementById("codigoFerramenta").value.trim();
 
   if(codigo){
-    const dupCod = ferramentas.find(f =>
-      f.id !== (ehEdicao ? id : null) && codigoIgual(f.codigo, codigo)
-    );
-    if(dupCod){
-      toast(`⚠️ Código "${dupCod.codigo}" já usado por "${dupCod.nome}".`, "warning");
-      return;
-    }
+    const dupCod = ferramentas.find(f => f.id !== (ehEdicao ? id : null) && codigoIgual(f.codigo, codigo));
+    if(dupCod){ toast(`⚠️ Código "${dupCod.codigo}" já usado por "${dupCod.nome}".`, "warning"); return; }
   }
-
   const dupNomeSetor = ferramentas.find(f =>
-    f.id !== (ehEdicao ? id : null) &&
-    nomeSetorIgual(f.nome, nome) && nomeSetorIgual(f.setor, setor)
+    f.id !== (ehEdicao ? id : null) && nomeSetorIgual(f.nome, nome) && nomeSetorIgual(f.setor, setor)
   );
-  if(dupNomeSetor){
-    toast(`⚠️ "${dupNomeSetor.nome}" já existe neste setor.`, "warning");
-    return;
-  }
+  if(dupNomeSetor){ toast(`⚠️ "${dupNomeSetor.nome}" já existe neste setor.`, "warning"); return; }
 
   if(!codigo) codigo = gerarCodigo("FER");
   const quantidade = parseInt(document.getElementById("quantidadeFerramenta").value) || 1;
 
   const f = {
-    id, nome, codigo, quantidade,
-    setor,
-    status,
+    id, nome, codigo, quantidade, setor, status,
     observacoes: document.getElementById("obsFerramenta").value.trim(),
     fotos: midiasFerramenta.filter(m=>m.tipo==="foto").map(m=>m.src),
     dataEmprestimo: status==="Emprestada" ? new Date().toISOString() : null,
-    dataCriacao: new Date().toISOString()
+    dataCriacao: ferramentas.find(x=>x.id===id)?.dataCriacao || new Date().toISOString()
   };
 
   const existe = ferramentas.find(x=>x.id===id);
   if(existe){
     ferramentas = ferramentas.map(x=>x.id===id?f:x);
-    registrarHistorico(nome,"editou ferramenta");
+    registrarHistorico({ itemId:id, tipo:"ferramenta", nome, acao:"editou ferramenta" });
     if(status==="Emprestada" && anterior!=="Emprestada") iniciarAlarme(f);
     if(status!=="Emprestada" && anterior==="Emprestada") pararAlarme(id);
   } else {
     ferramentas.push(f);
-    registrarHistorico(nome,"cadastrou ferramenta");
+    registrarHistorico({ itemId:id, tipo:"ferramenta", nome, acao:"cadastrou ferramenta" });
     if(status==="Emprestada") iniciarAlarme(f);
   }
-  salvarBanco();
+  salvarBanco(true);
   fecharFerramenta();
   mostrarTudo();
   toast("Ferramenta salva!", "success");
@@ -1812,8 +1888,8 @@ function excluirFerramenta(id){
   if(confirm(`Excluir "${x.nome}"?`)){
     if(x.status==="Emprestada") pararAlarme(id);
     ferramentas = ferramentas.filter(f=>f.id!==id);
-    registrarHistorico(x.nome,"excluiu ferramenta");
-    salvarBanco();
+    registrarHistorico({ itemId:id, tipo:"ferramenta", nome:x.nome, acao:"excluiu ferramenta" });
+    salvarBanco(true);
     mostrarTudo();
     toast("Ferramenta excluída.", "success");
   }
@@ -1821,11 +1897,7 @@ function excluirFerramenta(id){
 
 async function adicionarFotos(arquivos){
   for(const a of [...arquivos]){
-    const dataUrl = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = function(){ res(this.result); };
-      r.readAsDataURL(a);
-    });
+    const dataUrl = await lerArquivo(a);
     const comprimida = await comprimirImagem(dataUrl);
     midiasFerramenta.push({tipo:"foto", src: comprimida});
   }
@@ -1833,9 +1905,23 @@ async function adicionarFotos(arquivos){
 }
 
 function mostrarPreviewFerramenta(){
-  document.getElementById("previewFerramenta").innerHTML = midiasFerramenta.map(m=>`<img src="${m.src}" alt="Foto ferramenta">`).join("");
+  const el = document.getElementById("previewFerramenta");
+  el.innerHTML = midiasFerramenta.map((m, i) => `
+    <div class="thumb-wrap">
+      <img src="${m.src}" alt="Foto ferramenta">
+      <button type="button" class="btn-remover" onclick="removerMidiaGenerica('ferramenta',${i})" aria-label="Remover">✕</button>
+    </div>
+  `).join("");
 }
 
+function removerMidiaGenerica(tipo, idx){
+  if(tipo === "ferramenta"){ midiasFerramenta.splice(idx,1); mostrarPreviewFerramenta(); }
+  else if(tipo === "manutencao"){ midiasManutencao.splice(idx,1); mostrarPreviewManutencao(); }
+  else if(tipo === "ativo"){ midiasAtivo.splice(idx,1); mostrarPreviewAtivo(); }
+  else if(tipo === "fora"){ midiasFora.splice(idx,1); mostrarPreviewFora(); }
+}
+
+/* ============ HISTÓRICO DO ITEM (por ID) ============ */
 function abrirHistoricoItem(tipo, id){
   const el = document.getElementById("conteudoHistoricoItem");
   let nomeItem = "";
@@ -1844,7 +1930,7 @@ function abrirHistoricoItem(tipo, id){
     if(!f) return;
     nomeItem = f.nome;
   }
-  const eventos = historico.filter(h => h.nome === nomeItem).reverse();
+  const eventos = historico.filter(h => h.itemId === id).reverse();
   document.getElementById("tituloHistoricoItem").textContent = `📜 Histórico — ${nomeItem}`;
   if(!eventos.length){
     el.innerHTML = `<div class="empty-state"><span class="emoji">📭</span><span>Nenhum registro para este item.</span></div>`;
@@ -1866,7 +1952,6 @@ function abrirHistoricoItem(tipo, id){
 function abrirManutencao(id=null){
   midiasManutencao = [];
   document.getElementById("idManutencao").value = id||"";
-  const hoje = new Date().toISOString().substring(0,10);
   if(id){
     const m = manutencoes.find(x=>x.id===id);
     if(!m) return;
@@ -1877,7 +1962,7 @@ function abrirManutencao(id=null){
     document.getElementById("tipoManutencao").value = m.tipo||"Corretiva";
     document.getElementById("prioridadeManutencao").value = m.prioridade||"Média";
     document.getElementById("responsavelManutencao").value = m.responsavel||"";
-    document.getElementById("dataEntradaManutencao").value = m.dataEntrada||hoje;
+    document.getElementById("dataEntradaManutencao").value = m.dataEntrada||hojeISO();
     document.getElementById("dataSaidaManutencao").value = m.dataSaida||"";
     document.getElementById("statusManutencao").value = m.status||"Aguardando análise";
     document.getElementById("custoManutencao").value = m.custo||"";
@@ -1893,7 +1978,7 @@ function abrirManutencao(id=null){
     document.getElementById("tipoManutencao").value = "Corretiva";
     document.getElementById("prioridadeManutencao").value = "Média";
     document.getElementById("responsavelManutencao").value = "";
-    document.getElementById("dataEntradaManutencao").value = hoje;
+    document.getElementById("dataEntradaManutencao").value = hojeISO();
     document.getElementById("dataSaidaManutencao").value = "";
     document.getElementById("statusManutencao").value = "Aguardando análise";
     document.getElementById("custoManutencao").value = "";
@@ -1907,29 +1992,33 @@ function fecharManutencao(){ document.getElementById("dialogManutencao").close()
 
 async function adicionarFotosManutencao(arquivos){
   for(const a of [...arquivos]){
-    const dataUrl = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = function(){ res(this.result); };
-      r.readAsDataURL(a);
-    });
+    const dataUrl = await lerArquivo(a);
     const comprimida = await comprimirImagem(dataUrl);
     midiasManutencao.push({tipo:"foto", src: comprimida});
   }
   mostrarPreviewManutencao();
 }
 function adicionarArquivosManutencao(arquivos){
-  [...arquivos].forEach(a=>{
-    const r = new FileReader();
-    r.onload = function(){ midiasManutencao.push({tipo:"arquivo",nome:a.name,src:this.result}); mostrarPreviewManutencao(); };
-    r.readAsDataURL(a);
+  [...arquivos].forEach(async a => {
+    const src = await lerArquivo(a);
+    midiasManutencao.push({tipo:"arquivo",nome:a.name,src});
+    mostrarPreviewManutencao();
   });
 }
 function mostrarPreviewManutencao(){
   const el = document.getElementById("previewManutencao");
-  el.innerHTML = midiasManutencao.map(m=>{
-    if(m.tipo==="foto") return `<img src="${m.src}" alt="Foto manutenção">`;
+  el.innerHTML = midiasManutencao.map((m,i)=>{
+    if(m.tipo==="foto") return `
+      <div class="thumb-wrap">
+        <img src="${m.src}" alt="Foto manutenção">
+        <button type="button" class="btn-remover" onclick="removerMidiaGenerica('manutencao',${i})" aria-label="Remover">✕</button>
+      </div>`;
     const isPdf = m.nome?.toLowerCase().endsWith(".pdf");
-    return `<div style="padding:10px 14px;border:1px solid var(--borda);border-radius:12px;background:rgba(0,0,0,0.15);font-size:12px;">${isPdf?"📄":"📎"} ${escapar(m.nome||"arquivo")}</div>`;
+    return `<div class="anexo-item" style="display:inline-flex;max-width:220px;">
+      <span class="icone">${isPdf?"📄":"📎"}</span>
+      <span class="nome" title="${escapar(m.nome||"arquivo")}">${escapar(m.nome||"arquivo")}</span>
+      <button type="button" onclick="removerMidiaGenerica('manutencao',${i})" aria-label="Remover">✕</button>
+    </div>`;
   }).join("");
 }
 
@@ -1945,17 +2034,19 @@ function salvarManutencao(){
     nomeSetorIgual(m.nome, nome) && m.setor === setor &&
     !["Finalizada","Sem conserto"].includes(m.status)
   );
-  if(dup){
-    toast(`⚠️ Já existe manutenção ativa de "${dup.nome}" em ${dup.setor}.`, "warning");
-    return;
-  }
+  if(dup){ toast(`⚠️ Já existe manutenção ativa de "${dup.nome}" em ${dup.setor}.`, "warning"); return; }
 
   let codigo = document.getElementById("codigoManutencao").value.trim();
+  if(codigo){
+    const dupCod = manutencoes.find(m =>
+      m.id !== (ehEdicao ? id : null) && codigoIgual(m.codigo, codigo)
+    );
+    if(dupCod){ toast(`⚠️ Código "${dupCod.codigo}" já existe em manutenção.`, "warning"); return; }
+  }
   if(!codigo) codigo = gerarCodigo("MAN");
 
   const m = {
-    id, nome, codigo,
-    setor,
+    id, nome, codigo, setor,
     tipo: document.getElementById("tipoManutencao").value,
     prioridade: document.getElementById("prioridadeManutencao").value,
     responsavel: document.getElementById("responsavelManutencao").value.trim(),
@@ -1967,17 +2058,17 @@ function salvarManutencao(){
     solucao: document.getElementById("solucaoManutencao").value.trim(),
     fotos: midiasManutencao.filter(x=>x.tipo==="foto").map(x=>x.src),
     arquivos: midiasManutencao.filter(x=>x.tipo==="arquivo").map(x=>({nome:x.nome,src:x.src})),
-    dataCadastro: new Date().toISOString()
+    dataCadastro: manutencoes.find(x=>x.id===id)?.dataCadastro || new Date().toISOString()
   };
   const existe = manutencoes.find(x=>x.id===id);
   if(existe){
     manutencoes = manutencoes.map(x=>x.id===id?m:x);
-    registrarHistorico(nome,"editou manutenção");
+    registrarHistorico({ itemId:id, tipo:"manutencao", nome, acao:"editou manutenção" });
   } else {
     manutencoes.push(m);
-    registrarHistorico(nome,"cadastrou manutenção");
+    registrarHistorico({ itemId:id, tipo:"manutencao", nome, acao:"cadastrou manutenção" });
   }
-  salvarBanco();
+  salvarBanco(true);
   fecharManutencao();
   mostrarTudo();
   toast("Manutenção salva!", "success");
@@ -2036,14 +2127,14 @@ function excluirManutencao(id){
   if(!m) return;
   if(confirm(`Excluir manutenção de "${m.nome}"?`)){
     manutencoes = manutencoes.filter(x=>x.id!==id);
-    registrarHistorico(m.nome,"excluiu manutenção");
-    salvarBanco();
+    registrarHistorico({ itemId:id, tipo:"manutencao", nome:m.nome, acao:"excluiu manutenção" });
+    salvarBanco(true);
     mostrarTudo();
     toast("Manutenção excluída.", "success");
   }
 }
 
-/* ============ OCR ============ */
+/* ============ OCR — TESSERACT EM WORKER ============ */
 function lerNotaOCR(origem = 'camera'){
   if(ocrEmAndamento){ toast("Aguarde o OCR terminar.", "warning"); return; }
   const id = origem === 'galeria' ? 'entradaOCR_galeria' : 'entradaOCR_camera';
@@ -2053,7 +2144,6 @@ function lerNotaOCR(origem = 'camera'){
   input.click();
 }
 
-/* v2.6: bloqueia botões durante o OCR */
 function travarBotoesOCR(travar){
   ['btnOCRCamera','btnOCRCGaleria','btnOCRNFCe'].forEach(id=>{
     const b = document.getElementById(id);
@@ -2069,7 +2159,7 @@ function mostrarLoadingOCR(){
     <div class="ocr-loading-inner">
       <div class="ocr-loading-emoji">🔍</div>
       <div class="ocr-loading-titulo">Lendo a Ordem de Serviço...</div>
-      <div class="ocr-loading-sub">Isso pode levar de 10 a 40 segundos na primeira vez</div>
+      <div class="ocr-loading-sub">Primeira execução baixa o idioma (~15MB)</div>
       <div class="ocr-progress-bg"><div id="progressoOCRBarra" class="ocr-progress-fill"></div></div>
       <div id="progressoOCRTexto" class="ocr-progress-texto">0%</div>
       <div id="progressoOCRStatus" class="ocr-progress-status">Iniciando...</div>
@@ -2079,6 +2169,10 @@ function mostrarLoadingOCR(){
   document.body.appendChild(div);
 }
 function cancelarOCR(){
+  if(window._ocrWorker){
+    try { window._ocrWorker.terminate(); } catch(e){}
+    window._ocrWorker = null;
+  }
   removerLoadingOCR();
   ocrEmAndamento = false;
   travarBotoesOCR(false);
@@ -2116,20 +2210,24 @@ async function processarOCR(arquivo){
   travarBotoesOCR(true);
   mostrarLoadingOCR();
 
-  const reader = new FileReader();
-  reader.onload = async () => {
-    const comprimida = await comprimirImagem(reader.result, 1600, 0.85);
+  // Pré-visualiza comprimido no formulário
+  try {
+    const dataUrl = await lerArquivo(arquivo);
+    const comprimida = await comprimirImagem(dataUrl, 1600, 0.85);
     midiasFora.push({ tipo:'foto', src: comprimida, nome:'OS_' + Date.now() + '.jpg' });
     mostrarPreviewFora();
-  };
-  reader.readAsDataURL(arquivo);
+  } catch(e){ console.warn("Falha ao pré-visualizar:", e); }
 
   try {
-    const resultado = await Tesseract.recognize(arquivo, 'por', {
-      logger: m => atualizarProgressoOCR(m)
-    });
-    const textoBruto = resultado.data.text;
-    console.log('📄 Texto OCR bruto:\n', textoBruto);
+    // ✅ Worker dedicado — não trava a UI
+    if(!window._ocrWorker){
+      window._ocrWorker = await Tesseract.createWorker('por', 1, {
+        logger: m => atualizarProgressoOCR(m)
+      });
+    }
+    const { data } = await window._ocrWorker.recognize(arquivo);
+    const textoBruto = data.text;
+    console.log('📄 Texto OCR:\n', textoBruto);
 
     const dados = extrairDadosOS(textoBruto);
     console.log('📦 Dados extraídos:', dados);
@@ -2215,7 +2313,6 @@ function extrairDadosOS(texto){
   return dados;
 }
 
-/* v2.6: usa setarSeVazio para não sobrescrever campos já preenchidos */
 function preencherFormularioFora(d){
   const nomeComposto = [d.equipamento, d.marca, d.modelo].filter(Boolean).join(' ').trim();
   setarSeVazio('nomeFora', nomeComposto);
@@ -2325,9 +2422,8 @@ function abrirScannerNFCe(){
 }
 function fecharScannerNFCe(){
   if(scannerNFCe){
-    try {
-      scannerNFCe.stop().then(()=>{ scannerNFCe.clear(); scannerNFCe = null; }).catch(()=>{ scannerNFCe = null; });
-    } catch(e){ scannerNFCe = null; }
+    try { scannerNFCe.stop().then(()=>{ scannerNFCe.clear(); scannerNFCe = null; }).catch(()=>{ scannerNFCe = null; }); }
+    catch(e){ scannerNFCe = null; }
   }
   const dlg = document.getElementById('dialogScannerNFCe');
   if(dlg && dlg.open) dlg.close();
@@ -2385,7 +2481,7 @@ function mostrarResultadoNFCe(dados, url){
     </div>
     <div class="acoes" style="margin-top:10px;">
       <button type="button" class="btn-primary" onclick="aplicarDadosNFCe()">✅ Aplicar dados no formulário</button>
-      <button type="button" class="btn-outline" onclick="window.open('${escapar(url)}','_blank')">🌐 Abrir consulta SEFAZ</button>
+      <button type="button" class="btn-outline" onclick="window.open(this.dataset.url,'_blank')" data-url="${escapar(url)}">🌐 Abrir consulta SEFAZ</button>
     </div>
   `;
   window._ultimosDadosNFCe = dados;
@@ -2415,7 +2511,7 @@ function aplicarDadosNFCe(){
     const [a, m] = d.data.split('-');
     if(parseInt(a) === hoje.getFullYear() && parseInt(m) === (hoje.getMonth()+1)){
       const el = document.getElementById('dataSaidaFora');
-      if(el && !el.value) el.value = hoje.toISOString().substring(0,10);
+      if(el && !el.value) el.value = hojeISO();
     }
   }
   if(d.uf){
@@ -2434,7 +2530,6 @@ function fecharResultadoOCR(){
 function abrirForaDaEmpresa(id=null){
   midiasFora = [];
   document.getElementById("idFora").value = id||"";
-  const hoje = new Date().toISOString().substring(0,10);
   const elResOCR = document.getElementById('resultadoOCR');
   if(elResOCR){ elResOCR.style.display = 'none'; elResOCR.innerHTML = ''; }
 
@@ -2455,7 +2550,7 @@ function abrirForaDaEmpresa(id=null){
     const elAssist = document.getElementById('tipoAssistFora');
     if(elAssist) elAssist.value = x.tipoAssist || '';
     document.getElementById("prioridadeFora").value = x.prioridade||"Média";
-    document.getElementById("dataSaidaFora").value = x.dataSaida||hoje;
+    document.getElementById("dataSaidaFora").value = x.dataSaida||hojeISO();
     document.getElementById("dataRetornoFora").value = x.dataRetorno||"";
     document.getElementById("statusFora").value = x.status||"Enviado";
     document.getElementById("osFora").value = x.os||"";
@@ -2479,7 +2574,7 @@ function abrirForaDaEmpresa(id=null){
     const elAssistNovo = document.getElementById('tipoAssistFora');
     if(elAssistNovo) elAssistNovo.value = '';
     document.getElementById("prioridadeFora").value = "Média";
-    document.getElementById("dataSaidaFora").value = hoje;
+    document.getElementById("dataSaidaFora").value = hojeISO();
     document.getElementById("statusFora").value = "Enviado";
   }
   mostrarPreviewFora();
@@ -2489,40 +2584,44 @@ function fecharForaDaEmpresa(){ document.getElementById("dialogForaDaEmpresa").c
 
 async function adicionarFotosFora(arquivos){
   for(const a of [...arquivos]){
-    const dataUrl = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = function(){ res(this.result); };
-      r.readAsDataURL(a);
-    });
+    const dataUrl = await lerArquivo(a);
     const comprimida = await comprimirImagem(dataUrl);
     midiasFora.push({tipo:"foto",src:comprimida,nome:a.name});
   }
   mostrarPreviewFora();
 }
 function adicionarVideosFora(arquivos){
-  [...arquivos].forEach(a=>{
+  [...arquivos].forEach(async a => {
     if(a.size > 15 * 1024 * 1024){
       toast(`⚠️ Vídeo "${a.name}" é maior que 15MB. Pode estourar o armazenamento.`, "warning");
     }
-    const r = new FileReader();
-    r.onload = function(){ midiasFora.push({tipo:"video",src:this.result,nome:a.name}); mostrarPreviewFora(); };
-    r.readAsDataURL(a);
+    const src = await lerArquivo(a);
+    midiasFora.push({tipo:"video",src,nome:a.name});
+    mostrarPreviewFora();
   });
 }
 function adicionarArquivosFora(arquivos){
-  [...arquivos].forEach(a=>{
-    const r = new FileReader();
-    r.onload = function(){ midiasFora.push({tipo:"arquivo",nome:a.name,src:this.result}); mostrarPreviewFora(); };
-    r.readAsDataURL(a);
+  [...arquivos].forEach(async a => {
+    const src = await lerArquivo(a);
+    midiasFora.push({tipo:"arquivo",nome:a.name,src});
+    mostrarPreviewFora();
   });
 }
 
-/* v2.6: usa data-* para evitar XSS em nomes com aspas */
+/* v2.7: usa data-* e encodeURI para segurança */
 function mostrarPreviewFora(){
   const el = document.getElementById("previewFora");
   el.innerHTML = midiasFora.map((m, idx)=>{
-    if(m.tipo==="foto") return `<div style="position:relative;display:inline-block;"><img src="${m.src}" alt="Foto" data-tipo="foto" data-src="${escapar(m.src)}" onclick="visualizarMidia(this.dataset.tipo, this.dataset.src, '')" style="cursor:pointer;"><button type="button" onclick="removerMidiaFora(${idx})" aria-label="Remover">✕</button></div>`;
-    if(m.tipo==="video") return `<div style="position:relative;display:inline-block;"><video src="${m.src}" data-tipo="video" data-src="${escapar(m.src)}" onclick="visualizarMidia(this.dataset.tipo, this.dataset.src, '')" style="cursor:pointer;"></video><button type="button" onclick="removerMidiaFora(${idx})" aria-label="Remover">✕</button></div>`;
+    if(m.tipo==="foto") return `
+      <div class="thumb-wrap">
+        <img src="${m.src}" alt="Foto" data-tipo="foto" data-src="${escapar(m.src)}" onclick="visualizarMidia(this.dataset.tipo, this.dataset.src, '')" style="cursor:pointer;">
+        <button type="button" class="btn-remover" onclick="removerMidiaGenerica('fora',${idx})" aria-label="Remover">✕</button>
+      </div>`;
+    if(m.tipo==="video") return `
+      <div class="thumb-wrap">
+        <video src="${m.src}" data-tipo="video" data-src="${escapar(m.src)}" onclick="visualizarMidia(this.dataset.tipo, this.dataset.src, '')" style="cursor:pointer;"></video>
+        <button type="button" class="btn-remover" onclick="removerMidiaGenerica('fora',${idx})" aria-label="Remover">✕</button>
+      </div>`;
     const isPdf = m.nome?.toLowerCase().endsWith(".pdf");
     const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(m.nome||"");
     const isVid = /\.(mp4|webm|mov|avi)$/i.test(m.nome||"");
@@ -2532,11 +2631,10 @@ function mostrarPreviewFora(){
       <span class="icone">${icone}</span>
       <span class="nome" title="${nomeEscapado}">${nomeEscapado}</span>
       <button type="button" data-tipo="arquivo" data-src="${escapar(m.src)}" data-nome="${nomeEscapado}" onclick="visualizarMidia(this.dataset.tipo, this.dataset.src, this.dataset.nome)" aria-label="Visualizar">👁️</button>
-      <button type="button" onclick="removerMidiaFora(${idx})" aria-label="Remover">✕</button>
+      <button type="button" onclick="removerMidiaGenerica('fora',${idx})" aria-label="Remover">✕</button>
     </div>`;
   }).join("");
 }
-function removerMidiaFora(idx){ midiasFora.splice(idx,1); mostrarPreviewFora(); }
 
 function visualizarMidia(tipo, src, nome=""){
   const c = document.getElementById("conteudoMidia");
@@ -2563,14 +2661,21 @@ function salvarForaDaEmpresa(){
   if(!empresa){ toast("Digite o nome da empresa terceirizada.", "error"); return; }
 
   const id = document.getElementById("idFora").value || gerarId();
+  const ehEdicao = !!document.getElementById("idFora").value;
   let codigo = document.getElementById("codigoFora").value.trim();
+  if(codigo){
+    const dup = foraDaEmpresa.find(f =>
+      f.id !== (ehEdicao ? id : null) && codigoIgual(f.codigo, codigo)
+    );
+    if(dup){ toast(`⚠️ Código "${dup.codigo}" já existe na assistência técnica.`, "warning"); return; }
+  }
   if(!codigo) codigo = gerarCodigo("FORA");
+
   const anterior = foraDaEmpresa.find(f=>f.id===id);
   const status = document.getElementById("statusFora").value;
   let dataHoraRetorno = document.getElementById("dataHoraRetornoFora").value;
   if(status === "Retornado" && !dataHoraRetorno){
-    const agora = new Date(); agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
-    dataHoraRetorno = agora.toISOString().slice(0,16);
+    dataHoraRetorno = agoraLocalISO();
     document.getElementById("dataHoraRetornoFora").value = dataHoraRetorno;
   }
   const tipoAssist = document.getElementById('tipoAssistFora')?.value || '';
@@ -2585,7 +2690,7 @@ function salvarForaDaEmpresa(){
     responsavel: document.getElementById("responsavelFora").value.trim(),
     setor: document.getElementById("setorFora").value,
     tipoServico: document.getElementById("tipoServicoFora").value,
-    tipoAssist: tipoAssist,
+    tipoAssist,
     prioridade: document.getElementById("prioridadeFora").value,
     dataSaida: document.getElementById("dataSaidaFora").value,
     dataRetorno: document.getElementById("dataRetornoFora").value,
@@ -2596,7 +2701,7 @@ function salvarForaDaEmpresa(){
     descricao: document.getElementById("descricaoFora").value.trim(),
     solucao: document.getElementById("solucaoFora").value.trim(),
     observacoes: document.getElementById("obsFora").value.trim(),
-    dataHoraRetorno: dataHoraRetorno,
+    dataHoraRetorno,
     recebedor: document.getElementById("recebedorFora").value.trim(),
     fotos: midiasFora.filter(m=>m.tipo==="foto").map(m=>m.src),
     videos: midiasFora.filter(m=>m.tipo==="video").map(m=>m.src),
@@ -2606,12 +2711,12 @@ function salvarForaDaEmpresa(){
   };
   if(anterior){
     foraDaEmpresa = foraDaEmpresa.map(x=>x.id===id?f:x);
-    registrarHistorico(nome, `editou assistência técnica (${empresa})`);
+    registrarHistorico({ itemId:id, tipo:"fora", nome, acao: `editou assistência técnica (${empresa})` });
   } else {
     foraDaEmpresa.push(f);
-    registrarHistorico(nome, `enviou para assistência técnica em "${empresa}"`);
+    registrarHistorico({ itemId:id, tipo:"fora", nome, acao: `enviou para assistência técnica em "${empresa}"` });
   }
-  salvarBanco();
+  salvarBanco(true);
   fecharForaDaEmpresa();
   mostrarTudo();
   toast("Assistência técnica salva!", "success");
@@ -2728,11 +2833,10 @@ function marcarRetornado(id){
   const x = foraDaEmpresa.find(f=>f.id===id);
   if(!x) return;
   if(!confirm(`Marcar "${x.nome}" como retornado da empresa "${x.empresa}"?`)) return;
-  const agora = new Date(); agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
   x.status = "Retornado";
-  x.dataHoraRetorno = x.dataHoraRetorno || agora.toISOString().slice(0,16);
-  registrarHistorico(x.nome, `marcou como retornado de "${x.empresa}"`);
-  salvarBanco();
+  x.dataHoraRetorno = x.dataHoraRetorno || agoraLocalISO();
+  registrarHistorico({ itemId:id, tipo:"fora", nome:x.nome, acao:`marcou como retornado de "${x.empresa}"` });
+  salvarBanco(true);
   mostrarTudo();
   toast("Marcado como retornado!", "success");
 }
@@ -2743,8 +2847,8 @@ function reabrirFora(id){
   if(!confirm(`Reabrir "${x.nome}"? Status voltará para "Em manutenção".`)) return;
   x.status = "Em manutenção";
   x.dataHoraRetorno = "";
-  registrarHistorico(x.nome, "reabriu assistência técnica");
-  salvarBanco();
+  registrarHistorico({ itemId:id, tipo:"fora", nome:x.nome, acao:"reabriu assistência técnica" });
+  salvarBanco(true);
   mostrarTudo();
   toast("Assistência reaberta.", "success");
 }
@@ -2754,8 +2858,8 @@ function excluirForaDaEmpresa(id){
   if(!x) return;
   if(confirm(`Excluir envio de "${x.nome}" para "${x.empresa}"?`)){
     foraDaEmpresa = foraDaEmpresa.filter(f=>f.id!==id);
-    registrarHistorico(x.nome,"excluiu assistência técnica");
-    salvarBanco();
+    registrarHistorico({ itemId:id, tipo:"fora", nome:x.nome, acao:"excluiu assistência técnica" });
+    salvarBanco(true);
     mostrarTudo();
     toast("Assistência excluída.", "success");
   }
@@ -2817,17 +2921,18 @@ function fecharAtivo(){ document.getElementById("dialogAtivo").close(); }
 
 async function adicionarFotoAtivo(a){
   if(!a) return;
-  const dataUrl = await new Promise(res => {
-    const r = new FileReader();
-    r.onload = function(){ res(this.result); };
-    r.readAsDataURL(a);
-  });
+  const dataUrl = await lerArquivo(a);
   const comprimida = await comprimirImagem(dataUrl);
   midiasAtivo = [{tipo:"foto",src:comprimida}];
   mostrarPreviewAtivo();
 }
 function mostrarPreviewAtivo(){
-  document.getElementById("previewAtivo").innerHTML = midiasAtivo.map(m=>`<img src="${m.src}" alt="">`).join("");
+  document.getElementById("previewAtivo").innerHTML = midiasAtivo.map((m,i) => `
+    <div class="thumb-wrap">
+      <img src="${m.src}" alt="">
+      <button type="button" class="btn-remover" onclick="removerMidiaGenerica('ativo',${i})" aria-label="Remover">✕</button>
+    </div>
+  `).join("");
 }
 
 function salvarAtivo(){
@@ -2839,22 +2944,13 @@ function salvarAtivo(){
   let codigo = document.getElementById("codigoAtivo").value.trim();
 
   if(codigo){
-    const dup = ativos.find(a =>
-      a.id !== (ehEdicao ? id : null) && codigoIgual(a.codigo, codigo)
-    );
-    if(dup){
-      toast(`⚠️ TAG "${dup.codigo}" já usada por "${dup.nome}".`, "warning");
-      return;
-    }
+    const dup = ativos.find(a => a.id !== (ehEdicao ? id : null) && codigoIgual(a.codigo, codigo));
+    if(dup){ toast(`⚠️ TAG "${dup.codigo}" já usada por "${dup.nome}".`, "warning"); return; }
   }
   const dupNomeSetor = ativos.find(a =>
-    a.id !== (ehEdicao ? id : null) &&
-    nomeSetorIgual(a.nome, nome) && a.setor === setor
+    a.id !== (ehEdicao ? id : null) && nomeSetorIgual(a.nome, nome) && a.setor === setor
   );
-  if(dupNomeSetor){
-    toast(`⚠️ Já existe ativo "${dupNomeSetor.nome}" neste setor.`, "warning");
-    return;
-  }
+  if(dupNomeSetor){ toast(`⚠️ Já existe ativo "${dupNomeSetor.nome}" neste setor.`, "warning"); return; }
 
   if(!codigo) codigo = gerarCodigo("AT");
   const a = {
@@ -2864,17 +2960,17 @@ function salvarAtivo(){
     status: document.getElementById("statusAtivo").value,
     observacoes: document.getElementById("obsAtivo").value.trim(),
     fotos: midiasAtivo.filter(m=>m.tipo==="foto").map(m=>m.src),
-    dataCriacao: new Date().toISOString()
+    dataCriacao: ativos.find(x=>x.id===id)?.dataCriacao || new Date().toISOString()
   };
   const existe = ativos.find(x=>x.id===id);
   if(existe){
     ativos = ativos.map(x=>x.id===id?a:x);
-    registrarHistorico(nome,"editou ativo");
+    registrarHistorico({ itemId:id, tipo:"ativo", nome, acao:"editou ativo" });
   } else {
     ativos.push(a);
-    registrarHistorico(nome,"cadastrou ativo");
+    registrarHistorico({ itemId:id, tipo:"ativo", nome, acao:"cadastrou ativo" });
   }
-  salvarBanco();
+  salvarBanco(true);
   fecharAtivo();
   mostrarTudo();
   toast("Ativo salvo!", "success");
@@ -2910,8 +3006,8 @@ function excluirAtivo(id){
   if(!x) return;
   if(confirm(`Excluir "${x.nome}"?`)){
     ativos = ativos.filter(a=>a.id!==id);
-    registrarHistorico(x.nome,"excluiu ativo");
-    salvarBanco();
+    registrarHistorico({ itemId:id, tipo:"ativo", nome:x.nome, acao:"excluiu ativo" });
+    salvarBanco(true);
     mostrarTudo();
     toast("Ativo excluído.", "success");
   }
@@ -2938,7 +3034,7 @@ function abrirCriado(id=null){
     document.getElementById("tipoCriado").value = "Máquina";
     document.getElementById("responsavelCriado").value = "";
     document.getElementById("setorCriado").value = setores[0]?.nome || "";
-    document.getElementById("dataCriado").value = new Date().toISOString().substring(0,10);
+    document.getElementById("dataCriado").value = hojeISO();
     document.getElementById("statusCriado").value = "Em produção";
     document.getElementById("materiaisCriado").value = "";
     document.getElementById("obsCriado").value = "";
@@ -2956,22 +3052,13 @@ function salvarCriado(){
   let codigo = document.getElementById("codigoCriado").value.trim();
 
   if(codigo){
-    const dup = ativosCriados.find(a =>
-      a.id !== (ehEdicao ? id : null) && codigoIgual(a.codigo, codigo)
-    );
-    if(dup){
-      toast(`⚠️ Código "${dup.codigo}" já usado por "${dup.nome}".`, "warning");
-      return;
-    }
+    const dup = ativosCriados.find(a => a.id !== (ehEdicao ? id : null) && codigoIgual(a.codigo, codigo));
+    if(dup){ toast(`⚠️ Código "${dup.codigo}" já usado por "${dup.nome}".`, "warning"); return; }
   }
   const dupNomeSetor = ativosCriados.find(a =>
-    a.id !== (ehEdicao ? id : null) &&
-    nomeSetorIgual(a.nome, nome) && a.setor === setor
+    a.id !== (ehEdicao ? id : null) && nomeSetorIgual(a.nome, nome) && a.setor === setor
   );
-  if(dupNomeSetor){
-    toast(`⚠️ Já existe "${dupNomeSetor.nome}" neste setor.`, "warning");
-    return;
-  }
+  if(dupNomeSetor){ toast(`⚠️ Já existe "${dupNomeSetor.nome}" neste setor.`, "warning"); return; }
 
   if(!codigo) codigo = gerarCodigo("CR");
   const c = {
@@ -2983,17 +3070,17 @@ function salvarCriado(){
     status: document.getElementById("statusCriado").value,
     materiais: document.getElementById("materiaisCriado").value.trim(),
     observacoes: document.getElementById("obsCriado").value.trim(),
-    dataCadastro: new Date().toISOString()
+    dataCadastro: ativosCriados.find(x=>x.id===id)?.dataCadastro || new Date().toISOString()
   };
   const existe = ativosCriados.find(a=>a.id===id);
   if(existe){
     ativosCriados = ativosCriados.map(a=>a.id===id?c:a);
-    registrarHistorico(nome,"editou criado");
+    registrarHistorico({ itemId:id, tipo:"criado", nome, acao:"editou criado" });
   } else {
     ativosCriados.push(c);
-    registrarHistorico(nome,"cadastrou criado");
+    registrarHistorico({ itemId:id, tipo:"criado", nome, acao:"cadastrou criado" });
   }
-  salvarBanco();
+  salvarBanco(true);
   fecharCriado();
   mostrarTudo();
   toast("Criado salvo!", "success");
@@ -3025,8 +3112,8 @@ function excluirCriado(id){
   if(!x) return;
   if(confirm(`Excluir "${x.nome}"?`)){
     ativosCriados = ativosCriados.filter(a=>a.id!==id);
-    registrarHistorico(x.nome,"excluiu criado");
-    salvarBanco();
+    registrarHistorico({ itemId:id, tipo:"criado", nome:x.nome, acao:"excluiu criado" });
+    salvarBanco(true);
     mostrarTudo();
     toast("Criado excluído.", "success");
   }
@@ -3052,7 +3139,7 @@ function abrirPedido(id=null){
     document.getElementById("quantidadePedido").value = "";
     document.getElementById("fornecedorPedido").value = "";
     document.getElementById("setorPedido").value = setores.find(s=>s.nome==="Manutenção")?.nome || setores[0]?.nome || "";
-    document.getElementById("dataPedido").value = new Date().toISOString().substring(0,10);
+    document.getElementById("dataPedido").value = hojeISO();
     document.getElementById("statusPedido").value = "Pendente";
     document.getElementById("recebedorPedido").value = "";
     document.getElementById("dataHoraRecebimentoPedido").value = "";
@@ -3081,12 +3168,12 @@ function salvarPedido(){
   const existe = pedidosMateriais.find(x=>x.id===id);
   if(existe){
     pedidosMateriais = pedidosMateriais.map(x=>x.id===id?p:x);
-    registrarHistorico(nome,"editou pedido");
+    registrarHistorico({ itemId:id, tipo:"pedido", nome, acao:"editou pedido" });
   } else {
     pedidosMateriais.push(p);
-    registrarHistorico(nome,"cadastrou pedido");
+    registrarHistorico({ itemId:id, tipo:"pedido", nome, acao:"cadastrou pedido" });
   }
-  salvarBanco();
+  salvarBanco(true);
   fecharPedido();
   mostrarTudo();
   toast("Pedido salvo!", "success");
@@ -3121,8 +3208,8 @@ function excluirPedido(id){
   if(!x) return;
   if(confirm(`Excluir "${x.nome}"?`)){
     pedidosMateriais = pedidosMateriais.filter(p=>p.id!==id);
-    registrarHistorico(x.nome,"excluiu pedido");
-    salvarBanco();
+    registrarHistorico({ itemId:id, tipo:"pedido", nome:x.nome, acao:"excluiu pedido" });
+    salvarBanco(true);
     mostrarTudo();
     toast("Pedido excluído.", "success");
   }
@@ -3167,17 +3254,17 @@ function salvarExterna(){
     dataRetorno: document.getElementById("dataRetorno").value,
     status: document.getElementById("statusExterno").value,
     servico: document.getElementById("servicoExterno").value.trim(),
-    dataCadastro: new Date().toISOString()
+    dataCadastro: manutencoesExternas.find(m=>m.id===id)?.dataCadastro || new Date().toISOString()
   };
   const existe = manutencoesExternas.find(m=>m.id===id);
   if(existe){
     manutencoesExternas = manutencoesExternas.map(m=>m.id===id?e:m);
-    registrarHistorico(nome,"editou externa");
+    registrarHistorico({ itemId:id, tipo:"externa", nome, acao:"editou externa" });
   } else {
     manutencoesExternas.push(e);
-    registrarHistorico(nome,"cadastrou externa");
+    registrarHistorico({ itemId:id, tipo:"externa", nome, acao:"cadastrou externa" });
   }
-  salvarBanco();
+  salvarBanco(true);
   fecharExterna();
   mostrarTudo();
   toast("Externa salva!", "success");
@@ -3208,8 +3295,8 @@ function excluirManutencaoExterna(id){
   if(!x) return;
   if(confirm(`Excluir "${x.nome}"?`)){
     manutencoesExternas = manutencoesExternas.filter(m=>m.id!==id);
-    registrarHistorico(x.nome,"excluiu externa");
-    salvarBanco();
+    registrarHistorico({ itemId:id, tipo:"externa", nome:x.nome, acao:"excluiu externa" });
+    salvarBanco(true);
     mostrarTudo();
     toast("Externa excluída.", "success");
   }
@@ -3242,7 +3329,7 @@ function mostrarHistorico(){
 function limparHistorico(){
   if(confirm("Apagar todo o histórico? Esta ação não pode ser desfeita.")){
     historico = [];
-    salvarBanco();
+    salvarBanco(true);
     mostrarTudo();
     toast("Histórico limpo.", "success");
   }
@@ -3298,16 +3385,14 @@ function abrirScanner(){
 }
 function fecharScanner(){
   if(scanner){
-    try {
-      scanner.stop().then(()=>{ scanner.clear(); scanner = null; }).catch(()=>{ scanner = null; });
-    } catch(e){ scanner = null; }
+    try { scanner.stop().then(()=>{ scanner.clear(); scanner = null; }).catch(()=>{ scanner = null; }); }
+    catch(e){ scanner = null; }
   }
   const dlg = document.getElementById("dialogScanner");
   if(dlg && dlg.open) dlg.close();
 }
 
 /* ============ PDF ============ */
-/* v2.6: valida autoTable também */
 function checkPDF(){
   if(!window.jspdf || !window.jspdf.jsPDF){
     toast("Biblioteca PDF não carregada. Recarregue a página.", "error");
@@ -3334,18 +3419,24 @@ function cabecalhoPDF(doc, titulo, sub=""){
   const h = doc.internal.pageSize.getHeight();
   doc.setDrawColor(200,200,200); doc.line(14,h-15,w-14,h-15);
   doc.setFontSize(8); doc.setTextColor(120,120,120);
-  doc.text('PCM de Ferramentas v2.6', 14, h-8);
+  doc.text('PCM de Ferramentas v2.7', 14, h-8);
   doc.text(`Página ${doc.internal.getCurrentPageInfo().pageNumber}`, w-14, h-8, {align:'right'});
 }
 async function salvarPDF(doc, nome){
-  let blob;
-  try { blob = doc.output("blob"); } catch(e){ console.error(e); toast("Erro ao gerar PDF.", "error"); return; }
-  const file = new File([blob], nome, { type: "application/pdf" });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: nome, text: "📄 Relatório — PCM de Ferramentas" }); return; }
-    catch (err) { if (err.name === "AbortError") return; console.warn(err); }
-  }
+  // v2.7: loading visual
+  const loading = document.createElement('div');
+  loading.className = 'pdf-loading';
+  loading.innerHTML = '<div class="pdf-spinner"></div><div>Gerando PDF...</div>';
+  document.body.appendChild(loading);
+
   try {
+    let blob;
+    try { blob = doc.output("blob"); } catch(e){ console.error(e); toast("Erro ao gerar PDF.", "error"); return; }
+    const file = new File([blob], nome, { type: "application/pdf" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: nome, text: "📄 Relatório — PCM de Ferramentas" }); return; }
+      catch (err) { if (err.name === "AbortError") return; console.warn(err); }
+    }
     const url = URL.createObjectURL(blob);
     const w = window.open(url, "_blank");
     if (!w) {
@@ -3355,17 +3446,16 @@ async function salvarPDF(doc, nome){
       setTimeout(() => { try{ document.body.removeChild(a); }catch(e){} }, 2000);
     }
     setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e){} }, 60000);
-  } catch(e){ console.error(e); toast("Não foi possível abrir o PDF.", "error"); }
+  } catch(e){
+    console.error(e); toast("Não foi possível abrir o PDF.", "error");
+  } finally {
+    loading.remove();
+  }
 }
 
-/* v2.6: wrapper que sempre chama autoTable corretamente */
 function chamarAutoTable(doc, opts){
-  if(window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable){
-    return doc.autoTable(opts);
-  }
-  if(window.jspdf.autoTable){
-    return window.jspdf.autoTable(doc, opts);
-  }
+  if(window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable) return doc.autoTable(opts);
+  if(window.jspdf.autoTable) return window.jspdf.autoTable(doc, opts);
   throw new Error("autoTable não disponível");
 }
 
@@ -3387,7 +3477,7 @@ function gerarPDFCompleto(){
     ['Setores', setores.length]
   ];
   chamarAutoTable(doc, { startY:45, head:[['Indicador','Quantidade']], body:resumo, theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255}, styles:{fontSize:10,cellPadding:3}, margin:{left:14,right:14} });
-  salvarPDF(doc, `Relatorio_Geral_${new Date().toISOString().slice(0,10)}.pdf`);
+  salvarPDF(doc, `Relatorio_Geral_${hojeISO()}.pdf`);
 }
 function gerarPDFFerramentas(){
   if(!checkPDF()) return;
@@ -3395,7 +3485,7 @@ function gerarPDFFerramentas(){
   const doc = new jsPDF();
   cabecalhoPDF(doc,'FERRAMENTAS',`Total: ${ferramentas.length}`);
   chamarAutoTable(doc, { startY:45, head:[['Nome','Código','Setor','Qtd','Status']], body: ferramentas.map(f=>[f.nome, f.codigo||'-', f.setor, f.quantidade||1, f.status]), theme:'grid', headStyles:{fillColor:[30,184,201],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
-  salvarPDF(doc, `Ferramentas_${new Date().toISOString().slice(0,10)}.pdf`);
+  salvarPDF(doc, `Ferramentas_${hojeISO()}.pdf`);
 }
 function gerarPDFManutencao(){
   if(!checkPDF()) return;
@@ -3406,7 +3496,7 @@ function gerarPDFManutencao(){
   else {
     chamarAutoTable(doc, { startY:45, head:[['Nome','Código','Setor','Tipo','Status','Entrada']], body: manutencoes.map(m=>[m.nome, m.codigo||'-', m.setor, m.tipo, m.status, m.dataEntrada||'-']), theme:'grid', headStyles:{fillColor:[211,47,47],textColor:255}, styles:{fontSize:8,cellPadding:2}, margin:{left:14,right:14} });
   }
-  salvarPDF(doc, `Manutencao_${new Date().toISOString().slice(0,10)}.pdf`);
+  salvarPDF(doc, `Manutencao_${hojeISO()}.pdf`);
 }
 function gerarPDFManutencaoItem(id){
   if(!checkPDF()) return;
@@ -3457,7 +3547,7 @@ function gerarPDFForaDaEmpresa(){
       styles:{fontSize:8,cellPadding:2}, margin:{left:14,right:14}
     });
   }
-  salvarPDF(doc, `AssistenciaTecnica_${new Date().toISOString().slice(0,10)}.pdf`);
+  salvarPDF(doc, `AssistenciaTecnica_${hojeISO()}.pdf`);
 }
 function gerarPDFForaItem(id){
   if(!checkPDF()) return;
@@ -3501,7 +3591,7 @@ function gerarPDFAtivos(){
   cabecalhoPDF(doc,'ATIVOS',`Total: ${ativos.length}`);
   if(!ativos.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum ativo.',14,55); }
   else { chamarAutoTable(doc, { startY:45, head:[['Nome','TAG','Tipo','Setor','Status']], body: ativos.map(a=>[a.nome, a.codigo||'-', a.tipo, a.setor, a.status]), theme:'grid', headStyles:{fillColor:[124,92,191],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
-  salvarPDF(doc, `Ativos_${new Date().toISOString().slice(0,10)}.pdf`);
+  salvarPDF(doc, `Ativos_${hojeISO()}.pdf`);
 }
 function gerarPDFCriados(){
   if(!checkPDF()) return;
@@ -3510,7 +3600,7 @@ function gerarPDFCriados(){
   cabecalhoPDF(doc,'CRIADOS',`Total: ${ativosCriados.length}`);
   if(!ativosCriados.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum criado.',14,55); }
   else { chamarAutoTable(doc, { startY:45, head:[['Nome','Código','Tipo','Resp.','Setor','Status']], body: ativosCriados.map(a=>[a.nome, a.codigo||'-', a.tipo, a.responsavel||'-', a.setor, a.status]), theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
-  salvarPDF(doc, `Criados_${new Date().toISOString().slice(0,10)}.pdf`);
+  salvarPDF(doc, `Criados_${hojeISO()}.pdf`);
 }
 function gerarPDFPedidos(){
   if(!checkPDF()) return;
@@ -3519,7 +3609,7 @@ function gerarPDFPedidos(){
   cabecalhoPDF(doc,'PEDIDOS',`Total: ${pedidosMateriais.length}`);
   if(!pedidosMateriais.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhum pedido.',14,55); }
   else { chamarAutoTable(doc, { startY:45, head:[['Material','Qtd','Fornecedor','Setor','Status']], body: pedidosMateriais.map(p=>[p.nome, p.quantidade||'-', p.fornecedor||'-', p.setor, p.status]), theme:'grid', headStyles:{fillColor:[245,166,35],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
-  salvarPDF(doc, `Pedidos_${new Date().toISOString().slice(0,10)}.pdf`);
+  salvarPDF(doc, `Pedidos_${hojeISO()}.pdf`);
 }
 function gerarPDFExternas(){
   if(!checkPDF()) return;
@@ -3528,7 +3618,7 @@ function gerarPDFExternas(){
   cabecalhoPDF(doc,'EXTERNAS',`Total: ${manutencoesExternas.length}`);
   if(!manutencoesExternas.length){ doc.setFontSize(12); doc.setTextColor(100,100,100); doc.text('Nenhuma externa.',14,55); }
   else { chamarAutoTable(doc, { startY:45, head:[['Item','Tipo','Empresa','Resp.','Status']], body: manutencoesExternas.map(m=>[m.nome, m.tipo, m.empresa||'-', m.responsavel||'-', m.status]), theme:'grid', headStyles:{fillColor:[255,107,157],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
-  salvarPDF(doc, `Externas_${new Date().toISOString().slice(0,10)}.pdf`);
+  salvarPDF(doc, `Externas_${hojeISO()}.pdf`);
 }
 function gerarPDFSetores(){
   if(!checkPDF()) return;
@@ -3538,18 +3628,28 @@ function gerarPDFSetores(){
   const dados = setores.map(s=>{
     const nome = s.nome;
     const f = ferramentas.filter(x=>x.setor===nome);
-    const m = manutencoes.filter(x=>x.setor===nome);
-    const fora = foraDaEmpresa.filter(x=>x.setor===nome);
-    return [nome, f.length, f.filter(x=>x.status==='Disponível').length, f.filter(x=>x.status==='Emprestada').length, m.length, fora.length, ativos.filter(x=>x.setor===nome).length];
+    return [nome, f.length, f.filter(x=>x.status==='Disponível').length, f.filter(x=>x.status==='Emprestada').length, manutencoes.filter(x=>x.setor===nome).length, foraDaEmpresa.filter(x=>x.setor===nome).length, ativos.filter(x=>x.setor===nome).length];
   });
   chamarAutoTable(doc, { startY:45, head:[['Setor','Ferr.','Disp.','Empr.','Manut.','Assist.','Ativos']], body:dados, theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
-  salvarPDF(doc, `Setores_${new Date().toISOString().slice(0,10)}.pdf`);
+  salvarPDF(doc, `Setores_${hojeISO()}.pdf`);
 }
 
 /* ============ COMPARTILHAR IMAGEM ============ */
 function compartilharRelatorioImagem(){
+  const itens = [
+    ["Ferramentas", ferramentas.length, "#1eb8c9"],
+    ["Disponíveis", ferramentas.filter(x=>x.status==="Disponível").length, "#2ddb7a"],
+    ["Emprestadas", ferramentas.filter(x=>x.status==="Emprestada").length, "#ffd14a"],
+    ["Manutenções", manutencoes.length, "#ff6b82"],
+    ["Assistência Técnica", foraDaEmpresa.length, "#7c5cbf"],
+    ["Ativos", ativos.length, "#7c5cbf"],
+    ["Criados", ativosCriados.length, "#2ddb7a"],
+    ["Pedidos", pedidosMateriais.length, "#f5a623"]
+  ];
+  // v2.7: altura calculada dinamicamente
+  const w = 800, headerH = 140, itemH = 70, footerH = 60;
+  const h = headerH + itens.length * itemH + footerH;
   const canvas = document.createElement("canvas");
-  const w = 800, h = 1100;
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext("2d");
   const grad = ctx.createLinearGradient(0,0,0,h);
@@ -3561,23 +3661,13 @@ function compartilharRelatorioImagem(){
   ctx.fillText(`PCM de Ferramentas • ${new Date().toLocaleString('pt-BR')}`, 40, 100);
   ctx.strokeStyle = "rgba(255,255,255,0.1)";
   ctx.beginPath(); ctx.moveTo(40, 120); ctx.lineTo(w-40, 120); ctx.stroke();
-  const dados = [
-    ["Ferramentas", ferramentas.length, "#1eb8c9"],
-    ["Disponíveis", ferramentas.filter(x=>x.status==="Disponível").length, "#2ddb7a"],
-    ["Emprestadas", ferramentas.filter(x=>x.status==="Emprestada").length, "#ffd14a"],
-    ["Manutenções", manutencoes.length, "#ff6b82"],
-    ["Assistência Técnica", foraDaEmpresa.length, "#7c5cbf"],
-    ["Ativos", ativos.length, "#7c5cbf"],
-    ["Criados", ativosCriados.length, "#2ddb7a"],
-    ["Pedidos", pedidosMateriais.length, "#f5a623"]
-  ];
-  let y = 180;
-  dados.forEach(d=>{
+  let y = headerH + 40;
+  itens.forEach(d=>{
     ctx.fillStyle = d[2]; ctx.beginPath(); ctx.arc(55, y-6, 10, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = "#ffffff"; ctx.font = "bold 22px sans-serif"; ctx.fillText(d[0], 80, y);
     ctx.fillStyle = d[2]; ctx.font = "bold 32px sans-serif"; ctx.textAlign = "right";
     ctx.fillText(String(d[1]), w-60, y+5); ctx.textAlign = "left";
-    y += 70;
+    y += itemH;
   });
   canvas.toBlob(blob => {
     const file = new File([blob], `relatorio_${Date.now()}.png`, {type: "image/png"});
@@ -3608,13 +3698,11 @@ function iniciarAlarme(f){
   salvarBanco();
   verificarAlarmes();
 }
-
 function pararAlarme(fid){
   alarmes = alarmes.filter(a=>a.ferramentaId!==fid);
   salvarBanco();
   atualizarBadgeAlarme();
 }
-
 function verificarAlarmes(){
   const agora = new Date();
   let alterou = false;
@@ -3628,11 +3716,10 @@ function verificarAlarmes(){
     else if(horas<=12 && horas>6 && !a.notificado12h){ a.notificado12h=true; alterou=true; mostrarNotificacaoAlarme(a,'12h'); }
     else if(horas<=24 && horas>12 && !a.notificado24h){ a.notificado24h=true; alterou=true; mostrarNotificacaoAlarme(a,'24h'); }
   });
-  if(alterou) salvarBanco();
+  if(alterou) salvarBanco(true);
   atualizarBadgeAlarme();
   atualizarBadgeFora();
 }
-
 function mostrarNotificacaoAlarme(a, tipo){
   const c = document.getElementById('alarmeContainer');
   if(!c) return;
@@ -3656,26 +3743,23 @@ function mostrarNotificacaoAlarme(a, tipo){
     try { new Notification(`${emojis[tipo]} ${msgs[tipo]}`, { body: `${a.nome}${a.codigo?` (${a.codigo})`:''}` }); } catch(e){}
   }
 }
-
 function devolverFerramenta(id){
   const f = ferramentas.find(x=>x.id===id);
   if(!f) return;
   if(confirm(`Devolver "${f.nome}"?`)){
     f.status = 'Disponível'; f.dataEmprestimo = null;
-    salvarBanco(); pararAlarme(id);
-    registrarHistorico(f.nome,'devolveu ferramenta');
+    salvarBanco(true); pararAlarme(id);
+    registrarHistorico({ itemId:id, tipo:"ferramenta", nome:f.nome, acao:'devolveu ferramenta' });
     mostrarTudo();
     document.querySelectorAll('.alarme-notificacao').forEach(n=>n.remove());
     toast("Ferramenta devolvida!", "success");
   }
 }
-
 function atualizarBadgeAlarme(){
   const count = alarmes.filter(a=>a.ativo).length;
   const btn = document.querySelector('[data-tela="ferramentas"]');
   if(btn){ if(count>0){ btn.classList.add('alarme-badge'); btn.dataset.count = count; } else { btn.classList.remove('alarme-badge'); btn.dataset.count='0'; } }
 }
-
 function atualizarBadgeFora(){
   const count = foraDaEmpresa.filter(x=>!["Retornado","Cancelado","Sem conserto"].includes(x.status)).length;
   const btn = document.querySelector('[data-tela="foradaempresa"]');
@@ -3685,7 +3769,7 @@ function atualizarBadgeFora(){
 /* ============ BACKUP ============ */
 function exportarBackup(){
   const dados = {
-    versao: "2.6",
+    versao: VERSAO,
     gerado: new Date().toISOString(),
     usuario: usuarioAtual || "—",
     ferramentas, manutencoes, ativos, ativosCriados, pedidosMateriais,
@@ -3695,10 +3779,10 @@ function exportarBackup(){
   const blob = new Blob([json], {type: "application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `backup_pcm_ferramentas_${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `backup_pcm_ferramentas_${hojeISO()}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
-  registrarHistorico("Sistema", "exportou backup completo");
+  registrarHistorico({ nome:"Sistema", acao:"exportou backup completo" });
   toast("Backup exportado!", "success");
 }
 
@@ -3710,19 +3794,24 @@ function importarBackup(arquivo){
       const dados = JSON.parse(e.target.result);
       if(!dados.versao && !dados.ferramentas){ toast("Arquivo inválido.", "error"); return; }
       if(!confirm("⚠️ Isso vai SUBSTITUIR todos os dados atuais. Continuar?")) return;
-      ferramentas = dados.ferramentas || [];
-      manutencoes = dados.manutencoes || [];
-      ativos = dados.ativos || [];
-      ativosCriados = dados.ativosCriados || [];
-      pedidosMateriais = dados.pedidosMateriais || [];
-      manutencoesExternas = dados.manutencoesExternas || [];
-      foraDaEmpresa = dados.foraDaEmpresa || [];
-      historico = dados.historico || [];
-      alarmes = dados.alarmes || [];
-      setores = dados.setores || SETORES_PADRAO.map(n => ({nome:n, observacoes:""}));
-      contadores = dados.contadores || {FER:0,AT:0,CR:0,PED:0,EXT:0,MAN:0,FORA:0};
-      registrarHistorico("Sistema", `importou backup`);
-      salvarBanco();
+      ferramentas = Array.isArray(dados.ferramentas) ? dados.ferramentas : [];
+      manutencoes = Array.isArray(dados.manutencoes) ? dados.manutencoes : [];
+      ativos = Array.isArray(dados.ativos) ? dados.ativos : [];
+      ativosCriados = Array.isArray(dados.ativosCriados) ? dados.ativosCriados : [];
+      pedidosMateriais = Array.isArray(dados.pedidosMateriais) ? dados.pedidosMateriais : [];
+      manutencoesExternas = Array.isArray(dados.manutencoesExternas) ? dados.manutencoesExternas : [];
+      foraDaEmpresa = Array.isArray(dados.foraDaEmpresa) ? dados.foraDaEmpresa : [];
+      historico = Array.isArray(dados.historico) ? dados.historico : [];
+      alarmes = Array.isArray(dados.alarmes) ? dados.alarmes : [];
+      setores = Array.isArray(dados.setores) && dados.setores.length ? dados.setores : SETORES_PADRAO.map(n => ({nome:n, observacoes:""}));
+      contadores = (dados.contadores && typeof dados.contadores === "object")
+        ? dados.contadores
+        : {FER:0,AT:0,CR:0,PED:0,EXT:0,MAN:0,FORA:0};
+
+      recalcularContadores(); // ✅ garante que não haverá colisão de códigos
+
+      registrarHistorico({ nome:"Sistema", acao:`importou backup v${dados.versao||"?"}` });
+      salvarBanco(true);
       atualizarSelectsSetores();
       mostrarTudo();
       toast("Backup restaurado!", "success");
@@ -3733,21 +3822,14 @@ function importarBackup(arquivo){
   if(inp) inp.value = "";
 }
 
-/* v2.6: remove só as chaves do app */
 function apagarTudo(){
   if(!confirm("⚠️ Vai APAGAR TUDO do PCM de Ferramentas. Tem certeza?")) return;
   if(!confirm("🚨 ÚLTIMA CONFIRMAÇÃO — não há como desfazer!")) return;
-  const chaves = [
-    "controleFerramentas","controleManutencoes","controleAtivos",
-    "controleAtivosCriados","controlePedidosMateriais","controleManutencoesExternas",
-    "controleForaDaEmpresa","controleHistorico","controleAlarmes",
-    "controleSetores","controleContadores","controleUsuario"
-  ];
-  chaves.forEach(k => localStorage.removeItem(k));
+  Object.values(CHAVES_STORAGE).forEach(k => localStorage.removeItem(k));
   location.reload();
 }
 
-/* ============ WHATSAPP ============ */
+/* ============ COMPARTILHAR ============ */
 function copiarTexto(t){
   return new Promise((resolve) => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -3769,13 +3851,22 @@ function copiarTexto(t){
 }
 
 function abrirWhatsApp(t){
+  // v2.7: fallback wa.me caso share de texto não funcione (iOS Safari)
   if (navigator.share) {
     navigator.share({ text: t }).catch((err) => {
-      if (err.name !== "AbortError") copiarTexto(t).then(() => toast("Texto copiado!", "success"));
+      if (err.name !== "AbortError") {
+        const url = `https://wa.me/?text=${encodeURIComponent(t)}`;
+        window.open(url, "_blank");
+        copiarTexto(t).then(() => toast("Texto copiado também!", "success"));
+      }
     });
     return;
   }
-  copiarTexto(t).then(() => toast("Texto copiado!", "success"));
+  copiarTexto(t).then(() => {
+    const url = `https://wa.me/?text=${encodeURIComponent(t)}`;
+    window.open(url, "_blank");
+    toast("Texto copiado!", "success");
+  });
 }
 
 function compartilharFerramenta(id){
@@ -3827,37 +3918,13 @@ function solicitarNotificacoes(){
   if("Notification" in window && Notification.permission === "default") Notification.requestPermission();
 }
 
-/* ============ SERVICE WORKER ============ */
+/* ============ SERVICE WORKER (arquivo real) ============ */
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
-  const swCode = `
-    const CACHE = "pcm-ferramentas-v9";
-    const ARQUIVOS = [
-      "./",
-      "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
-      "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js",
-      "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
-      "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js",
-      "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"
-    ];
-    self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARQUIVOS)).then(() => self.skipWaiting())); });
-    self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
-    self.addEventListener("fetch", e => {
-      if (e.request.method !== "GET") return;
-      e.respondWith(caches.match(e.request).then(cached => {
-        if (cached) return cached;
-        return fetch(e.request).then(resp => {
-          if (resp.ok && new URL(e.request.url).origin === location.origin) {
-            const clone = resp.clone();
-            caches.open(CACHE).then(c => c.put(e.request, clone));
-          }
-          return resp;
-        }).catch(() => cached);
-      }));
-    });
-  `;
-  const blob = new Blob([swCode], {type: "application/javascript"});
-  const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl, { scope: './' }).then(()=>console.log('✅ SW registrado')).catch(e=>console.log('SW:', e));
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then(reg => console.log('✅ SW registrado:', reg.scope))
+      .catch(err => console.log('SW:', err.message));
+  });
 }
 
 /* ============ START ============ */
@@ -3871,20 +3938,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ============ DIAGNÓSTICO ============ */
 window.diagnostico = function(){
-  console.log('=== DIAGNÓSTICO PCM v2.6 ===');
+  console.log('=== DIAGNÓSTICO PCM v2.7 ===');
   console.log('1. localStorage:', (()=>{try{localStorage.setItem('t','1');localStorage.removeItem('t');return 'OK';}catch(e){return 'FALHOU: '+e.message;}})());
   console.log('2. Protocolo:', location.protocol);
   console.log('3. jsPDF:', !!(window.jspdf && window.jspdf.jsPDF));
   console.log('4. autoTable API:', !!(window.jspdf && window.jspdf.jsPDF && window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable));
-  console.log('5. autoTable global:', !!(window.jspdf && window.jspdf.autoTable));
-  console.log('6. Chart.js:', !!window.Chart);
-  console.log('7. Html5Qrcode:', !!window.Html5Qrcode);
-  console.log('8. Tesseract:', typeof Tesseract);
-  console.log('9. Ferramentas no storage:', carregarArray('controleFerramentas').length);
-  console.log('10. Usuário salvo:', localStorage.getItem('controleUsuario'));
-  console.log('11. Service Worker:', 'serviceWorker' in navigator ? 'suportado' : 'não suportado');
-  try { mostrarTudo(); console.log('✅ mostrarTudo rodou sem erro'); }
-  catch(e){ console.log('❌ ERRO em mostrarTudo:', e.message, e.stack); }
+  console.log('5. Chart.js:', !!window.Chart);
+  console.log('6. Html5Qrcode:', !!window.Html5Qrcode);
+  console.log('7. Tesseract:', typeof Tesseract);
+  console.log('8. Service Worker:', 'serviceWorker' in navigator ? 'suportado' : 'não suportado');
+  console.log('9. Contadores:', contadores);
+  console.log('10. Ferramentas:', ferramentas.length, '| Manutenções:', manutencoes.length, '| Fora:', foraDaEmpresa.length);
 };
 </script>
 </body>
