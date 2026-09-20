@@ -8,9 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PCM Ferramentas">
 <meta name="description" content="Controle de ferramentas, ativos, manutenção e assistência técnica">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%230a1a2e' width='192' height='192' rx='32'/%3E%3Ctext x='96' y='130' font-size='110' text-anchor='middle'%3E🛠%3C/text%3E%3C/svg%3E">
-<title>PCM de Ferramentas v2.7</title>
+<title>PCM de Ferramentas v2.8</title>
 
 <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
@@ -185,38 +183,20 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 .anexo-item .icone{font-size:20px}
 .anexo-item .nome{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .anexo-item button{padding:3px 8px;font-size:11px;border-radius:20px}
-
 .thumb-wrap{position:relative;display:inline-block}
 .thumb-wrap .btn-remover{position:absolute;top:-8px;right:-8px;width:24px;height:24px;padding:0;border-radius:50%;background:rgba(255,107,130,0.95);color:#fff;font-size:12px;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.5)}
 .thumb-wrap .btn-remover:hover{background:#ff6b82;transform:scale(1.1)}
-
-.ocr-panel{
-  background:linear-gradient(135deg,rgba(30,184,201,0.10),rgba(45,219,122,0.06));
-  border:1px solid rgba(30,184,201,0.35);
-  border-radius:16px;padding:16px;margin-bottom:14px;
-}
+.ocr-panel{background:linear-gradient(135deg,rgba(30,184,201,0.10),rgba(45,219,122,0.06));border:1px solid rgba(30,184,201,0.35);border-radius:16px;padding:16px;margin-bottom:14px;}
 .ocr-panel h4{font-size:14px;font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:8px;}
 .ocr-panel .subt{font-size:11.5px;color:var(--cinza);opacity:0.85;margin-bottom:12px;line-height:1.5;}
 .ocr-botoes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 .ocr-botoes button{justify-content:center;padding:10px 12px;font-size:12px;}
-.resultado-ocr{
-  background:rgba(45,219,122,0.08);
-  border:1px solid rgba(45,219,122,0.3);
-  border-radius:12px;padding:14px;margin-top:12px;
-}
+.resultado-ocr{background:rgba(45,219,122,0.08);border:1px solid rgba(45,219,122,0.3);border-radius:12px;padding:14px;margin-top:12px;}
 .resultado-ocr .titulo{font-weight:700;color:var(--verde);font-size:13.5px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
 .resultado-ocr .grid-campos{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;}
 .resultado-ocr .grid-campos .campo b{color:var(--texto);}
-
-.ocr-loading{
-  position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);
-  display:flex;align-items:center;justify-content:center;z-index:99999;padding:20px;
-}
-.ocr-loading-inner{
-  background:var(--bg-header);border:1px solid var(--borda);border-radius:24px;
-  padding:32px 40px;max-width:420px;width:100%;text-align:center;
-  box-shadow:0 30px 80px rgba(0,0,0,0.8);
-}
+.ocr-loading{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:99999;padding:20px;}
+.ocr-loading-inner{background:var(--bg-header);border:1px solid var(--borda);border-radius:24px;padding:32px 40px;max-width:420px;width:100%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.8);}
 .ocr-loading-emoji{font-size:48px;margin-bottom:16px;animation:pulseAlarme 1s ease-in-out infinite alternate;}
 .ocr-loading-titulo{font-weight:800;font-size:18px;margin-bottom:8px;}
 .ocr-loading-sub{font-size:12px;color:var(--cinza);opacity:0.8;margin-bottom:16px;}
@@ -224,24 +204,18 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 .ocr-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--azul),var(--roxo),var(--rosa));transition:width 0.3s;border-radius:30px;}
 .ocr-progress-texto{font-size:13px;color:var(--azul-claro);margin-top:12px;font-weight:600;}
 .ocr-progress-status{font-size:12px;color:var(--cinza);margin-top:6px;opacity:0.7;}
-
 .toast-container{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:99998;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;max-width:90vw}
-.toast{
-  background:var(--bg-header);border:1px solid var(--borda);color:var(--texto);
-  padding:12px 24px;border-radius:30px;font-size:13px;font-weight:600;
-  box-shadow:0 15px 40px rgba(0,0,0,0.5);
-  animation:toastIn .4s cubic-bezier(0.34,1.56,0.64,1);max-width:90vw;
-  text-align:center;
-}
+.toast{background:var(--bg-header);border:1px solid var(--borda);color:var(--texto);padding:12px 24px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 15px 40px rgba(0,0,0,0.5);animation:toastIn .4s cubic-bezier(0.34,1.56,0.64,1);max-width:90vw;text-align:center;}
 @keyframes toastIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 .toast.toast-success{border-color:rgba(45,219,122,0.4);color:var(--verde)}
 .toast.toast-error{border-color:rgba(255,107,130,0.4);color:var(--vermelho)}
 .toast.toast-warning{border-color:rgba(255,209,74,0.4);color:var(--amarelo-texto)}
-
 .pdf-loading{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:99999;flex-direction:column;gap:20px;color:#fff;}
 .pdf-spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,0.15);border-top-color:var(--azul);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
-
+.secao-form{border-top:1px solid var(--borda);margin-top:18px;padding-top:14px;}
+.secao-form h3{font-size:14px;font-weight:700;color:var(--azul);margin:0 0 4px;display:flex;align-items:center;gap:8px;}
+.secao-form h4{font-size:12px;font-weight:600;color:var(--cinza);opacity:.8;margin:10px 0 2px;text-transform:uppercase;letter-spacing:.5px;}
 @media (max-width:768px){
   .item{grid-template-columns:1fr;gap:8px;text-align:center}
   .item .imagem-mini,.item .imagem-placeholder{width:100%;height:130px;margin:0 auto;max-width:200px}
@@ -280,7 +254,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <div class="logo-icon">🛠</div>
       <div class="logo-text">
         <h1>PCM de Ferramentas</h1>
-        <div class="subtitulo">Ferramentas • Ativos • Assistência Técnica • v2.7</div>
+        <div class="subtitulo">Ferramentas • Ativos • Assistência Técnica • v2.8</div>
       </div>
     </div>
     <div class="header-actions">
@@ -507,7 +481,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 </section>
 
 </main>
-<footer>✦ PCM de Ferramentas v2.7 ✦</footer>
+<footer>✦ PCM de Ferramentas v2.8 ✦</footer>
 </div>
 
 <!-- MODAIS -->
@@ -811,32 +785,157 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
+<!-- ✅ MODAL DE ATIVO COMPLETO (v2.8) -->
 <dialog id="dialogAtivo" aria-labelledby="tituloDialogAtivo">
   <div class="modal">
     <h2 id="tituloDialogAtivo">🏭 Cadastro de Ativo</h2>
     <input type="hidden" id="idAtivo">
-    <label>Nome</label><input id="nomeAtivo">
-    <label>TAG</label><input id="codigoAtivo" placeholder="Deixe vazio para gerar">
-    <label>Tipo</label>
-    <select id="tipoAtivo">
-      <option>Máquina</option><option>Equipamento</option><option>Veículo</option>
-      <option>Instalação</option><option>Outro</option>
-    </select>
-    <label>Setor</label><select id="setorAtivo"></select>
-    <label>Status</label>
-    <select id="statusAtivo">
-      <option>Operando</option><option>Parado</option>
-      <option>Manutenção</option><option>Manutenção Externa</option>
-    </select>
-    <label>Observações</label><textarea id="obsAtivo" rows="3"></textarea>
-    <div class="acoes">
-      <button type="button" class="btn-outline" onclick="document.getElementById('entradaFotoAtivo').click()">📷 Foto (celular)</button>
-      <button type="button" class="btn-outline" onclick="document.getElementById('entradaGaleriaAtivo').click()">🖼️ Galeria</button>
-      <button type="button" class="btn-outline" onclick="abrirCamera('ativo')">📹 Webcam (PC)</button>
+
+    <div class="secao-form" style="border-top:none;margin-top:0;padding-top:0;">
+      <h3>📋 Identificação</h3>
+      <label>Nome / Modelo do Equipamento</label>
+      <input id="nomeAtivo" placeholder="Ex.: Torno CNC Romi">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label>Fabricante</label><input id="fabricanteAtivo" placeholder="Ex.: Romi"></div>
+        <div><label>País de Origem</label><input id="origemAtivo" placeholder="Ex.: Brasil"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div><label>TAG Patrimonial</label><input id="codigoAtivo" placeholder="TAG-001"></div>
+        <div><label>Código do Produto</label><input id="codigoProdutoAtivo" placeholder="SKU"></div>
+        <div><label>Código Interno</label><input id="codigoInternoAtivo" placeholder="Interno"></div>
+      </div>
     </div>
-    <input id="entradaFotoAtivo" class="hidden" type="file" accept="image/*" capture="environment" onchange="adicionarFotoAtivo(this.files[0])">
-    <input id="entradaGaleriaAtivo" class="hidden" type="file" accept="image/*" onchange="adicionarFotoAtivo(this.files[0])">
-    <div id="previewAtivo" class="preview"></div>
+
+    <div class="secao-form">
+      <h3>⚙️ Especificações Técnicas</h3>
+      <h4>Dados Elétricos</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div><label>Tensão (V)</label><input id="tensaoAtivo" placeholder="380V"></div>
+        <div><label>Corrente (A)</label><input id="correnteAtivo" placeholder="15A"></div>
+        <div><label>Potência (kW/CV)</label><input id="potenciaAtivo" placeholder="7.5kW"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div><label>Frequência (Hz)</label><input id="frequenciaAtivo" placeholder="60Hz"></div>
+        <div><label>Fases</label><input id="fasesAtivo" placeholder="3"></div>
+        <div><label>Grau de Proteção (IP)</label><input id="ipAtivo" placeholder="IP65"></div>
+      </div>
+      <h4>Dados Mecânicos</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label>Dimensões (C×L×A)</label><input id="dimensoesAtivo" placeholder="2000x1500x1800 mm"></div>
+        <div><label>Peso (kg)</label><input id="pesoAtivo" placeholder="1500"></div>
+      </div>
+      <label>Material Construtivo Principal</label>
+      <input id="materialAtivo" placeholder="Ex.: Ferro Fundido">
+      <label>Normas Aplicáveis (NBR/IEC/ISO/NR)</label>
+      <input id="normasAtivo" placeholder="Ex.: NR-12, NBR 5410">
+      <label>Capacidade / Velocidade / Rotação / Pressão / Temperatura</label>
+      <input id="capacidadeAtivo" placeholder="Ex.: 3000 RPM / 8 bar / 60°C">
+      <label>Acessórios Inclusos / Sobressalentes</label>
+      <textarea id="acessoriosAtivo" rows="2" placeholder="Ex.: Painel extra, mandril reserva..."></textarea>
+    </div>
+
+    <div class="secao-form">
+      <h3>🛠️ Operação & Manutenção</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label>Tipo de Equipamento</label>
+          <select id="tipoEquipAtivo">
+            <option>Fixo</option><option>Móvel</option><option>Portátil</option><option>Montado</option>
+          </select>
+        </div>
+        <div>
+          <label>Frequência de Uso</label>
+          <select id="freqUsoAtivo">
+            <option>Contínuo</option><option>Intermitente</option><option>Ocasional</option>
+          </select>
+        </div>
+      </div>
+      <label>Plano de Manutenção</label>
+      <textarea id="planoManutencaoAtivo" rows="2" placeholder="Ex.: Preventiva a cada 500h; Lubrificação semanal..."></textarea>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label>Última Manutenção</label><input id="ultimaManutencaoAtivo" type="date"></div>
+        <div><label>Próxima Manutenção Prevista</label><input id="proximaManutencaoAtivo" type="date"></div>
+      </div>
+      <label>Nº do Relatório de Serviço (último)</label>
+      <input id="relatorioServicoAtivo" placeholder="Ex.: RS-2024/056">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label>Vida Útil Estimada (anos)</label><input id="vidaUtilAtivo" type="number" placeholder="Ex.: 10"></div>
+        <div><label>Garantia (validade)</label><input id="garantiaAtivo" type="date"></div>
+      </div>
+      <label>Peças Críticas / Sobressalentes Recomendadas</label>
+      <textarea id="pecasAtivo" rows="2" placeholder="Ex.: Rolamento XYZ, Correia ABC..."></textarea>
+    </div>
+
+    <div class="secao-form">
+      <h3>📊 Segurança & Conformidade</h3>
+      <label>Classificação de Risco / Zona de Operação</label>
+      <input id="zonaRiscoAtivo" placeholder="Ex.: Zona 2, Área classificada">
+      <label>EPC / EPI Exigidos</label>
+      <textarea id="epiAtivo" rows="2" placeholder="Ex.: Óculos de proteção, protetor auricular, botão de emergência..."></textarea>
+      <label>Certificados (conformidade, calibração, ensaios)</label>
+      <textarea id="certificadosAtivo" rows="2" placeholder="Ex.: CE, INMETRO, Certificado de calibração RBC"></textarea>
+      <label>Restrições de Operação / Limites de Uso</label>
+      <textarea id="restricoesAtivo" rows="2" placeholder="Ex.: Não operar sem refrigeração"></textarea>
+      <label>Sinalização de Segurança Existente</label>
+      <input id="sinalizacaoAtivo" placeholder="Ex.: Placa de advertência, faixa amarela">
+    </div>
+
+    <div class="secao-form">
+      <h3>📝 Histórico & Status</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label>Status</label>
+          <select id="statusAtivo">
+            <option>Operando</option><option>Parado</option>
+            <option>Manutenção</option><option>Manutenção Externa</option>
+            <option>Obsoleto</option><option>Descartado</option>
+          </select>
+        </div>
+        <div><label>Valor de Aquisição (R$)</label><input id="valorAquisicaoAtivo" placeholder="150000,00"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label>Data de Fabricação</label><input id="dataFabricacaoAtivo" type="date"></div>
+        <div><label>Data de Aquisição</label><input id="dataAquisicaoAtivo" type="date"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label>Entrada em Operação</label><input id="dataOperacaoAtivo" type="date"></div>
+        <div><label>Nº Nota Fiscal / Pedido de Compra</label><input id="nfCompraAtivo" placeholder="NF-1234"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label>Valor Atualizado (R$)</label><input id="valorAtualizadoAtivo" placeholder="Ex.: 120000,00"></div>
+        <div><label>Depreciação (%)</label><input id="depreciacaoAtivo" placeholder="Ex.: 20"></div>
+      </div>
+      <label>Responsável Técnico / Operador Designado</label>
+      <input id="responsavelAtivo" placeholder="Ex.: João Silva">
+      <label>Centro de Custo / Projeto Vinculado</label>
+      <input id="centroCustoAtivo" placeholder="Ex.: CC-001 / Projeto XPTO">
+      <label>Observações Gerais / Condições Especiais</label>
+      <textarea id="obsAtivo" rows="3"></textarea>
+    </div>
+
+    <div class="secao-form">
+      <h3>📌 Classificação</h3>
+      <label>Tipo de Ativo</label>
+      <select id="tipoAtivo">
+        <option>Máquina</option><option>Equipamento</option><option>Veículo</option>
+        <option>Instalação</option><option>Outro</option>
+      </select>
+      <label>Setor</label>
+      <select id="setorAtivo"></select>
+    </div>
+
+    <div class="secao-form">
+      <h3>📷 Foto do Ativo</h3>
+      <div class="acoes">
+        <button type="button" class="btn-outline" onclick="document.getElementById('entradaFotoAtivo').click()">📷 Foto (celular)</button>
+        <button type="button" class="btn-outline" onclick="document.getElementById('entradaGaleriaAtivo').click()">🖼️ Galeria</button>
+        <button type="button" class="btn-outline" onclick="abrirCamera('ativo')">📹 Webcam (PC)</button>
+      </div>
+      <input id="entradaFotoAtivo" class="hidden" type="file" accept="image/*" capture="environment" onchange="adicionarFotoAtivo(this.files[0])">
+      <input id="entradaGaleriaAtivo" class="hidden" type="file" accept="image/*" onchange="adicionarFotoAtivo(this.files[0])">
+      <div id="previewAtivo" class="preview"></div>
+    </div>
+
     <div class="acoes" style="margin-top:18px;">
       <button type="button" class="btn-outline" onclick="fecharAtivo()">Cancelar</button>
       <button type="button" class="btn-primary" onclick="salvarAtivo()">💾 Salvar</button>
@@ -984,28 +1083,12 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 
 <script>
 /* ============================================================
-   PCM DE FERRAMENTAS — JavaScript v2.7
-   Melhorias aplicadas:
-   • SW real (arquivo externo) + manifest
-   • Tesseract em WebWorker (não trava UI)
-   • Histórico por ID do item (não perde ao renomear)
-   • Contadores recalculados após importar backup
-   • Toast empilhável (container flex)
-   • Gráficos com update() em vez de destroy()
-   • iOS share com fallback para wa.me
-   • Manifest + apple-touch-icon
-   • Acessibilidade e contraste no tema claro
-   • handler global de erros
-   • loading no PDF
-   • botões de remover mídia em todas as prévias
-   • confirmação ao fechar modal com dados não salvos
-   • setarSeVazio no OCR preserva o que já foi digitado
-   • escapar() sem DOM
+   PCM DE FERRAMENTAS — v2.8 — Unificado (HTML+CSS+JS)
    ============================================================ */
 
 /* ============ CONSTANTES ============ */
 const SETORES_PADRAO = ["Acabamento 01","Acabamento 02","Laminação 01","Laminação 02","Marcenaria","CNC","Tecelagem","Manutenção","Almoxarifado","Compras"];
-const VERSAO = "2.7";
+const VERSAO = "2.8";
 const CHAVES_STORAGE = {
   ferramentas:"controleFerramentas", manutencoes:"controleManutencoes",
   ativos:"controleAtivos", ativosCriados:"controleAtivosCriados",
@@ -1076,9 +1159,8 @@ let graficoSetores = null;
 
 let ocrEmAndamento = false;
 let _graficoTimeout = null;
-let _renderHistoricoTimer = null;
 
-/* ============ TOAST (empilhável) ============ */
+/* ============ TOAST ============ */
 function toast(msg, tipo = "info"){
   const c = document.getElementById("toastContainer");
   if(!c) return;
@@ -1094,7 +1176,7 @@ function toast(msg, tipo = "info"){
   }, 3000);
 }
 
-/* ============ HANDLER GLOBAL DE ERROS ============ */
+/* ============ HANDLER GLOBAL ============ */
 window.addEventListener("error", e => {
   console.error("Erro global:", e.error || e.message);
   toast("⚠️ " + (e.message || "Erro inesperado"), "error");
@@ -1156,9 +1238,8 @@ function verificarArmazenamento(){
   } catch(e){ return 0; }
 }
 
-/* ============ HISTÓRICO (por ID) ============ */
+/* ============ HISTÓRICO ============ */
 function registrarHistorico(entrada){
-  // entrada: { itemId?, tipo?, nome, acao }
   historico.push({
     itemId: entrada.itemId || null,
     tipo: entrada.tipo || "sistema",
@@ -1178,7 +1259,6 @@ function gerarCodigo(prefixo){
   return `${prefixo}-${String(contadores[prefixo]).padStart(3,"0")}`;
 }
 function recalcularContadores(){
-  // Após importar, garante que os contadores estão acima do maior já usado
   const extrairNum = (codigo, prefixo) => {
     if(!codigo || !codigo.startsWith(prefixo + "-")) return 0;
     const n = parseInt(codigo.split("-")[1], 10);
@@ -1294,7 +1374,6 @@ function iniciar(){
     };
   });
 
-  // Fecha diálogos + para streams
   ["dialogCamera","dialogScanner","dialogScannerNFCe"].forEach(id=>{
     const dlg = document.getElementById(id);
     if(!dlg) return;
@@ -1311,7 +1390,6 @@ function iniciar(){
     });
   });
 
-  // Confirmação ao fechar modais com dados não salvos
   protegerFechamentoModal("dialogFerramenta", ["nomeFerramenta"]);
   protegerFechamentoModal("dialogManutencao", ["nomeManutencao"]);
   protegerFechamentoModal("dialogForaDaEmpresa", ["nomeFora","empresaFora"]);
@@ -1331,9 +1409,7 @@ function iniciar(){
 function protegerFechamentoModal(idModal, camposObrigatorios){
   const dlg = document.getElementById(idModal);
   if(!dlg) return;
-  let confirmandoFechamento = false;
-  dlg.addEventListener("cancel", e => { // cancel = ESC
-    if(confirmandoFechamento) return;
+  dlg.addEventListener("cancel", e => {
     const temDados = camposObrigatorios.some(id => (document.getElementById(id)?.value || "").trim());
     if(temDados && !confirm("Descartar alterações não salvas?")){
       e.preventDefault();
@@ -1410,7 +1486,7 @@ function mostrarEstatisticas(){
   `;
 }
 
-/* ============ GRÁFICOS (update em vez de destroy) ============ */
+/* ============ GRÁFICOS ============ */
 function mostrarGraficos(){
   clearTimeout(_graficoTimeout);
   _graficoTimeout = setTimeout(_renderGraficos, 150);
@@ -1921,7 +1997,6 @@ function removerMidiaGenerica(tipo, idx){
   else if(tipo === "fora"){ midiasFora.splice(idx,1); mostrarPreviewFora(); }
 }
 
-/* ============ HISTÓRICO DO ITEM (por ID) ============ */
 function abrirHistoricoItem(tipo, id){
   const el = document.getElementById("conteudoHistoricoItem");
   let nomeItem = "";
@@ -2134,7 +2209,7 @@ function excluirManutencao(id){
   }
 }
 
-/* ============ OCR — TESSERACT EM WORKER ============ */
+/* ============ OCR ============ */
 function lerNotaOCR(origem = 'camera'){
   if(ocrEmAndamento){ toast("Aguarde o OCR terminar.", "warning"); return; }
   const id = origem === 'galeria' ? 'entradaOCR_galeria' : 'entradaOCR_camera';
@@ -2210,7 +2285,6 @@ async function processarOCR(arquivo){
   travarBotoesOCR(true);
   mostrarLoadingOCR();
 
-  // Pré-visualiza comprimido no formulário
   try {
     const dataUrl = await lerArquivo(arquivo);
     const comprimida = await comprimirImagem(dataUrl, 1600, 0.85);
@@ -2219,7 +2293,6 @@ async function processarOCR(arquivo){
   } catch(e){ console.warn("Falha ao pré-visualizar:", e); }
 
   try {
-    // ✅ Worker dedicado — não trava a UI
     if(!window._ocrWorker){
       window._ocrWorker = await Tesseract.createWorker('por', 1, {
         logger: m => atualizarProgressoOCR(m)
@@ -2608,7 +2681,6 @@ function adicionarArquivosFora(arquivos){
   });
 }
 
-/* v2.7: usa data-* e encodeURI para segurança */
 function mostrarPreviewFora(){
   const el = document.getElementById("previewFora");
   el.innerHTML = midiasFora.map((m, idx)=>{
@@ -2892,27 +2964,94 @@ function compartilharForaItem(id){
   abrirWhatsApp(t);
 }
 
-/* ============ ATIVOS ============ */
+/* ============ ATIVOS v2.8 (ficha completa) ============ */
+const CAMPOS_ATIVO = [
+  "nomeAtivo","fabricanteAtivo","origemAtivo","codigoProdutoAtivo","codigoInternoAtivo",
+  "tensaoAtivo","correnteAtivo","potenciaAtivo","frequenciaAtivo","fasesAtivo","ipAtivo",
+  "dimensoesAtivo","pesoAtivo","materialAtivo","normasAtivo","capacidadeAtivo","acessoriosAtivo",
+  "planoManutencaoAtivo","ultimaManutencaoAtivo","proximaManutencaoAtivo","relatorioServicoAtivo",
+  "vidaUtilAtivo","garantiaAtivo","pecasAtivo",
+  "zonaRiscoAtivo","epiAtivo","certificadosAtivo","restricoesAtivo","sinalizacaoAtivo",
+  "valorAquisicaoAtivo","valorAtualizadoAtivo","depreciacaoAtivo",
+  "dataFabricacaoAtivo","dataAquisicaoAtivo","dataOperacaoAtivo","nfCompraAtivo",
+  "responsavelAtivo","centroCustoAtivo","obsAtivo"
+];
+
 function abrirAtivo(id=null){
   midiasAtivo = [];
   document.getElementById("idAtivo").value = id||"";
+
+  CAMPOS_ATIVO.forEach(elId => {
+    const el = document.getElementById(elId);
+    if (el) el.value = "";
+  });
+  document.getElementById("codigoAtivo").value = "";
+  document.getElementById("tipoAtivo").value = "Máquina";
+  document.getElementById("setorAtivo").value = setores[0]?.nome || "";
+  document.getElementById("statusAtivo").value = "Operando";
+  document.getElementById("tipoEquipAtivo").value = "Fixo";
+  document.getElementById("freqUsoAtivo").value = "Intermitente";
+
   if(id){
     const x = ativos.find(a=>a.id===id);
     if(!x) return;
-    document.getElementById("nomeAtivo").value = x.nome;
-    document.getElementById("codigoAtivo").value = x.codigo||"";
-    document.getElementById("tipoAtivo").value = x.tipo;
-    document.getElementById("setorAtivo").value = x.setor;
-    document.getElementById("statusAtivo").value = x.status;
-    document.getElementById("obsAtivo").value = x.observacoes||"";
+    document.getElementById("tituloDialogAtivo").textContent = "✏️ Editar Ativo";
+
+    document.getElementById("nomeAtivo").value = x.nome || "";
+    document.getElementById("codigoAtivo").value = x.codigo || "";
+    document.getElementById("fabricanteAtivo").value = x.fabricante || "";
+    document.getElementById("origemAtivo").value = x.paisOrigem || "";
+    document.getElementById("codigoProdutoAtivo").value = x.codigoProduto || "";
+    document.getElementById("codigoInternoAtivo").value = x.codigoInterno || "";
+
+    document.getElementById("tensaoAtivo").value = x.tensao || "";
+    document.getElementById("correnteAtivo").value = x.corrente || "";
+    document.getElementById("potenciaAtivo").value = x.potencia || "";
+    document.getElementById("frequenciaAtivo").value = x.frequencia || "";
+    document.getElementById("fasesAtivo").value = x.fases || "";
+    document.getElementById("ipAtivo").value = x.grauProtecao || "";
+    document.getElementById("dimensoesAtivo").value = x.dimensoes || "";
+    document.getElementById("pesoAtivo").value = x.peso || "";
+    document.getElementById("materialAtivo").value = x.material || "";
+    document.getElementById("normasAtivo").value = x.normas || "";
+    document.getElementById("capacidadeAtivo").value = x.capacidade || "";
+    document.getElementById("acessoriosAtivo").value = x.acessorios || "";
+
+    document.getElementById("tipoEquipAtivo").value = x.tipoEquipamento || "Fixo";
+    document.getElementById("freqUsoAtivo").value = x.frequenciaUso || "Intermitente";
+    document.getElementById("planoManutencaoAtivo").value = x.planoManutencao || "";
+    document.getElementById("ultimaManutencaoAtivo").value = x.ultimaManutencao || "";
+    document.getElementById("proximaManutencaoAtivo").value = x.proximaManutencao || "";
+    document.getElementById("relatorioServicoAtivo").value = x.relatorioServico || "";
+    document.getElementById("vidaUtilAtivo").value = x.vidaUtil || "";
+    document.getElementById("garantiaAtivo").value = x.garantia || "";
+    document.getElementById("pecasAtivo").value = x.pecasCriticas || "";
+
+    document.getElementById("zonaRiscoAtivo").value = x.zonaRisco || "";
+    document.getElementById("epiAtivo").value = x.epi || "";
+    document.getElementById("certificadosAtivo").value = x.certificados || "";
+    document.getElementById("restricoesAtivo").value = x.restricoes || "";
+    document.getElementById("sinalizacaoAtivo").value = x.sinalizacao || "";
+
+    document.getElementById("statusAtivo").value = x.status || "Operando";
+    document.getElementById("valorAquisicaoAtivo").value = x.valorAquisicao || "";
+    document.getElementById("valorAtualizadoAtivo").value = x.valorAtualizado || "";
+    document.getElementById("depreciacaoAtivo").value = x.depreciacao || "";
+    document.getElementById("dataFabricacaoAtivo").value = x.dataFabricacao || "";
+    document.getElementById("dataAquisicaoAtivo").value = x.dataAquisicao || "";
+    document.getElementById("dataOperacaoAtivo").value = x.dataOperacao || "";
+    document.getElementById("nfCompraAtivo").value = x.nfCompra || "";
+    document.getElementById("responsavelAtivo").value = x.responsavelTecnico || "";
+    document.getElementById("centroCustoAtivo").value = x.centroCusto || "";
+    document.getElementById("obsAtivo").value = x.observacoes || "";
+
+    document.getElementById("tipoAtivo").value = x.tipo || "Máquina";
+    document.getElementById("setorAtivo").value = x.setor || setores[0]?.nome || "";
+
     if(x.fotos?.[0]) midiasAtivo = [{tipo:"foto",src:x.fotos[0]}];
   } else {
-    document.getElementById("nomeAtivo").value = "";
-    document.getElementById("codigoAtivo").value = "";
-    document.getElementById("tipoAtivo").value = "Máquina";
-    document.getElementById("setorAtivo").value = setores[0]?.nome || "";
-    document.getElementById("statusAtivo").value = "Operando";
-    document.getElementById("obsAtivo").value = "";
+    document.getElementById("tituloDialogAtivo").textContent = "🏭 Cadastro de Ativo";
+    document.getElementById("dataAquisicaoAtivo").value = hojeISO();
   }
   mostrarPreviewAtivo();
   document.getElementById("dialogAtivo").showModal();
@@ -2953,17 +3092,58 @@ function salvarAtivo(){
   if(dupNomeSetor){ toast(`⚠️ Já existe ativo "${dupNomeSetor.nome}" neste setor.`, "warning"); return; }
 
   if(!codigo) codigo = gerarCodigo("AT");
+
+  const ativoExistente = ativos.find(x=>x.id===id);
+
   const a = {
-    id, nome, codigo,
+    id, nome, codigo, setor,
     tipo: document.getElementById("tipoAtivo").value,
-    setor,
     status: document.getElementById("statusAtivo").value,
     observacoes: document.getElementById("obsAtivo").value.trim(),
     fotos: midiasAtivo.filter(m=>m.tipo==="foto").map(m=>m.src),
-    dataCriacao: ativos.find(x=>x.id===id)?.dataCriacao || new Date().toISOString()
+    dataCriacao: ativoExistente?.dataCriacao || new Date().toISOString(),
+    fabricante: document.getElementById("fabricanteAtivo").value.trim(),
+    paisOrigem: document.getElementById("origemAtivo").value.trim(),
+    codigoProduto: document.getElementById("codigoProdutoAtivo").value.trim(),
+    codigoInterno: document.getElementById("codigoInternoAtivo").value.trim(),
+    tensao: document.getElementById("tensaoAtivo").value.trim(),
+    corrente: document.getElementById("correnteAtivo").value.trim(),
+    potencia: document.getElementById("potenciaAtivo").value.trim(),
+    frequencia: document.getElementById("frequenciaAtivo").value.trim(),
+    fases: document.getElementById("fasesAtivo").value.trim(),
+    grauProtecao: document.getElementById("ipAtivo").value.trim(),
+    dimensoes: document.getElementById("dimensoesAtivo").value.trim(),
+    peso: document.getElementById("pesoAtivo").value.trim(),
+    material: document.getElementById("materialAtivo").value.trim(),
+    normas: document.getElementById("normasAtivo").value.trim(),
+    capacidade: document.getElementById("capacidadeAtivo").value.trim(),
+    acessorios: document.getElementById("acessoriosAtivo").value.trim(),
+    tipoEquipamento: document.getElementById("tipoEquipAtivo").value,
+    frequenciaUso: document.getElementById("freqUsoAtivo").value,
+    planoManutencao: document.getElementById("planoManutencaoAtivo").value.trim(),
+    ultimaManutencao: document.getElementById("ultimaManutencaoAtivo").value,
+    proximaManutencao: document.getElementById("proximaManutencaoAtivo").value,
+    relatorioServico: document.getElementById("relatorioServicoAtivo").value.trim(),
+    vidaUtil: document.getElementById("vidaUtilAtivo").value,
+    garantia: document.getElementById("garantiaAtivo").value,
+    pecasCriticas: document.getElementById("pecasAtivo").value.trim(),
+    zonaRisco: document.getElementById("zonaRiscoAtivo").value.trim(),
+    epi: document.getElementById("epiAtivo").value.trim(),
+    certificados: document.getElementById("certificadosAtivo").value.trim(),
+    restricoes: document.getElementById("restricoesAtivo").value.trim(),
+    sinalizacao: document.getElementById("sinalizacaoAtivo").value.trim(),
+    valorAquisicao: document.getElementById("valorAquisicaoAtivo").value.trim(),
+    valorAtualizado: document.getElementById("valorAtualizadoAtivo").value.trim(),
+    depreciacao: document.getElementById("depreciacaoAtivo").value.trim(),
+    dataFabricacao: document.getElementById("dataFabricacaoAtivo").value,
+    dataAquisicao: document.getElementById("dataAquisicaoAtivo").value,
+    dataOperacao: document.getElementById("dataOperacaoAtivo").value,
+    nfCompra: document.getElementById("nfCompraAtivo").value.trim(),
+    responsavelTecnico: document.getElementById("responsavelAtivo").value.trim(),
+    centroCusto: document.getElementById("centroCustoAtivo").value.trim()
   };
-  const existe = ativos.find(x=>x.id===id);
-  if(existe){
+
+  if(ativoExistente){
     ativos = ativos.map(x=>x.id===id?a:x);
     registrarHistorico({ itemId:id, tipo:"ativo", nome, acao:"editou ativo" });
   } else {
@@ -2990,11 +3170,17 @@ function mostrarAtivos(){
         ${foto}
         <div class="item-info">
           <div class="nome">${escapar(x.nome)}</div>
-          <div class="detalhes">TAG: ${escapar(x.codigo||"-")}<br>Tipo: ${escapar(x.tipo)}<br>Setor: ${escapar(x.setor)}</div>
+          <div class="detalhes">
+            TAG: ${escapar(x.codigo||"-")}<br>
+            Tipo: ${escapar(x.tipo)}<br>
+            Setor: ${escapar(x.setor)}
+            ${x.fabricante?`<br>Fabricante: ${escapar(x.fabricante)}`:''}
+          </div>
           <div class="tags"><span class="badge ${sc}">${escapar(x.status)}</span></div>
         </div>
         <div class="item-actions">
           <button type="button" onclick="abrirAtivo('${x.id}')" aria-label="Editar">✏️</button>
+          <button type="button" onclick="gerarPDFAtivoItem('${x.id}')" aria-label="Ficha PDF">📄</button>
           <button type="button" onclick="excluirAtivo('${x.id}')" aria-label="Excluir">🗑️</button>
         </div>
       </div>
@@ -3335,7 +3521,7 @@ function limparHistorico(){
   }
 }
 
-/* ============ CÂMERA (WEBCAM) ============ */
+/* ============ CÂMERA ============ */
 async function abrirCamera(destino="ferramenta"){
   cameraDestino = destino;
   try{
@@ -3367,7 +3553,7 @@ async function tirarFoto(){
   fecharCamera();
 }
 
-/* ============ SCANNER (FERRAMENTA) ============ */
+/* ============ SCANNER ============ */
 function abrirScanner(){
   if(!window.Html5Qrcode){ toast("Leitor de código não disponível.", "error"); return; }
   document.getElementById("dialogScanner").showModal();
@@ -3419,11 +3605,10 @@ function cabecalhoPDF(doc, titulo, sub=""){
   const h = doc.internal.pageSize.getHeight();
   doc.setDrawColor(200,200,200); doc.line(14,h-15,w-14,h-15);
   doc.setFontSize(8); doc.setTextColor(120,120,120);
-  doc.text('PCM de Ferramentas v2.7', 14, h-8);
+  doc.text('PCM de Ferramentas v2.8', 14, h-8);
   doc.text(`Página ${doc.internal.getCurrentPageInfo().pageNumber}`, w-14, h-8, {align:'right'});
 }
 async function salvarPDF(doc, nome){
-  // v2.7: loading visual
   const loading = document.createElement('div');
   loading.className = 'pdf-loading';
   loading.innerHTML = '<div class="pdf-spinner"></div><div>Gerando PDF...</div>';
@@ -3593,6 +3778,95 @@ function gerarPDFAtivos(){
   else { chamarAutoTable(doc, { startY:45, head:[['Nome','TAG','Tipo','Setor','Status']], body: ativos.map(a=>[a.nome, a.codigo||'-', a.tipo, a.setor, a.status]), theme:'grid', headStyles:{fillColor:[124,92,191],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
   salvarPDF(doc, `Ativos_${hojeISO()}.pdf`);
 }
+
+/* ✅ Ficha completa de um Ativo individual (v2.8) */
+function gerarPDFAtivoItem(id){
+  if(!checkPDF()) return;
+  const x = ativos.find(a=>a.id===id);
+  if(!x) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  cabecalhoPDF(doc,'FICHA DE ATIVO', x.nome);
+  let y = 48;
+  doc.setFontSize(10); doc.setTextColor(20,20,20);
+
+  const addField = (label, value) => {
+    if(!value && value !== 0) return;
+    if(y > 275){ doc.addPage(); y = 20; }
+    doc.setFont(undefined,'bold'); doc.text(label+':',14,y);
+    doc.setFont(undefined,'normal');
+    const txt = doc.splitTextToSize(String(value), 140);
+    doc.text(txt, 60, y);
+    y += txt.length * 5 + 3;
+  };
+
+  const addSection = (title) => {
+    if(y > 260){ doc.addPage(); y = 20; }
+    y += 6;
+    doc.setFontSize(12).setFont(undefined, 'bold').setTextColor(30, 184, 201);
+    doc.text(title, 14, y);
+    y += 6;
+    doc.setFontSize(10).setTextColor(20,20,20);
+  };
+
+  addSection('📋 Identificação');
+  addField('Nome', x.nome);
+  addField('Fabricante', x.fabricante);
+  addField('País de Origem', x.paisOrigem);
+  addField('TAG Patrimonial', x.codigo);
+  addField('Código Produto', x.codigoProduto);
+  addField('Código Interno', x.codigoInterno);
+  addField('Tipo', x.tipo);
+  addField('Setor', x.setor);
+
+  addSection('⚙️ Especificações Técnicas');
+  addField('Tensão', x.tensao);
+  addField('Corrente', x.corrente);
+  addField('Potência', x.potencia);
+  addField('Frequência', x.frequencia);
+  addField('Fases', x.fases);
+  addField('Grau de Proteção (IP)', x.grauProtecao);
+  addField('Dimensões (C×L×A)', x.dimensoes);
+  addField('Peso', x.peso);
+  addField('Material', x.material);
+  addField('Normas Aplicáveis', x.normas);
+  addField('Capacidade/Velocidade/Rotação', x.capacidade);
+  addField('Acessórios / Sobressalentes', x.acessorios);
+
+  addSection('🛠️ Operação & Manutenção');
+  addField('Tipo de Equipamento', x.tipoEquipamento);
+  addField('Frequência de Uso', x.frequenciaUso);
+  addField('Plano de Manutenção', x.planoManutencao);
+  addField('Última Manutenção', x.ultimaManutencao);
+  addField('Próxima Manutenção', x.proximaManutencao);
+  addField('Nº Relatório Serviço', x.relatorioServico);
+  addField('Vida Útil Estimada (anos)', x.vidaUtil);
+  addField('Garantia', x.garantia);
+  addField('Peças Críticas', x.pecasCriticas);
+
+  addSection('📊 Segurança & Conformidade');
+  addField('Classificação de Risco / Zona', x.zonaRisco);
+  addField('EPIs / EPCs', x.epi);
+  addField('Certificados', x.certificados);
+  addField('Restrições de Operação', x.restricoes);
+  addField('Sinalização de Segurança', x.sinalizacao);
+
+  addSection('📝 Histórico & Status');
+  addField('Status', x.status);
+  addField('Valor de Aquisição', x.valorAquisicao ? `R$ ${x.valorAquisicao}` : '');
+  addField('Valor Atualizado', x.valorAtualizado ? `R$ ${x.valorAtualizado}` : '');
+  addField('Depreciação (%)', x.depreciacao);
+  addField('Data de Fabricação', x.dataFabricacao);
+  addField('Data de Aquisição', x.dataAquisicao);
+  addField('Entrada em Operação', x.dataOperacao);
+  addField('Nota Fiscal / Pedido', x.nfCompra);
+  addField('Responsável Técnico', x.responsavelTecnico);
+  addField('Centro de Custo', x.centroCusto);
+  addField('Observações', x.observacoes);
+
+  salvarPDF(doc, `FichaAtivo_${x.nome.replace(/\s+/g,'_')}.pdf`);
+}
+
 function gerarPDFCriados(){
   if(!checkPDF()) return;
   const { jsPDF } = window.jspdf;
@@ -3646,7 +3920,6 @@ function compartilharRelatorioImagem(){
     ["Criados", ativosCriados.length, "#2ddb7a"],
     ["Pedidos", pedidosMateriais.length, "#f5a623"]
   ];
-  // v2.7: altura calculada dinamicamente
   const w = 800, headerH = 140, itemH = 70, footerH = 60;
   const h = headerH + itens.length * itemH + footerH;
   const canvas = document.createElement("canvas");
@@ -3808,7 +4081,7 @@ function importarBackup(arquivo){
         ? dados.contadores
         : {FER:0,AT:0,CR:0,PED:0,EXT:0,MAN:0,FORA:0};
 
-      recalcularContadores(); // ✅ garante que não haverá colisão de códigos
+      recalcularContadores();
 
       registrarHistorico({ nome:"Sistema", acao:`importou backup v${dados.versao||"?"}` });
       salvarBanco(true);
@@ -3851,7 +4124,6 @@ function copiarTexto(t){
 }
 
 function abrirWhatsApp(t){
-  // v2.7: fallback wa.me caso share de texto não funcione (iOS Safari)
   if (navigator.share) {
     navigator.share({ text: t }).catch((err) => {
       if (err.name !== "AbortError") {
@@ -3918,7 +4190,7 @@ function solicitarNotificacoes(){
   if("Notification" in window && Notification.permission === "default") Notification.requestPermission();
 }
 
-/* ============ SERVICE WORKER (arquivo real) ============ */
+/* ============ SERVICE WORKER (opcional) ============ */
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js', { scope: './' })
@@ -3938,7 +4210,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ============ DIAGNÓSTICO ============ */
 window.diagnostico = function(){
-  console.log('=== DIAGNÓSTICO PCM v2.7 ===');
+  console.log('=== DIAGNÓSTICO PCM v2.8 ===');
   console.log('1. localStorage:', (()=>{try{localStorage.setItem('t','1');localStorage.removeItem('t');return 'OK';}catch(e){return 'FALHOU: '+e.message;}})());
   console.log('2. Protocolo:', location.protocol);
   console.log('3. jsPDF:', !!(window.jspdf && window.jspdf.jsPDF));
@@ -3948,7 +4220,7 @@ window.diagnostico = function(){
   console.log('7. Tesseract:', typeof Tesseract);
   console.log('8. Service Worker:', 'serviceWorker' in navigator ? 'suportado' : 'não suportado');
   console.log('9. Contadores:', contadores);
-  console.log('10. Ferramentas:', ferramentas.length, '| Manutenções:', manutencoes.length, '| Fora:', foraDaEmpresa.length);
+  console.log('10. Ferramentas:', ferramentas.length, '| Manutenções:', manutencoes.length, '| Fora:', foraDaEmpresa.length, '| Ativos:', ativos.length);
 };
 </script>
 </body>
