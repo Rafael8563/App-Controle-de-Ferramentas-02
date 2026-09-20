@@ -8,13 +8,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PCM Ferramentas">
 <meta name="description" content="Controle de ferramentas, ativos, manutenção e assistência técnica">
-<title>PCM de Ferramentas v2.8</title>
+<title>PCM de Ferramentas v3.0</title>
 
 <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
 :root{
@@ -99,6 +100,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .btn-danger{background:linear-gradient(135deg,#a82f4a,#ff6b82);border-color:transparent;color:#fff}
 .btn-outline{background:transparent;border-color:var(--borda)}
 .btn-pdf{background:linear-gradient(135deg,#d32f2f,#ff5722);border-color:transparent;color:#fff}
+.btn-excel{background:linear-gradient(135deg,#1a8a5a,#4caf50);border-color:transparent;color:#fff}
 .btn-created{background:linear-gradient(135deg,#2ddb7a,#1eb8c9);border-color:transparent;color:#fff}
 .btn-pedido{background:linear-gradient(135deg,#f5a623,#ff6b9d);border-color:transparent;color:#fff}
 .btn-manut{background:linear-gradient(135deg,#ff6b82,#ffd14a);border-color:transparent;color:#fff}
@@ -254,7 +256,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <div class="logo-icon">🛠</div>
       <div class="logo-text">
         <h1>PCM de Ferramentas</h1>
-        <div class="subtitulo">Ferramentas • Ativos • Assistência Técnica • v2.8</div>
+        <div class="subtitulo">Ferramentas • Ativos • Assistência Técnica • v3.0</div>
       </div>
     </div>
     <div class="header-actions">
@@ -307,22 +309,21 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     </div>
   </div>
   <div class="pdf-panel mt-20">
-    <h2>📄 Relatórios em PDF</h2>
-    <p>Clique em qualquer botão — o menu de compartilhamento do celular abre com o PDF pronto para enviar.</p>
+    <h2>📄 Relatórios</h2>
+    <p>Exporte os dados em PDF ou Excel. O menu de compartilhamento do celular abre automaticamente.</p>
     <div class="pdf-botoes">
-      <button type="button" class="btn-pdf" onclick="gerarPDFCompleto()">📊 Relatório Geral</button>
-      <button type="button" class="btn-pdf" onclick="gerarPDFFerramentas()">🔧 Ferramentas</button>
-      <button type="button" class="btn-pdf" onclick="gerarPDFManutencao()">🧰 Manutenção</button>
-      <button type="button" class="btn-fora-pdf" onclick="gerarPDFForaDaEmpresa()">☠️ Assistência Técnica</button>
-      <button type="button" class="btn-pdf" onclick="gerarPDFAtivos()">🏭 Ativos</button>
-      <button type="button" class="btn-pdf" onclick="gerarPDFCriados()">🔨 Criados</button>
-      <button type="button" class="btn-pdf" onclick="gerarPDFPedidos()">📦 Pedidos</button>
-      <button type="button" class="btn-pdf" onclick="gerarPDFExternas()">🚚 Externas</button>
-      <button type="button" class="btn-pdf" onclick="gerarPDFSetores()">📍 Setores</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFCompleto()">📊 Relatório Geral (PDF)</button>
+      <button type="button" class="btn-excel" onclick="exportarExcelFerramentas()">🔧 Ferramentas (Excel)</button>
+      <button type="button" class="btn-excel" onclick="exportarExcelAtivos()">🏭 Ativos (Excel)</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFFerramentas()">🔧 Ferramentas (PDF)</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFManutencao()">🧰 Manutenção (PDF)</button>
+      <button type="button" class="btn-fora-pdf" onclick="gerarPDFForaDaEmpresa()">☠️ Assistência Técnica (PDF)</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFAtivos()">🏭 Ativos (PDF)</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFCriados()">🔨 Criados (PDF)</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFPedidos()">📦 Pedidos (PDF)</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFExternas()">🚚 Externas (PDF)</button>
+      <button type="button" class="btn-pdf" onclick="gerarPDFSetores()">📍 Setores (PDF)</button>
     </div>
-    <p class="text-sm muted" style="margin-top:12px;opacity:.7;">
-      💡 Abre o menu nativo (WhatsApp, Gmail, Drive…). Se o navegador não suportar, o PDF abre em nova aba.
-    </p>
   </div>
   <div class="card mt-16">
     <h2>📲 Compartilhar Relatório Rápido</h2>
@@ -331,7 +332,6 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <button type="button" class="btn-primary" onclick="compartilharRelatorioImagem()">🖼️ Imagem PNG</button>
       <button type="button" class="btn-outline" onclick="window.print()">🖨️ Imprimir</button>
     </div>
-    <p class="text-sm muted" style="margin-top:12px;opacity:.7;">💡 Em <b>HTTPS</b>, abre o menu nativo. Em <b>HTTP</b>, copia para a área de transferência.</p>
   </div>
   <div class="section-header">
     <h2>📍 Setores</h2>
@@ -348,9 +348,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <button type="button" class="btn-primary" onclick="abrirFerramenta()">＋ Cadastrar</button>
     </div>
   </div>
-  <div class="search-bar">
-    <input id="pesquisaFerramenta" placeholder="🔎 Pesquisar ferramenta, código ou setor..." oninput="mostrarFerramentas()">
-  </div>
+  <div class="search-bar"><input id="pesquisaFerramenta" placeholder="🔎 Pesquisar ferramenta, código ou setor..." oninput="mostrarFerramentas()"></div>
   <div class="filtros-rapidos" id="filtrosFerramentas">
     <button type="button" class="btn-filtro ativo" data-filtro="todas" onclick="setFiltro('todas')">Todas</button>
     <button type="button" class="btn-filtro" data-filtro="disponivel" onclick="setFiltro('disponivel')">🟢 Disponíveis</button>
@@ -369,12 +367,8 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <button type="button" class="btn-manut" onclick="abrirManutencao()">＋ Cadastrar Manutenção</button>
     </div>
   </div>
-  <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--vermelho);">
-    <p class="muted text-sm" style="margin:0;opacity:.8;">🔴 Ferramentas indisponíveis em manutenção interna.</p>
-  </div>
-  <div class="search-bar">
-    <input id="pesquisaManutencao" placeholder="🔎 Pesquisar..." oninput="mostrarManutencoes()">
-  </div>
+  <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--vermelho);"><p class="muted text-sm" style="margin:0;opacity:.8;">🔴 Ferramentas indisponíveis em manutenção interna.</p></div>
+  <div class="search-bar"><input id="pesquisaManutencao" placeholder="🔎 Pesquisar..." oninput="mostrarManutencoes()"></div>
   <div class="filtros-rapidos" id="filtrosManutencao">
     <button type="button" class="btn-filtro ativo" data-filtro="todas" onclick="setFiltroManutencao('todas')">Todas</button>
     <button type="button" class="btn-filtro" data-filtro="aberta" onclick="setFiltroManutencao('aberta')">🔴 Abertas</button>
@@ -393,13 +387,9 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <button type="button" class="btn-fora" onclick="abrirForaDaEmpresa()">＋ Nova Assistência</button>
     </div>
   </div>
-  <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--roxo);">
-    <p class="muted text-sm" style="margin:0;opacity:.85;">☠️ Ferramentas enviadas para assistência técnica externa. <b>Use o OCR para ler Ordens de Serviço automaticamente.</b></p>
-  </div>
+  <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--roxo);"><p class="muted text-sm" style="margin:0;opacity:.85;">☠️ Ferramentas enviadas para assistência técnica externa. <b>Use o OCR para ler Ordens de Serviço automaticamente.</b></p></div>
   <div id="miniEstatisticasFora" class="grid mb-10" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));"></div>
-  <div class="search-bar">
-    <input id="pesquisaFora" placeholder="🔎 Pesquisar por nome, código, empresa, responsável..." oninput="mostrarForaDaEmpresa()">
-  </div>
+  <div class="search-bar"><input id="pesquisaFora" placeholder="🔎 Pesquisar por nome, código, empresa, responsável..." oninput="mostrarForaDaEmpresa()"></div>
   <div class="filtros-rapidos" id="filtrosFora">
     <button type="button" class="btn-filtro ativo" data-filtro="todas" onclick="setFiltroFora('todas')">Todas</button>
     <button type="button" class="btn-filtro" data-filtro="enviado" onclick="setFiltroFora('enviado')">📤 Enviados</button>
@@ -416,75 +406,62 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 <section id="ativos" class="hidden">
   <div class="flex-between">
     <h2 style="font-weight:700;font-size:18px;">🏭 Ativos</h2>
-    <button type="button" class="btn-primary" onclick="abrirAtivo()">＋ Novo ativo</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" class="btn-excel" onclick="exportarExcelAtivos()">📊 Excel</button>
+      <button type="button" class="btn-primary" onclick="abrirAtivo()">＋ Novo ativo</button>
+    </div>
   </div>
-  <div class="search-bar">
-    <input id="pesquisaAtivo" placeholder="🔎 Pesquisar..." oninput="mostrarAtivos()">
+  <div class="search-bar"><input id="pesquisaAtivo" placeholder="🔎 Pesquisar por nome, tag, fabricante..." oninput="mostrarAtivos()"></div>
+  <div class="filtros-rapidos" id="filtrosAtivos" style="margin-bottom: 12px;">
+    <select id="filtroSetorAtivo" class="btn-filtro" onchange="mostrarAtivos()" style="padding: 6px 14px; background: var(--card); color: var(--texto); border: 1px solid var(--borda); border-radius: 20px;">
+        <option value="">Todos os Setores</option>
+    </select>
+    <select id="filtroStatusAtivo" class="btn-filtro" onchange="mostrarAtivos()" style="padding: 6px 14px; background: var(--card); color: var(--texto); border: 1px solid var(--borda); border-radius: 20px;">
+        <option value="">Todos os Status</option>
+        <option>Operando</option><option>Parado</option><option>Manutenção</option><option>Obsoleto</option>
+    </select>
+    <select id="filtroAnoAtivo" class="btn-filtro" onchange="mostrarAtivos()" style="padding: 6px 14px; background: var(--card); color: var(--texto); border: 1px solid var(--borda); border-radius: 20px;">
+        <option value="">Todos os Anos</option>
+    </select>
   </div>
   <div id="listaAtivos" class="grid"></div>
 </section>
 
 <section id="criados" class="hidden">
-  <div class="flex-between">
-    <h2 style="font-weight:700;font-size:18px;">🔨 Criados pela Manutenção</h2>
-    <button type="button" class="btn-created" onclick="abrirCriado()">＋ Criar Ativo</button>
-  </div>
-  <div class="search-bar">
-    <input id="pesquisaCriado" placeholder="🔎 Pesquisar..." oninput="mostrarCriados()">
-  </div>
+  <div class="flex-between"><h2 style="font-weight:700;font-size:18px;">🔨 Criados pela Manutenção</h2><button type="button" class="btn-created" onclick="abrirCriado()">＋ Criar Ativo</button></div>
+  <div class="search-bar"><input id="pesquisaCriado" placeholder="🔎 Pesquisar..." oninput="mostrarCriados()"></div>
   <div id="listaCriados" class="grid"></div>
 </section>
 
 <section id="pedidos" class="hidden">
-  <div class="flex-between">
-    <h2 style="font-weight:700;font-size:18px;">📦 Pedidos</h2>
-    <button type="button" class="btn-pedido" onclick="abrirPedido()">＋ Novo Pedido</button>
-  </div>
-  <div class="search-bar">
-    <input id="pesquisaPedido" placeholder="🔎 Pesquisar..." oninput="mostrarPedidos()">
-  </div>
+  <div class="flex-between"><h2 style="font-weight:700;font-size:18px;">📦 Pedidos</h2><button type="button" class="btn-pedido" onclick="abrirPedido()">＋ Novo Pedido</button></div>
+  <div class="search-bar"><input id="pesquisaPedido" placeholder="🔎 Pesquisar..." oninput="mostrarPedidos()"></div>
   <div id="listaPedidos" class="grid"></div>
 </section>
 
 <section id="externa" class="hidden">
-  <div class="flex-between">
-    <h2 style="font-weight:700;font-size:18px;">🚚 Manutenção Externa</h2>
-    <button type="button" class="btn-primary" onclick="abrirManutencaoExterna()">＋ Enviar</button>
-  </div>
+  <div class="flex-between"><h2 style="font-weight:700;font-size:18px;">🚚 Manutenção Externa</h2><button type="button" class="btn-primary" onclick="abrirManutencaoExterna()">＋ Enviar</button></div>
   <div id="listaManutencaoExterna" class="grid"></div>
 </section>
 
 <section id="setores" class="hidden">
-  <div class="flex-between" style="margin-bottom:16px;">
-    <h2 style="font-weight:700;font-size:19px;">📍 Mapa dos Setores</h2>
-    <button type="button" class="btn-primary" onclick="abrirSetorNovo()">＋ Novo Setor</button>
-  </div>
-  <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--azul);">
-    <p class="muted text-sm" style="margin:0;opacity:.85;">👆 Toque em um setor para editar.</p>
-  </div>
+  <div class="flex-between" style="margin-bottom:16px;"><h2 style="font-weight:700;font-size:19px;">📍 Mapa dos Setores</h2><button type="button" class="btn-primary" onclick="abrirSetorNovo()">＋ Novo Setor</button></div>
+  <div class="card mb-10" style="padding:14px 20px;border-left:3px solid var(--azul);"><p class="muted text-sm" style="margin:0;opacity:.85;">👆 Toque em um setor para editar.</p></div>
   <div id="mapaSetores" class="grid mt-10"></div>
 </section>
 
 <section id="historico" class="hidden">
-  <div class="flex-between" style="margin-bottom:16px;">
-    <h2 style="font-weight:700;font-size:19px;">📋 Histórico Geral</h2>
-    <button type="button" class="btn-outline" onclick="limparHistorico()">🗑️ Limpar Histórico</button>
-  </div>
-  <div class="search-bar">
-    <input id="pesquisaHistorico" placeholder="🔎 Filtrar histórico..." oninput="mostrarHistorico()">
-  </div>
+  <div class="flex-between" style="margin-bottom:16px;"><h2 style="font-weight:700;font-size:19px;">📋 Histórico Geral</h2><button type="button" class="btn-outline" onclick="limparHistorico()">🗑️ Limpar Histórico</button></div>
+  <div class="search-bar"><input id="pesquisaHistorico" placeholder="🔎 Filtrar histórico..." oninput="mostrarHistorico()"></div>
   <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
     <input type="date" id="filtroDataHistorico" onchange="mostrarHistorico()" style="padding:8px 14px;border-radius:12px;border:1px solid var(--borda);background:rgba(0,0,0,0.15);color:var(--texto);font-family:inherit;">
     <button type="button" class="btn-outline" onclick="document.getElementById('filtroDataHistorico').value='';mostrarHistorico()">Limpar data</button>
   </div>
   <div id="listaHistorico" class="card mt-10" style="padding:8px 16px;"></div>
 </section>
-
 </main>
-<footer>✦ PCM de Ferramentas v2.8 ✦</footer>
-</div>
-
-<!-- MODAIS -->
+<footer>✦ PCM de Ferramentas v3.0 ✦</footer>
+</div><!-- MODAIS -->
 <dialog id="dialogUsuario" aria-labelledby="tituloDialogUsuario">
   <div class="modal" style="max-width:420px;">
     <h2 id="tituloDialogUsuario">👤 Quem está usando?</h2>
@@ -501,7 +478,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
 <dialog id="dialogScanner" aria-labelledby="tituloDialogScanner">
   <div class="modal" style="max-width:500px;">
     <h2 id="tituloDialogScanner">📷 Escanear Código</h2>
-    <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Aponte a câmera para o código da ferramenta.</p>
+    <p class="muted text-sm" style="margin-bottom:14px;opacity:.8;">Aponte a câmera para o código da ferramenta ou TAG do ativo.</p>
     <div id="reader"></div>
     <div class="acoes" style="margin-top:18px;">
       <button type="button" class="btn-outline" onclick="fecharScanner()">Fechar</button>
@@ -623,133 +600,55 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div>
-        <label style="margin-top:0;">Nome da ferramenta *</label>
-        <input id="nomeFora" placeholder="Ex.: Serra Circular Bosch">
-      </div>
-      <div>
-        <label style="margin-top:0;">Código</label>
-        <input id="codigoFora" placeholder="Deixe vazio para gerar">
-      </div>
+      <div><label style="margin-top:0;">Nome da ferramenta *</label><input id="nomeFora" placeholder="Ex.: Serra Circular Bosch"></div>
+      <div><label style="margin-top:0;">Código</label><input id="codigoFora" placeholder="Deixe vazio para gerar"></div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div>
-        <label>Tipo</label>
-        <select id="tipoFora">
-          <option>Ferramenta</option><option>Ativo</option><option>Equipamento</option>
-          <option>Máquina</option><option>Veículo</option><option>Outro</option>
-        </select>
-      </div>
-      <div>
-        <label>Quantidade enviada</label>
-        <input id="quantidadeFora" type="number" min="1" value="1">
-      </div>
+      <div><label>Tipo</label><select id="tipoFora"><option>Ferramenta</option><option>Ativo</option><option>Equipamento</option><option>Máquina</option><option>Veículo</option><option>Outro</option></select></div>
+      <div><label>Quantidade enviada</label><input id="quantidadeFora" type="number" min="1" value="1"></div>
     </div>
 
-    <label>Empresa terceirizada *</label>
-    <input id="empresaFora" placeholder="Ex.: Retífica Central Ltda">
+    <label>Empresa terceirizada *</label><input id="empresaFora" placeholder="Ex.: Retífica Central Ltda">
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div>
-        <label>CNPJ / Contato</label>
-        <input id="contatoFora" placeholder="Telefone, e-mail...">
-      </div>
-      <div>
-        <label>Responsável na empresa</label>
-        <input id="responsavelEmpresaFora" placeholder="Ex.: Sr. Carlos">
-      </div>
+      <div><label>CNPJ / Contato</label><input id="contatoFora" placeholder="Telefone, e-mail..."></div>
+      <div><label>Responsável na empresa</label><input id="responsavelEmpresaFora" placeholder="Ex.: Sr. Carlos"></div>
     </div>
 
-    <label>Responsável pelo envio (interno)</label>
-    <input id="responsavelFora" placeholder="Quem enviou">
+    <label>Responsável pelo envio (interno)</label><input id="responsavelFora" placeholder="Quem enviou">
 
-    <label>Setor de origem</label>
-    <select id="setorFora"></select>
+    <label>Setor de origem</label><select id="setorFora"></select>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div>
-        <label>Tipo de serviço</label>
-        <select id="tipoServicoFora">
-          <option>Reparo mecânico</option><option>Reparo elétrico</option>
-          <option>Retífica</option><option>Calibração</option>
-          <option>Solda</option><option>Usinagem</option>
-          <option>Pintura</option><option>Manutenção preventiva</option>
-          <option>Laudo técnico</option><option>Garantia</option><option>Outro</option>
-        </select>
-      </div>
-      <div>
-        <label>Tipo de assistência</label>
-        <select id="tipoAssistFora">
-          <option value="">— Não informado —</option>
-          <option>Garantia</option>
-          <option>Particular</option>
-          <option>Contrato</option>
-          <option>Seguro</option>
-          <option>Orçamento</option>
-        </select>
-      </div>
+      <div><label>Tipo de serviço</label><select id="tipoServicoFora"><option>Reparo mecânico</option><option>Reparo elétrico</option><option>Retífica</option><option>Calibração</option><option>Solda</option><option>Usinagem</option><option>Pintura</option><option>Manutenção preventiva</option><option>Laudo técnico</option><option>Garantia</option><option>Outro</option></select></div>
+      <div><label>Tipo de assistência</label><select id="tipoAssistFora"><option value="">— Não informado —</option><option>Garantia</option><option>Particular</option><option>Contrato</option><option>Seguro</option><option>Orçamento</option></select></div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-      <div>
-        <label>Prioridade</label>
-        <select id="prioridadeFora">
-          <option>Baixa</option><option selected>Média</option>
-          <option>Alta</option><option>Urgente</option>
-        </select>
-      </div>
-      <div>
-        <label>Data de saída *</label>
-        <input id="dataSaidaFora" type="date">
-      </div>
-      <div>
-        <label>Retorno previsto</label>
-        <input id="dataRetornoFora" type="date">
-      </div>
+      <div><label>Prioridade</label><select id="prioridadeFora"><option>Baixa</option><option selected>Média</option><option>Alta</option><option>Urgente</option></select></div>
+      <div><label>Data de saída *</label><input id="dataSaidaFora" type="date"></div>
+      <div><label>Retorno previsto</label><input id="dataRetornoFora" type="date"></div>
     </div>
 
     <label>Status</label>
     <select id="statusFora">
-      <option>Enviado</option>
-      <option>Aguardando orçamento</option>
-      <option>Orçamento aprovado</option>
-      <option>Em manutenção</option>
-      <option>Aguardando peça</option>
-      <option>Pronto para retorno</option>
-      <option>Retornado</option>
-      <option>Sem conserto</option>
-      <option>Cancelado</option>
+      <option>Enviado</option><option>Aguardando orçamento</option><option>Orçamento aprovado</option><option>Em manutenção</option><option>Aguardando peça</option><option>Pronto para retorno</option><option>Retornado</option><option>Sem conserto</option><option>Cancelado</option>
     </select>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div>
-        <label>Nº Ordem de Serviço</label>
-        <input id="osFora" placeholder="Ex.: OS-2024/1234">
-      </div>
-      <div>
-        <label>Valor do serviço (R$)</label>
-        <input id="valorFora" placeholder="Ex.: 450,00">
-      </div>
+      <div><label>Nº Ordem de Serviço</label><input id="osFora" placeholder="Ex.: OS-2024/1234"></div>
+      <div><label>Valor do serviço (R$)</label><input id="valorFora" placeholder="Ex.: 450,00"></div>
     </div>
 
-    <label>Nota Fiscal / Referência</label>
-    <input id="notaFiscalFora" placeholder="Nº NF ou documento">
+    <label>Nota Fiscal / Referência</label><input id="notaFiscalFora" placeholder="Nº NF ou documento">
 
-    <label>Descrição do problema / serviço solicitado</label>
-    <textarea id="descricaoFora" rows="3" placeholder="Descreva o defeito..."></textarea>
+    <label>Descrição do problema / serviço solicitado</label><textarea id="descricaoFora" rows="3" placeholder="Descreva o defeito..."></textarea>
+    <label>Diagnóstico / Solução aplicada pela empresa</label><textarea id="solucaoFora" rows="3" placeholder="Preenchido quando retornar..."></textarea>
+    <label>Observações gerais</label><textarea id="obsFora" rows="3"></textarea>
 
-    <label>Diagnóstico / Solução aplicada pela empresa</label>
-    <textarea id="solucaoFora" rows="3" placeholder="Preenchido quando retornar..."></textarea>
-
-    <label>Observações gerais</label>
-    <textarea id="obsFora" rows="3"></textarea>
-
-    <label>Data/hora do retorno efetivo</label>
-    <input id="dataHoraRetornoFora" type="datetime-local">
-
-    <label>Recebido por (na devolução)</label>
-    <input id="recebedorFora" placeholder="Quem recebeu de volta">
+    <label>Data/hora do retorno efetivo</label><input id="dataHoraRetornoFora" type="datetime-local">
+    <label>Recebido por (na devolução)</label><input id="recebedorFora" placeholder="Quem recebeu de volta">
 
     <div style="margin-top:14px;">
       <label style="margin-bottom:8px;">📎 Anexos</label>
@@ -785,7 +684,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
   </div>
 </dialog>
 
-<!-- ✅ MODAL DE ATIVO COMPLETO (v2.8) -->
+<!-- ✅ MODAL DE ATIVO COMPLETO (v3.0 com melhorias) -->
 <dialog id="dialogAtivo" aria-labelledby="tituloDialogAtivo">
   <div class="modal">
     <h2 id="tituloDialogAtivo">🏭 Cadastro de Ativo</h2>
@@ -800,7 +699,13 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
         <div><label>País de Origem</label><input id="origemAtivo" placeholder="Ex.: Brasil"></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-        <div><label>TAG Patrimonial</label><input id="codigoAtivo" placeholder="TAG-001"></div>
+        <div>
+          <label>TAG Patrimonial</label>
+          <div style="display:flex; gap:6px;">
+            <input id="codigoAtivo" placeholder="TAG-001" style="flex:1;">
+            <button type="button" class="btn-outline" style="padding:0 12px; border-radius:12px;" onclick="abrirScannerParaAtivo()">📷</button>
+          </div>
+        </div>
         <div><label>Código do Produto</label><input id="codigoProdutoAtivo" placeholder="SKU"></div>
         <div><label>Código Interno</label><input id="codigoInternoAtivo" placeholder="Interno"></div>
       </div>
@@ -837,18 +742,8 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     <div class="secao-form">
       <h3>🛠️ Operação & Manutenção</h3>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div>
-          <label>Tipo de Equipamento</label>
-          <select id="tipoEquipAtivo">
-            <option>Fixo</option><option>Móvel</option><option>Portátil</option><option>Montado</option>
-          </select>
-        </div>
-        <div>
-          <label>Frequência de Uso</label>
-          <select id="freqUsoAtivo">
-            <option>Contínuo</option><option>Intermitente</option><option>Ocasional</option>
-          </select>
-        </div>
+        <div><label>Tipo de Equipamento</label><select id="tipoEquipAtivo"><option>Fixo</option><option>Móvel</option><option>Portátil</option><option>Montado</option></select></div>
+        <div><label>Frequência de Uso</label><select id="freqUsoAtivo"><option>Contínuo</option><option>Intermitente</option><option>Ocasional</option></select></div>
       </div>
       <label>Plano de Manutenção</label>
       <textarea id="planoManutencaoAtivo" rows="2" placeholder="Ex.: Preventiva a cada 500h; Lubrificação semanal..."></textarea>
@@ -883,14 +778,7 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     <div class="secao-form">
       <h3>📝 Histórico & Status</h3>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div>
-          <label>Status</label>
-          <select id="statusAtivo">
-            <option>Operando</option><option>Parado</option>
-            <option>Manutenção</option><option>Manutenção Externa</option>
-            <option>Obsoleto</option><option>Descartado</option>
-          </select>
-        </div>
+        <div><label>Status</label><select id="statusAtivo"><option>Operando</option><option>Parado</option><option>Manutenção</option><option>Manutenção Externa</option><option>Obsoleto</option><option>Descartado</option></select></div>
         <div><label>Valor de Aquisição (R$)</label><input id="valorAquisicaoAtivo" placeholder="150000,00"></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -909,6 +797,13 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <input id="responsavelAtivo" placeholder="Ex.: João Silva">
       <label>Centro de Custo / Projeto Vinculado</label>
       <input id="centroCustoAtivo" placeholder="Ex.: CC-001 / Projeto XPTO">
+      
+      <label>📍 Localização (Coordenadas GPS)</label>
+      <div style="display:flex; gap:6px;">
+          <input id="localizacaoAtivo" placeholder="Lat, Long" style="flex:1;" readonly>
+          <button type="button" class="btn-outline" style="padding:0 12px; border-radius:12px;" onclick="capturarGPS()">📍</button>
+      </div>
+
       <label>Observações Gerais / Condições Especiais</label>
       <textarea id="obsAtivo" rows="3"></textarea>
     </div>
@@ -925,14 +820,16 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
     </div>
 
     <div class="secao-form">
-      <h3>📷 Foto do Ativo</h3>
+      <h3>📎 Anexos do Ativo (Fotos, Manuais, Notas)</h3>
       <div class="acoes">
         <button type="button" class="btn-outline" onclick="document.getElementById('entradaFotoAtivo').click()">📷 Foto (celular)</button>
         <button type="button" class="btn-outline" onclick="document.getElementById('entradaGaleriaAtivo').click()">🖼️ Galeria</button>
+        <button type="button" class="btn-outline" onclick="document.getElementById('entradaArquivoAtivo').click()">📎 Arquivos (PDF, Doc)</button>
         <button type="button" class="btn-outline" onclick="abrirCamera('ativo')">📹 Webcam (PC)</button>
       </div>
-      <input id="entradaFotoAtivo" class="hidden" type="file" accept="image/*" capture="environment" onchange="adicionarFotoAtivo(this.files[0])">
-      <input id="entradaGaleriaAtivo" class="hidden" type="file" accept="image/*" onchange="adicionarFotoAtivo(this.files[0])">
+      <input id="entradaFotoAtivo" class="hidden" type="file" accept="image/*" capture="environment" multiple onchange="adicionarMidiasAtivo(this.files)">
+      <input id="entradaGaleriaAtivo" class="hidden" type="file" accept="image/*" multiple onchange="adicionarMidiasAtivo(this.files)">
+      <input id="entradaArquivoAtivo" class="hidden" type="file" multiple onchange="adicionarMidiasAtivo(this.files)">
       <div id="previewAtivo" class="preview"></div>
     </div>
 
@@ -1037,14 +934,8 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       </div>
       <div id="formAdicionarFerramenta" class="hidden" style="background:rgba(30,184,201,0.06);border:1px solid rgba(30,184,201,0.25);border-radius:14px;padding:14px;margin-bottom:14px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div>
-            <label style="margin-top:0;">Nome *</label>
-            <input id="novaFerrNome" placeholder="Ex.: Furadeira Bosch">
-          </div>
-          <div>
-            <label style="margin-top:0;">Código</label>
-            <input id="novaFerrCodigo" placeholder="Deixe vazio para gerar">
-          </div>
+          <div><label style="margin-top:0;">Nome *</label><input id="novaFerrNome" placeholder="Ex.: Furadeira Bosch"></div>
+          <div><label style="margin-top:0;">Código</label><input id="novaFerrCodigo" placeholder="Deixe vazio para gerar"></div>
         </div>
         <label>Status</label>
         <select id="novaFerrStatus">
@@ -1079,16 +970,14 @@ footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--cinza);opa
       <button type="button" class="btn-outline" onclick="fecharCamera()">Fechar</button>
     </div>
   </div>
-</dialog>
-
-<script>
+</dialog><script>
 /* ============================================================
-   PCM DE FERRAMENTAS — v2.8 — Unificado (HTML+CSS+JS)
+   PCM DE FERRAMENTAS — v3.0 — Unificado (HTML+CSS+JS)
    ============================================================ */
 
 /* ============ CONSTANTES ============ */
 const SETORES_PADRAO = ["Acabamento 01","Acabamento 02","Laminação 01","Laminação 02","Marcenaria","CNC","Tecelagem","Manutenção","Almoxarifado","Compras"];
-const VERSAO = "2.8";
+const VERSAO = "3.0";
 const CHAVES_STORAGE = {
   ferramentas:"controleFerramentas", manutencoes:"controleManutencoes",
   ativos:"controleAtivos", ativosCriados:"controleAtivosCriados",
@@ -1460,7 +1349,9 @@ function mostrarEstatisticas(){
   const externasPend = manutencoesExternas.filter(x=>x.status!=="Retornado").length;
   const alarmesAtivos = alarmes.filter(a=>a.ativo).length;
 
-  document.getElementById("estatisticas").innerHTML = `
+  const el = document.getElementById("estatisticas");
+  if(!el) return;
+  el.innerHTML = `
     <div class="card estatistica"><span class="icon">🔧</span><span class="label">Ferramentas</span><strong>${total}</strong></div>
     <div class="card estatistica"><span class="icon">🟢</span><span class="label">Disponíveis</span><strong>${disp}</strong></div>
     <div class="card estatistica"><span class="icon">📤</span><span class="label">Emprestadas</span><strong>${emp}</strong></div>
@@ -1474,7 +1365,8 @@ function mostrarEstatisticas(){
     <div class="card estatistica"><span class="icon">🚚</span><span class="label">Ext. Pend.</span><strong>${externasPend}</strong></div>
   `;
 
-  document.getElementById("resumoEmpresa").innerHTML = `
+  const resumoEl = document.getElementById("resumoEmpresa");
+  if(resumoEl) resumoEl.innerHTML = `
     <div><span class="muted text-sm">🔧 Ferramentas:</span> <strong>${total}</strong></div>
     <div><span class="muted text-sm">📤 Emprestadas:</span> <strong>${emp}</strong></div>
     <div><span class="muted text-sm">🧰 Manutenções:</span> <strong>${manutTotal}</strong></div>
@@ -2004,6 +1896,10 @@ function abrirHistoricoItem(tipo, id){
     const f = ferramentas.find(x=>x.id===id);
     if(!f) return;
     nomeItem = f.nome;
+  } else if(tipo === "ativo") {
+    const a = ativos.find(x=>x.id===id);
+    if(!a) return;
+    nomeItem = a.nome;
   }
   const eventos = historico.filter(h => h.itemId === id).reverse();
   document.getElementById("tituloHistoricoItem").textContent = `📜 Histórico — ${nomeItem}`;
@@ -2023,6 +1919,340 @@ function abrirHistoricoItem(tipo, id){
   document.getElementById("dialogHistoricoItem").showModal();
 }
 
+/* ============ ATIVOS v3.0 (Com melhorias) ============ */
+const CAMPOS_ATIVO = [
+  "nomeAtivo","fabricanteAtivo","origemAtivo","codigoProdutoAtivo","codigoInternoAtivo",
+  "tensaoAtivo","correnteAtivo","potenciaAtivo","frequenciaAtivo","fasesAtivo","ipAtivo",
+  "dimensoesAtivo","pesoAtivo","materialAtivo","normasAtivo","capacidadeAtivo","acessoriosAtivo",
+  "planoManutencaoAtivo","ultimaManutencaoAtivo","proximaManutencaoAtivo","relatorioServicoAtivo",
+  "vidaUtilAtivo","garantiaAtivo","pecasAtivo",
+  "zonaRiscoAtivo","epiAtivo","certificadosAtivo","restricoesAtivo","sinalizacaoAtivo",
+  "valorAquisicaoAtivo","valorAtualizadoAtivo","depreciacaoAtivo",
+  "dataFabricacaoAtivo","dataAquisicaoAtivo","dataOperacaoAtivo","nfCompraAtivo",
+  "responsavelAtivo","centroCustoAtivo","localizacaoAtivo","obsAtivo"
+];
+
+function abrirAtivo(id=null){
+  midiasAtivo = [];
+  document.getElementById("idAtivo").value = id||"";
+
+  CAMPOS_ATIVO.forEach(elId => {
+    const el = document.getElementById(elId);
+    if (el) el.value = "";
+  });
+  document.getElementById("codigoAtivo").value = "";
+  document.getElementById("tipoAtivo").value = "Máquina";
+  document.getElementById("setorAtivo").value = setores[0]?.nome || "";
+  document.getElementById("statusAtivo").value = "Operando";
+  document.getElementById("tipoEquipAtivo").value = "Fixo";
+  document.getElementById("freqUsoAtivo").value = "Intermitente";
+
+  if(id){
+    const x = ativos.find(a=>a.id===id);
+    if(!x) return;
+    document.getElementById("tituloDialogAtivo").textContent = "✏️ Editar Ativo";
+
+    document.getElementById("nomeAtivo").value = x.nome || "";
+    document.getElementById("codigoAtivo").value = x.codigo || "";
+    document.getElementById("fabricanteAtivo").value = x.fabricante || "";
+    document.getElementById("origemAtivo").value = x.paisOrigem || "";
+    document.getElementById("codigoProdutoAtivo").value = x.codigoProduto || "";
+    document.getElementById("codigoInternoAtivo").value = x.codigoInterno || "";
+
+    document.getElementById("tensaoAtivo").value = x.tensao || "";
+    document.getElementById("correnteAtivo").value = x.corrente || "";
+    document.getElementById("potenciaAtivo").value = x.potencia || "";
+    document.getElementById("frequenciaAtivo").value = x.frequencia || "";
+    document.getElementById("fasesAtivo").value = x.fases || "";
+    document.getElementById("ipAtivo").value = x.grauProtecao || "";
+    document.getElementById("dimensoesAtivo").value = x.dimensoes || "";
+    document.getElementById("pesoAtivo").value = x.peso || "";
+    document.getElementById("materialAtivo").value = x.material || "";
+    document.getElementById("normasAtivo").value = x.normas || "";
+    document.getElementById("capacidadeAtivo").value = x.capacidade || "";
+    document.getElementById("acessoriosAtivo").value = x.acessorios || "";
+
+    document.getElementById("tipoEquipAtivo").value = x.tipoEquipamento || "Fixo";
+    document.getElementById("freqUsoAtivo").value = x.frequenciaUso || "Intermitente";
+    document.getElementById("planoManutencaoAtivo").value = x.planoManutencao || "";
+    document.getElementById("ultimaManutencaoAtivo").value = x.ultimaManutencao || "";
+    document.getElementById("proximaManutencaoAtivo").value = x.proximaManutencao || "";
+    document.getElementById("relatorioServicoAtivo").value = x.relatorioServico || "";
+    document.getElementById("vidaUtilAtivo").value = x.vidaUtil || "";
+    document.getElementById("garantiaAtivo").value = x.garantia || "";
+    document.getElementById("pecasAtivo").value = x.pecasCriticas || "";
+
+    document.getElementById("zonaRiscoAtivo").value = x.zonaRisco || "";
+    document.getElementById("epiAtivo").value = x.epi || "";
+    document.getElementById("certificadosAtivo").value = x.certificados || "";
+    document.getElementById("restricoesAtivo").value = x.restricoes || "";
+    document.getElementById("sinalizacaoAtivo").value = x.sinalizacao || "";
+
+    document.getElementById("statusAtivo").value = x.status || "Operando";
+    document.getElementById("valorAquisicaoAtivo").value = x.valorAquisicao || "";
+    document.getElementById("valorAtualizadoAtivo").value = x.valorAtualizado || "";
+    document.getElementById("depreciacaoAtivo").value = x.depreciacao || "";
+    document.getElementById("dataFabricacaoAtivo").value = x.dataFabricacao || "";
+    document.getElementById("dataAquisicaoAtivo").value = x.dataAquisicao || "";
+    document.getElementById("dataOperacaoAtivo").value = x.dataOperacao || "";
+    document.getElementById("nfCompraAtivo").value = x.nfCompra || "";
+    document.getElementById("responsavelAtivo").value = x.responsavelTecnico || "";
+    document.getElementById("centroCustoAtivo").value = x.centroCusto || "";
+    document.getElementById("localizacaoAtivo").value = x.localizacao || "";
+    document.getElementById("obsAtivo").value = x.observacoes || "";
+
+    document.getElementById("tipoAtivo").value = x.tipo || "Máquina";
+    document.getElementById("setorAtivo").value = x.setor || setores[0]?.nome || "";
+
+    if(x.fotos?.length) midiasAtivo.push(...x.fotos.map(f=>({tipo:"foto", src:f})));
+    if(x.arquivos?.length) midiasAtivo.push(...x.arquivos.map(a=>({tipo:"arquivo", nome:a.nome, src:a.src})));
+  } else {
+    document.getElementById("tituloDialogAtivo").textContent = "🏭 Cadastro de Ativo";
+    document.getElementById("dataAquisicaoAtivo").value = hojeISO();
+  }
+  mostrarPreviewAtivo();
+  document.getElementById("dialogAtivo").showModal();
+}
+function fecharAtivo(){ document.getElementById("dialogAtivo").close(); }
+
+async function adicionarMidiasAtivo(arquivos) {
+    for(const a of [...arquivos]){
+        if(a.type.startsWith('image/')){
+            const dataUrl = await lerArquivo(a);
+            const comprimida = await comprimirImagem(dataUrl);
+            midiasAtivo.push({tipo:"foto", src: comprimida});
+        } else {
+            const src = await lerArquivo(a);
+            midiasAtivo.push({tipo:"arquivo", nome: a.name, src});
+        }
+    }
+    mostrarPreviewAtivo();
+}
+
+function mostrarPreviewAtivo(){
+    document.getElementById("previewAtivo").innerHTML = midiasAtivo.map((m,i) => {
+        if(m.tipo === "foto") return `
+            <div class="thumb-wrap">
+                <img src="${m.src}" alt="">
+                <button type="button" class="btn-remover" onclick="removerMidiaGenerica('ativo',${i})" aria-label="Remover">✕</button>
+            </div>`;
+        return `<div class="anexo-item" style="display:inline-flex;max-width:220px;">
+            <span class="icone">📎</span>
+            <span class="nome" title="${escapar(m.nome)}">${escapar(m.nome)}</span>
+            <button type="button" onclick="removerMidiaGenerica('ativo',${i})" aria-label="Remover">✕</button>
+        </div>`;
+    }).join("");
+}
+
+function capturarGPS() {
+    if (!navigator.geolocation) { toast("GPS não suportado.", "error"); return; }
+    toast("Obtendo localização...", "info");
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            const coords = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+            document.getElementById("localizacaoAtivo").value = coords;
+            toast("Localização capturada!", "success");
+        },
+        (err) => { toast("Erro ao obter GPS: " + err.message, "error"); },
+        { enableHighAccuracy: true, timeout: 10000 }
+    );
+}
+
+function salvarAtivo(){
+  const nome = document.getElementById("nomeAtivo").value.trim();
+  if(!nome){ toast("Digite o nome.", "error"); return; }
+  const id = document.getElementById("idAtivo").value || gerarId();
+  const ehEdicao = !!document.getElementById("idAtivo").value;
+  const setor = document.getElementById("setorAtivo").value;
+  let codigo = document.getElementById("codigoAtivo").value.trim();
+
+  if(codigo){
+    const dup = ativos.find(a => a.id !== (ehEdicao ? id : null) && codigoIgual(a.codigo, codigo));
+    if(dup){ toast(`⚠️ TAG "${dup.codigo}" já usada por "${dup.nome}".`, "warning"); return; }
+  }
+  const dupNomeSetor = ativos.find(a =>
+    a.id !== (ehEdicao ? id : null) && nomeSetorIgual(a.nome, nome) && a.setor === setor
+  );
+  if(dupNomeSetor){ toast(`⚠️ Já existe ativo "${dupNomeSetor.nome}" neste setor.`, "warning"); return; }
+
+  if(!codigo) codigo = gerarCodigo("AT");
+  const ativoExistente = ativos.find(x=>x.id===id);
+
+  const a = {
+    id, nome, codigo, setor,
+    tipo: document.getElementById("tipoAtivo").value,
+    status: document.getElementById("statusAtivo").value,
+    observacoes: document.getElementById("obsAtivo").value.trim(),
+    fotos: midiasAtivo.filter(m=>m.tipo==="foto").map(m=>m.src),
+    arquivos: midiasAtivo.filter(m=>m.tipo==="arquivo").map(m=>({nome:m.nome, src:m.src})),
+    dataCriacao: ativoExistente?.dataCriacao || new Date().toISOString(),
+    fabricante: document.getElementById("fabricanteAtivo").value.trim(),
+    paisOrigem: document.getElementById("origemAtivo").value.trim(),
+    codigoProduto: document.getElementById("codigoProdutoAtivo").value.trim(),
+    codigoInterno: document.getElementById("codigoInternoAtivo").value.trim(),
+    tensao: document.getElementById("tensaoAtivo").value.trim(),
+    corrente: document.getElementById("correnteAtivo").value.trim(),
+    potencia: document.getElementById("potenciaAtivo").value.trim(),
+    frequencia: document.getElementById("frequenciaAtivo").value.trim(),
+    fases: document.getElementById("fasesAtivo").value.trim(),
+    grauProtecao: document.getElementById("ipAtivo").value.trim(),
+    dimensoes: document.getElementById("dimensoesAtivo").value.trim(),
+    peso: document.getElementById("pesoAtivo").value.trim(),
+    material: document.getElementById("materialAtivo").value.trim(),
+    normas: document.getElementById("normasAtivo").value.trim(),
+    capacidade: document.getElementById("capacidadeAtivo").value.trim(),
+    acessorios: document.getElementById("acessoriosAtivo").value.trim(),
+    tipoEquipamento: document.getElementById("tipoEquipAtivo").value,
+    frequenciaUso: document.getElementById("freqUsoAtivo").value,
+    planoManutencao: document.getElementById("planoManutencaoAtivo").value.trim(),
+    ultimaManutencao: document.getElementById("ultimaManutencaoAtivo").value,
+    proximaManutencao: document.getElementById("proximaManutencaoAtivo").value,
+    relatorioServico: document.getElementById("relatorioServicoAtivo").value.trim(),
+    vidaUtil: document.getElementById("vidaUtilAtivo").value,
+    garantia: document.getElementById("garantiaAtivo").value,
+    pecasCriticas: document.getElementById("pecasAtivo").value.trim(),
+    zonaRisco: document.getElementById("zonaRiscoAtivo").value.trim(),
+    epi: document.getElementById("epiAtivo").value.trim(),
+    certificados: document.getElementById("certificadosAtivo").value.trim(),
+    restricoes: document.getElementById("restricoesAtivo").value.trim(),
+    sinalizacao: document.getElementById("sinalizacaoAtivo").value.trim(),
+    valorAquisicao: document.getElementById("valorAquisicaoAtivo").value.trim(),
+    valorAtualizado: document.getElementById("valorAtualizadoAtivo").value.trim(),
+    depreciacao: document.getElementById("depreciacaoAtivo").value.trim(),
+    dataFabricacao: document.getElementById("dataFabricacaoAtivo").value,
+    dataAquisicao: document.getElementById("dataAquisicaoAtivo").value,
+    dataOperacao: document.getElementById("dataOperacaoAtivo").value,
+    nfCompra: document.getElementById("nfCompraAtivo").value.trim(),
+    responsavelTecnico: document.getElementById("responsavelAtivo").value.trim(),
+    centroCusto: document.getElementById("centroCustoAtivo").value.trim(),
+    localizacao: document.getElementById("localizacaoAtivo").value.trim()
+  };
+
+  if(ativoExistente){
+    // Registra mudanças no histórico
+    const mudancas = [];
+    if (ativoExistente.setor !== setor) mudancas.push(`Setor: ${ativoExistente.setor} → ${setor}`);
+    if (ativoExistente.status !== a.status) mudancas.push(`Status: ${ativoExistente.status} → ${a.status}`);
+    if (ativoExistente.responsavelTecnico !== a.responsavelTecnico) mudancas.push(`Responsável: ${ativoExistente.responsavelTecnico} → ${a.responsavelTecnico}`);
+    if (ativoExistente.proximaManutencao !== a.proximaManutencao) mudancas.push(`Próx. Manut: ${ativoExistente.proximaManutencao} → ${a.proximaManutencao}`);
+    
+    if (mudancas.length > 0) {
+        registrarHistorico({ itemId: id, tipo: "ativo", nome, acao: `Alterações: ${mudancas.join(' | ')}` });
+    } else {
+        registrarHistorico({ itemId: id, tipo: "ativo", nome, acao: "editou ativo (sem mudanças críticas)" });
+    }
+    ativos = ativos.map(x=>x.id===id?a:x);
+  } else {
+    ativos.push(a);
+    registrarHistorico({ itemId:id, tipo:"ativo", nome, acao:"cadastrou ativo" });
+  }
+  salvarBanco(true);
+  fecharAtivo();
+  mostrarTudo();
+  toast("Ativo salvo!", "success");
+}
+
+function mostrarAtivos(){
+  const el = document.getElementById("listaAtivos");
+  if(!el) return;
+  
+  const selSetor = document.getElementById("filtroSetorAtivo");
+  if(selSetor && selSetor.options.length <= 1) setores.forEach(s => selSetor.add(new Option(s.nome, s.nome)));
+  const selAno = document.getElementById("filtroAnoAtivo");
+  if(selAno && selAno.options.length <= 1) {
+      const anos = [...new Set(ativos.map(a => a.dataAquisicao?.substring(0,4)).filter(Boolean))].sort().reverse();
+      anos.forEach(ano => selAno.add(new Option(ano, ano)));
+  }
+
+  const p = (document.getElementById("pesquisaAtivo")?.value||"").toLowerCase();
+  const fSetor = document.getElementById("filtroSetorAtivo")?.value || "";
+  const fStatus = document.getElementById("filtroStatusAtivo")?.value || "";
+  const fAno = document.getElementById("filtroAnoAtivo")?.value || "";
+
+  const lista = ativos.filter(x => {
+      const matchTexto = (x.nome + " " + x.codigo + " " + x.setor + " " + x.tipo + " " + (x.fabricante||"")).toLowerCase().includes(p);
+      const matchSetor = fSetor ? x.setor === fSetor : true;
+      const matchStatus = fStatus ? x.status === fStatus : true;
+      const matchAno = fAno ? (x.dataAquisicao||"").startsWith(fAno) : true;
+      return matchTexto && matchSetor && matchStatus && matchAno;
+  });
+
+  if(!lista.length){ el.innerHTML = `<div class="card empty-state"><span class="emoji">🏭</span><span>Nenhum ativo encontrado.</span></div>`; return; }
+  
+  el.innerHTML = lista.map(x=>{
+    const sc = x.status==="Operando"?"badge-success":x.status==="Parado"?"badge-warning":x.status==="Manutenção"?"badge-danger":"badge-info";
+    const foto = x.fotos?.[0]?`<img class="imagem-mini" src="${x.fotos[0]}" alt="">`:`<div class="imagem-placeholder">🏭</div>`;
+    
+    let alertaManutencao = '';
+    if (x.proximaManutencao) {
+        const dataManut = new Date(x.proximaManutencao + 'T00:00:00');
+        const hoje = new Date(); hoje.setHours(0,0,0,0);
+        const dias = Math.ceil((dataManut - hoje) / (1000*60*60*24));
+        if (dias < 0) alertaManutencao = `<span class="badge badge-tempo urgente">⚠️ Manut. Vencida (${Math.abs(dias)}d)</span>`;
+        else if (dias <= 7) alertaManutencao = `<span class="badge badge-tempo">⏰ Manut. em ${dias}d</span>`;
+        else if (dias <= 30) alertaManutencao = `<span class="badge badge-info">📅 Manut. em ${dias}d</span>`;
+    }
+
+    return `
+      <div class="card item">
+        ${foto}
+        <div class="item-info">
+          <div class="nome">${escapar(x.nome)}</div>
+          <div class="detalhes">
+            TAG: ${escapar(x.codigo||"-")}<br>
+            Tipo: ${escapar(x.tipo)}<br>
+            Setor: ${escapar(x.setor)}
+            ${x.fabricante?`<br>Fabricante: ${escapar(x.fabricante)}`:''}
+          </div>
+          <div class="tags">
+            <span class="badge ${sc}">${escapar(x.status)}</span>
+            ${alertaManutencao}
+          </div>
+        </div>
+        <div class="item-actions">
+          <button type="button" onclick="abrirHistoricoItem('ativo','${x.id}')" title="Histórico" aria-label="Histórico">📜</button>
+          <button type="button" onclick="abrirAtivo('${x.id}')" aria-label="Editar">✏️</button>
+          <button type="button" onclick="duplicarAtivo('${x.id}')" aria-label="Duplicar">📋</button>
+          <button type="button" onclick="gerarPDFAtivoItem('${x.id}')" aria-label="Ficha PDF">📄</button>
+          <button type="button" onclick="excluirAtivo('${x.id}')" aria-label="Excluir">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function duplicarAtivo(id) {
+    const original = ativos.find(a => a.id === id);
+    if (!original) return;
+    abrirAtivo();
+    document.getElementById("tituloDialogAtivo").textContent = "📋 Duplicar Ativo (Edite a TAG)";
+    document.getElementById("nomeAtivo").value = original.nome + " (Cópia)";
+    document.getElementById("fabricanteAtivo").value = original.fabricante || "";
+    document.getElementById("origemAtivo").value = original.paisOrigem || "";
+    document.getElementById("codigoProdutoAtivo").value = original.codigoProduto || "";
+    document.getElementById("tensaoAtivo").value = original.tensao || "";
+    document.getElementById("correnteAtivo").value = original.corrente || "";
+    document.getElementById("potenciaAtivo").value = original.potencia || "";
+    document.getElementById("setorAtivo").value = original.setor;
+    document.getElementById("tipoAtivo").value = original.tipo;
+    document.getElementById("statusAtivo").value = original.status;
+    document.getElementById("codigoAtivo").value = ""; 
+    document.getElementById("idAtivo").value = "";
+    toast("Ativo duplicado! Altere a TAG e salve.", "info");
+}
+
+function excluirAtivo(id){
+  const x = ativos.find(a=>a.id===id);
+  if(!x) return;
+  if(confirm(`Excluir "${x.nome}"?`)){
+    ativos = ativos.filter(a=>a.id!==id);
+    registrarHistorico({ itemId:id, tipo:"ativo", nome:x.nome, acao:"excluiu ativo" });
+    salvarBanco(true);
+    mostrarTudo();
+    toast("Ativo excluído.", "success");
+  }
+}
+</script><script>
 /* ============ MANUTENÇÃO ============ */
 function abrirManutencao(id=null){
   midiasManutencao = [];
@@ -2554,7 +2784,7 @@ function mostrarResultadoNFCe(dados, url){
     </div>
     <div class="acoes" style="margin-top:10px;">
       <button type="button" class="btn-primary" onclick="aplicarDadosNFCe()">✅ Aplicar dados no formulário</button>
-      <button type="button" class="btn-outline" onclick="window.open(this.dataset.url,'_blank')" data-url="${escapar(url)}">🌐 Abrir consulta SEFAZ</button>
+      <button type="button" class="btn-outline" onclick="window.open('${escapar(url)}','_blank')">🌐 Abrir consulta SEFAZ</button>
     </div>
   `;
   window._ultimosDadosNFCe = dados;
@@ -2964,241 +3194,6 @@ function compartilharForaItem(id){
   abrirWhatsApp(t);
 }
 
-/* ============ ATIVOS v2.8 (ficha completa) ============ */
-const CAMPOS_ATIVO = [
-  "nomeAtivo","fabricanteAtivo","origemAtivo","codigoProdutoAtivo","codigoInternoAtivo",
-  "tensaoAtivo","correnteAtivo","potenciaAtivo","frequenciaAtivo","fasesAtivo","ipAtivo",
-  "dimensoesAtivo","pesoAtivo","materialAtivo","normasAtivo","capacidadeAtivo","acessoriosAtivo",
-  "planoManutencaoAtivo","ultimaManutencaoAtivo","proximaManutencaoAtivo","relatorioServicoAtivo",
-  "vidaUtilAtivo","garantiaAtivo","pecasAtivo",
-  "zonaRiscoAtivo","epiAtivo","certificadosAtivo","restricoesAtivo","sinalizacaoAtivo",
-  "valorAquisicaoAtivo","valorAtualizadoAtivo","depreciacaoAtivo",
-  "dataFabricacaoAtivo","dataAquisicaoAtivo","dataOperacaoAtivo","nfCompraAtivo",
-  "responsavelAtivo","centroCustoAtivo","obsAtivo"
-];
-
-function abrirAtivo(id=null){
-  midiasAtivo = [];
-  document.getElementById("idAtivo").value = id||"";
-
-  CAMPOS_ATIVO.forEach(elId => {
-    const el = document.getElementById(elId);
-    if (el) el.value = "";
-  });
-  document.getElementById("codigoAtivo").value = "";
-  document.getElementById("tipoAtivo").value = "Máquina";
-  document.getElementById("setorAtivo").value = setores[0]?.nome || "";
-  document.getElementById("statusAtivo").value = "Operando";
-  document.getElementById("tipoEquipAtivo").value = "Fixo";
-  document.getElementById("freqUsoAtivo").value = "Intermitente";
-
-  if(id){
-    const x = ativos.find(a=>a.id===id);
-    if(!x) return;
-    document.getElementById("tituloDialogAtivo").textContent = "✏️ Editar Ativo";
-
-    document.getElementById("nomeAtivo").value = x.nome || "";
-    document.getElementById("codigoAtivo").value = x.codigo || "";
-    document.getElementById("fabricanteAtivo").value = x.fabricante || "";
-    document.getElementById("origemAtivo").value = x.paisOrigem || "";
-    document.getElementById("codigoProdutoAtivo").value = x.codigoProduto || "";
-    document.getElementById("codigoInternoAtivo").value = x.codigoInterno || "";
-
-    document.getElementById("tensaoAtivo").value = x.tensao || "";
-    document.getElementById("correnteAtivo").value = x.corrente || "";
-    document.getElementById("potenciaAtivo").value = x.potencia || "";
-    document.getElementById("frequenciaAtivo").value = x.frequencia || "";
-    document.getElementById("fasesAtivo").value = x.fases || "";
-    document.getElementById("ipAtivo").value = x.grauProtecao || "";
-    document.getElementById("dimensoesAtivo").value = x.dimensoes || "";
-    document.getElementById("pesoAtivo").value = x.peso || "";
-    document.getElementById("materialAtivo").value = x.material || "";
-    document.getElementById("normasAtivo").value = x.normas || "";
-    document.getElementById("capacidadeAtivo").value = x.capacidade || "";
-    document.getElementById("acessoriosAtivo").value = x.acessorios || "";
-
-    document.getElementById("tipoEquipAtivo").value = x.tipoEquipamento || "Fixo";
-    document.getElementById("freqUsoAtivo").value = x.frequenciaUso || "Intermitente";
-    document.getElementById("planoManutencaoAtivo").value = x.planoManutencao || "";
-    document.getElementById("ultimaManutencaoAtivo").value = x.ultimaManutencao || "";
-    document.getElementById("proximaManutencaoAtivo").value = x.proximaManutencao || "";
-    document.getElementById("relatorioServicoAtivo").value = x.relatorioServico || "";
-    document.getElementById("vidaUtilAtivo").value = x.vidaUtil || "";
-    document.getElementById("garantiaAtivo").value = x.garantia || "";
-    document.getElementById("pecasAtivo").value = x.pecasCriticas || "";
-
-    document.getElementById("zonaRiscoAtivo").value = x.zonaRisco || "";
-    document.getElementById("epiAtivo").value = x.epi || "";
-    document.getElementById("certificadosAtivo").value = x.certificados || "";
-    document.getElementById("restricoesAtivo").value = x.restricoes || "";
-    document.getElementById("sinalizacaoAtivo").value = x.sinalizacao || "";
-
-    document.getElementById("statusAtivo").value = x.status || "Operando";
-    document.getElementById("valorAquisicaoAtivo").value = x.valorAquisicao || "";
-    document.getElementById("valorAtualizadoAtivo").value = x.valorAtualizado || "";
-    document.getElementById("depreciacaoAtivo").value = x.depreciacao || "";
-    document.getElementById("dataFabricacaoAtivo").value = x.dataFabricacao || "";
-    document.getElementById("dataAquisicaoAtivo").value = x.dataAquisicao || "";
-    document.getElementById("dataOperacaoAtivo").value = x.dataOperacao || "";
-    document.getElementById("nfCompraAtivo").value = x.nfCompra || "";
-    document.getElementById("responsavelAtivo").value = x.responsavelTecnico || "";
-    document.getElementById("centroCustoAtivo").value = x.centroCusto || "";
-    document.getElementById("obsAtivo").value = x.observacoes || "";
-
-    document.getElementById("tipoAtivo").value = x.tipo || "Máquina";
-    document.getElementById("setorAtivo").value = x.setor || setores[0]?.nome || "";
-
-    if(x.fotos?.[0]) midiasAtivo = [{tipo:"foto",src:x.fotos[0]}];
-  } else {
-    document.getElementById("tituloDialogAtivo").textContent = "🏭 Cadastro de Ativo";
-    document.getElementById("dataAquisicaoAtivo").value = hojeISO();
-  }
-  mostrarPreviewAtivo();
-  document.getElementById("dialogAtivo").showModal();
-}
-function fecharAtivo(){ document.getElementById("dialogAtivo").close(); }
-
-async function adicionarFotoAtivo(a){
-  if(!a) return;
-  const dataUrl = await lerArquivo(a);
-  const comprimida = await comprimirImagem(dataUrl);
-  midiasAtivo = [{tipo:"foto",src:comprimida}];
-  mostrarPreviewAtivo();
-}
-function mostrarPreviewAtivo(){
-  document.getElementById("previewAtivo").innerHTML = midiasAtivo.map((m,i) => `
-    <div class="thumb-wrap">
-      <img src="${m.src}" alt="">
-      <button type="button" class="btn-remover" onclick="removerMidiaGenerica('ativo',${i})" aria-label="Remover">✕</button>
-    </div>
-  `).join("");
-}
-
-function salvarAtivo(){
-  const nome = document.getElementById("nomeAtivo").value.trim();
-  if(!nome){ toast("Digite o nome.", "error"); return; }
-  const id = document.getElementById("idAtivo").value || gerarId();
-  const ehEdicao = !!document.getElementById("idAtivo").value;
-  const setor = document.getElementById("setorAtivo").value;
-  let codigo = document.getElementById("codigoAtivo").value.trim();
-
-  if(codigo){
-    const dup = ativos.find(a => a.id !== (ehEdicao ? id : null) && codigoIgual(a.codigo, codigo));
-    if(dup){ toast(`⚠️ TAG "${dup.codigo}" já usada por "${dup.nome}".`, "warning"); return; }
-  }
-  const dupNomeSetor = ativos.find(a =>
-    a.id !== (ehEdicao ? id : null) && nomeSetorIgual(a.nome, nome) && a.setor === setor
-  );
-  if(dupNomeSetor){ toast(`⚠️ Já existe ativo "${dupNomeSetor.nome}" neste setor.`, "warning"); return; }
-
-  if(!codigo) codigo = gerarCodigo("AT");
-
-  const ativoExistente = ativos.find(x=>x.id===id);
-
-  const a = {
-    id, nome, codigo, setor,
-    tipo: document.getElementById("tipoAtivo").value,
-    status: document.getElementById("statusAtivo").value,
-    observacoes: document.getElementById("obsAtivo").value.trim(),
-    fotos: midiasAtivo.filter(m=>m.tipo==="foto").map(m=>m.src),
-    dataCriacao: ativoExistente?.dataCriacao || new Date().toISOString(),
-    fabricante: document.getElementById("fabricanteAtivo").value.trim(),
-    paisOrigem: document.getElementById("origemAtivo").value.trim(),
-    codigoProduto: document.getElementById("codigoProdutoAtivo").value.trim(),
-    codigoInterno: document.getElementById("codigoInternoAtivo").value.trim(),
-    tensao: document.getElementById("tensaoAtivo").value.trim(),
-    corrente: document.getElementById("correnteAtivo").value.trim(),
-    potencia: document.getElementById("potenciaAtivo").value.trim(),
-    frequencia: document.getElementById("frequenciaAtivo").value.trim(),
-    fases: document.getElementById("fasesAtivo").value.trim(),
-    grauProtecao: document.getElementById("ipAtivo").value.trim(),
-    dimensoes: document.getElementById("dimensoesAtivo").value.trim(),
-    peso: document.getElementById("pesoAtivo").value.trim(),
-    material: document.getElementById("materialAtivo").value.trim(),
-    normas: document.getElementById("normasAtivo").value.trim(),
-    capacidade: document.getElementById("capacidadeAtivo").value.trim(),
-    acessorios: document.getElementById("acessoriosAtivo").value.trim(),
-    tipoEquipamento: document.getElementById("tipoEquipAtivo").value,
-    frequenciaUso: document.getElementById("freqUsoAtivo").value,
-    planoManutencao: document.getElementById("planoManutencaoAtivo").value.trim(),
-    ultimaManutencao: document.getElementById("ultimaManutencaoAtivo").value,
-    proximaManutencao: document.getElementById("proximaManutencaoAtivo").value,
-    relatorioServico: document.getElementById("relatorioServicoAtivo").value.trim(),
-    vidaUtil: document.getElementById("vidaUtilAtivo").value,
-    garantia: document.getElementById("garantiaAtivo").value,
-    pecasCriticas: document.getElementById("pecasAtivo").value.trim(),
-    zonaRisco: document.getElementById("zonaRiscoAtivo").value.trim(),
-    epi: document.getElementById("epiAtivo").value.trim(),
-    certificados: document.getElementById("certificadosAtivo").value.trim(),
-    restricoes: document.getElementById("restricoesAtivo").value.trim(),
-    sinalizacao: document.getElementById("sinalizacaoAtivo").value.trim(),
-    valorAquisicao: document.getElementById("valorAquisicaoAtivo").value.trim(),
-    valorAtualizado: document.getElementById("valorAtualizadoAtivo").value.trim(),
-    depreciacao: document.getElementById("depreciacaoAtivo").value.trim(),
-    dataFabricacao: document.getElementById("dataFabricacaoAtivo").value,
-    dataAquisicao: document.getElementById("dataAquisicaoAtivo").value,
-    dataOperacao: document.getElementById("dataOperacaoAtivo").value,
-    nfCompra: document.getElementById("nfCompraAtivo").value.trim(),
-    responsavelTecnico: document.getElementById("responsavelAtivo").value.trim(),
-    centroCusto: document.getElementById("centroCustoAtivo").value.trim()
-  };
-
-  if(ativoExistente){
-    ativos = ativos.map(x=>x.id===id?a:x);
-    registrarHistorico({ itemId:id, tipo:"ativo", nome, acao:"editou ativo" });
-  } else {
-    ativos.push(a);
-    registrarHistorico({ itemId:id, tipo:"ativo", nome, acao:"cadastrou ativo" });
-  }
-  salvarBanco(true);
-  fecharAtivo();
-  mostrarTudo();
-  toast("Ativo salvo!", "success");
-}
-
-function mostrarAtivos(){
-  const el = document.getElementById("listaAtivos");
-  if(!el) return;
-  const p = (document.getElementById("pesquisaAtivo")?.value||"").toLowerCase();
-  const lista = ativos.filter(x=>(x.nome+" "+x.codigo+" "+x.setor+" "+x.tipo).toLowerCase().includes(p));
-  if(!lista.length){ el.innerHTML = `<div class="card empty-state"><span class="emoji">🏭</span><span>Nenhum ativo.</span></div>`; return; }
-  el.innerHTML = lista.map(x=>{
-    const sc = x.status==="Operando"?"badge-success":x.status==="Parado"?"badge-warning":x.status==="Manutenção"?"badge-danger":"badge-info";
-    const foto = x.fotos?.[0]?`<img class="imagem-mini" src="${x.fotos[0]}" alt="">`:`<div class="imagem-placeholder">🏭</div>`;
-    return `
-      <div class="card item">
-        ${foto}
-        <div class="item-info">
-          <div class="nome">${escapar(x.nome)}</div>
-          <div class="detalhes">
-            TAG: ${escapar(x.codigo||"-")}<br>
-            Tipo: ${escapar(x.tipo)}<br>
-            Setor: ${escapar(x.setor)}
-            ${x.fabricante?`<br>Fabricante: ${escapar(x.fabricante)}`:''}
-          </div>
-          <div class="tags"><span class="badge ${sc}">${escapar(x.status)}</span></div>
-        </div>
-        <div class="item-actions">
-          <button type="button" onclick="abrirAtivo('${x.id}')" aria-label="Editar">✏️</button>
-          <button type="button" onclick="gerarPDFAtivoItem('${x.id}')" aria-label="Ficha PDF">📄</button>
-          <button type="button" onclick="excluirAtivo('${x.id}')" aria-label="Excluir">🗑️</button>
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-function excluirAtivo(id){
-  const x = ativos.find(a=>a.id===id);
-  if(!x) return;
-  if(confirm(`Excluir "${x.nome}"?`)){
-    ativos = ativos.filter(a=>a.id!==id);
-    registrarHistorico({ itemId:id, tipo:"ativo", nome:x.nome, acao:"excluiu ativo" });
-    salvarBanco(true);
-    mostrarTudo();
-    toast("Ativo excluído.", "success");
-  }
-}
-
 /* ============ CRIADOS ============ */
 function abrirCriado(id=null){
   document.getElementById("idCriado").value = id||"";
@@ -3547,7 +3542,7 @@ async function tirarFoto(){
   const comprimida = await comprimirImagem(dataUrl);
 
   if(cameraDestino==="ferramenta"){ midiasFerramenta.push({tipo:"foto",src:comprimida}); mostrarPreviewFerramenta(); }
-  else if(cameraDestino==="ativo"){ midiasAtivo = [{tipo:"foto",src:comprimida}]; mostrarPreviewAtivo(); }
+  else if(cameraDestino==="ativo"){ midiasAtivo.push({tipo:"foto",src:comprimida}); mostrarPreviewAtivo(); }
   else if(cameraDestino==="manutencao"){ midiasManutencao.push({tipo:"foto",src:comprimida}); mostrarPreviewManutencao(); }
   else if(cameraDestino==="foradaempresa"){ midiasFora.push({tipo:"foto",src:comprimida,nome:`foto_${Date.now()}.jpg`}); mostrarPreviewFora(); }
   fecharCamera();
@@ -3577,6 +3572,27 @@ function fecharScanner(){
   const dlg = document.getElementById("dialogScanner");
   if(dlg && dlg.open) dlg.close();
 }
+function abrirScannerParaAtivo() {
+    if(!window.Html5Qrcode){ toast("Leitor de código não disponível.", "error"); return; }
+    document.getElementById("dialogScanner").showModal();
+    scanner = new Html5Qrcode("reader");
+    scanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (textoDecodificado) => {
+            fecharScanner();
+            const ativoEncontrado = ativos.find(a => codigoIgual(a.codigo, textoDecodificado) || codigoIgual(a.codigoInterno, textoDecodificado) || codigoIgual(a.codigoProduto, textoDecodificado));
+            if (ativoEncontrado) {
+                abrirAtivo(ativoEncontrado.id);
+            } else {
+                abrirAtivo(); 
+                document.getElementById('codigoAtivo').value = textoDecodificado;
+                toast("Nova TAG lida! Preencha os dados.", "info");
+            }
+        },
+        () => {}
+    ).catch(err => { toast("Erro no scanner: " + err, "error"); fecharScanner(); });
+}
 
 /* ============ PDF ============ */
 function checkPDF(){
@@ -3605,7 +3621,7 @@ function cabecalhoPDF(doc, titulo, sub=""){
   const h = doc.internal.pageSize.getHeight();
   doc.setDrawColor(200,200,200); doc.line(14,h-15,w-14,h-15);
   doc.setFontSize(8); doc.setTextColor(120,120,120);
-  doc.text('PCM de Ferramentas v2.8', 14, h-8);
+  doc.text('PCM de Ferramentas v3.0', 14, h-8);
   doc.text(`Página ${doc.internal.getCurrentPageInfo().pageNumber}`, w-14, h-8, {align:'right'});
 }
 async function salvarPDF(doc, nome){
@@ -3778,8 +3794,6 @@ function gerarPDFAtivos(){
   else { chamarAutoTable(doc, { startY:45, head:[['Nome','TAG','Tipo','Setor','Status']], body: ativos.map(a=>[a.nome, a.codigo||'-', a.tipo, a.setor, a.status]), theme:'grid', headStyles:{fillColor:[124,92,191],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} }); }
   salvarPDF(doc, `Ativos_${hojeISO()}.pdf`);
 }
-
-/* ✅ Ficha completa de um Ativo individual (v2.8) */
 function gerarPDFAtivoItem(id){
   if(!checkPDF()) return;
   const x = ativos.find(a=>a.id===id);
@@ -3810,63 +3824,38 @@ function gerarPDFAtivoItem(id){
   };
 
   addSection('📋 Identificação');
-  addField('Nome', x.nome);
-  addField('Fabricante', x.fabricante);
-  addField('País de Origem', x.paisOrigem);
-  addField('TAG Patrimonial', x.codigo);
-  addField('Código Produto', x.codigoProduto);
-  addField('Código Interno', x.codigoInterno);
-  addField('Tipo', x.tipo);
-  addField('Setor', x.setor);
+  addField('Nome', x.nome); addField('Fabricante', x.fabricante); addField('País de Origem', x.paisOrigem);
+  addField('TAG Patrimonial', x.codigo); addField('Código Produto', x.codigoProduto); addField('Código Interno', x.codigoInterno);
+  addField('Tipo', x.tipo); addField('Setor', x.setor);
 
   addSection('⚙️ Especificações Técnicas');
-  addField('Tensão', x.tensao);
-  addField('Corrente', x.corrente);
-  addField('Potência', x.potencia);
-  addField('Frequência', x.frequencia);
-  addField('Fases', x.fases);
-  addField('Grau de Proteção (IP)', x.grauProtecao);
-  addField('Dimensões (C×L×A)', x.dimensoes);
-  addField('Peso', x.peso);
-  addField('Material', x.material);
-  addField('Normas Aplicáveis', x.normas);
-  addField('Capacidade/Velocidade/Rotação', x.capacidade);
+  addField('Tensão', x.tensao); addField('Corrente', x.corrente); addField('Potência', x.potencia);
+  addField('Frequência', x.frequencia); addField('Fases', x.fases); addField('Grau de Proteção (IP)', x.grauProtecao);
+  addField('Dimensões (C×L×A)', x.dimensoes); addField('Peso', x.peso); addField('Material', x.material);
+  addField('Normas Aplicáveis', x.normas); addField('Capacidade/Velocidade/Rotação', x.capacidade);
   addField('Acessórios / Sobressalentes', x.acessorios);
 
   addSection('🛠️ Operação & Manutenção');
-  addField('Tipo de Equipamento', x.tipoEquipamento);
-  addField('Frequência de Uso', x.frequenciaUso);
-  addField('Plano de Manutenção', x.planoManutencao);
-  addField('Última Manutenção', x.ultimaManutencao);
-  addField('Próxima Manutenção', x.proximaManutencao);
-  addField('Nº Relatório Serviço', x.relatorioServico);
-  addField('Vida Útil Estimada (anos)', x.vidaUtil);
-  addField('Garantia', x.garantia);
-  addField('Peças Críticas', x.pecasCriticas);
+  addField('Tipo de Equipamento', x.tipoEquipamento); addField('Frequência de Uso', x.frequenciaUso);
+  addField('Plano de Manutenção', x.planoManutencao); addField('Última Manutenção', x.ultimaManutencao);
+  addField('Próxima Manutenção', x.proximaManutencao); addField('Nº Relatório Serviço', x.relatorioServico);
+  addField('Vida Útil Estimada (anos)', x.vidaUtil); addField('Garantia', x.garantia); addField('Peças Críticas', x.pecasCriticas);
 
   addSection('📊 Segurança & Conformidade');
-  addField('Classificação de Risco / Zona', x.zonaRisco);
-  addField('EPIs / EPCs', x.epi);
-  addField('Certificados', x.certificados);
-  addField('Restrições de Operação', x.restricoes);
+  addField('Classificação de Risco / Zona', x.zonaRisco); addField('EPIs / EPCs', x.epi);
+  addField('Certificados', x.certificados); addField('Restrições de Operação', x.restricoes);
   addField('Sinalização de Segurança', x.sinalizacao);
 
   addSection('📝 Histórico & Status');
-  addField('Status', x.status);
-  addField('Valor de Aquisição', x.valorAquisicao ? `R$ ${x.valorAquisicao}` : '');
-  addField('Valor Atualizado', x.valorAtualizado ? `R$ ${x.valorAtualizado}` : '');
-  addField('Depreciação (%)', x.depreciacao);
-  addField('Data de Fabricação', x.dataFabricacao);
-  addField('Data de Aquisição', x.dataAquisicao);
-  addField('Entrada em Operação', x.dataOperacao);
-  addField('Nota Fiscal / Pedido', x.nfCompra);
-  addField('Responsável Técnico', x.responsavelTecnico);
-  addField('Centro de Custo', x.centroCusto);
-  addField('Observações', x.observacoes);
+  addField('Status', x.status); addField('Valor de Aquisição', x.valorAquisicao ? `R$ ${x.valorAquisicao}` : '');
+  addField('Valor Atualizado', x.valorAtualizado ? `R$ ${x.valorAtualizado}` : ''); addField('Depreciação (%)', x.depreciacao);
+  addField('Data de Fabricação', x.dataFabricacao); addField('Data de Aquisição', x.dataAquisicao);
+  addField('Entrada em Operação', x.dataOperacao); addField('Nota Fiscal / Pedido', x.nfCompra);
+  addField('Responsável Técnico', x.responsavelTecnico); addField('Centro de Custo', x.centroCusto);
+  addField('Localização GPS', x.localizacao); addField('Observações', x.observacoes);
 
   salvarPDF(doc, `FichaAtivo_${x.nome.replace(/\s+/g,'_')}.pdf`);
 }
-
 function gerarPDFCriados(){
   if(!checkPDF()) return;
   const { jsPDF } = window.jspdf;
@@ -3906,6 +3895,52 @@ function gerarPDFSetores(){
   });
   chamarAutoTable(doc, { startY:45, head:[['Setor','Ferr.','Disp.','Empr.','Manut.','Assist.','Ativos']], body:dados, theme:'grid', headStyles:{fillColor:[45,219,122],textColor:255}, styles:{fontSize:9,cellPadding:2}, margin:{left:14,right:14} });
   salvarPDF(doc, `Setores_${hojeISO()}.pdf`);
+}
+
+/* ============ EXCEL ============ */
+function exportarExcelAtivos() {
+    if(!window.XLSX){ toast("Biblioteca Excel não carregou.", "error"); return; }
+    if(!ativos.length){ toast("Nenhum ativo para exportar.", "warning"); return; }
+    
+    const dados = ativos.map(a => ({
+        "TAG": a.codigo || "",
+        "Nome": a.nome,
+        "Fabricante": a.fabricante || "",
+        "Tipo": a.tipo,
+        "Setor": a.setor,
+        "Status": a.status,
+        "Potência": a.potencia || "",
+        "Tensão": a.tensao || "",
+        "Data Aquisição": a.dataAquisicao || "",
+        "Próxima Manutenção": a.proximaManutencao || "",
+        "Responsável": a.responsavelTecnico || ""
+    }));
+    
+    const ws = XLSX.utils.json_to_sheet(dados);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Ativos");
+    XLSX.writeFile(wb, `Ativos_${hojeISO()}.xlsx`);
+    toast("Excel gerado!", "success");
+}
+
+function exportarExcelFerramentas() {
+    if(!window.XLSX){ toast("Biblioteca Excel não carregou.", "error"); return; }
+    if(!ferramentas.length){ toast("Nenhuma ferramenta para exportar.", "warning"); return; }
+    
+    const dados = ferramentas.map(f => ({
+        "Código": f.codigo || "",
+        "Nome": f.nome,
+        "Setor": f.setor,
+        "Quantidade": f.quantidade || 1,
+        "Status": f.status,
+        "Observações": f.observacoes || ""
+    }));
+    
+    const ws = XLSX.utils.json_to_sheet(dados);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Ferramentas");
+    XLSX.writeFile(wb, `Ferramentas_${hojeISO()}.xlsx`);
+    toast("Excel gerado!", "success");
 }
 
 /* ============ COMPARTILHAR IMAGEM ============ */
@@ -4210,7 +4245,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ============ DIAGNÓSTICO ============ */
 window.diagnostico = function(){
-  console.log('=== DIAGNÓSTICO PCM v2.8 ===');
+  console.log('=== DIAGNÓSTICO PCM v3.0 ===');
   console.log('1. localStorage:', (()=>{try{localStorage.setItem('t','1');localStorage.removeItem('t');return 'OK';}catch(e){return 'FALHOU: '+e.message;}})());
   console.log('2. Protocolo:', location.protocol);
   console.log('3. jsPDF:', !!(window.jspdf && window.jspdf.jsPDF));
@@ -4218,9 +4253,10 @@ window.diagnostico = function(){
   console.log('5. Chart.js:', !!window.Chart);
   console.log('6. Html5Qrcode:', !!window.Html5Qrcode);
   console.log('7. Tesseract:', typeof Tesseract);
-  console.log('8. Service Worker:', 'serviceWorker' in navigator ? 'suportado' : 'não suportado');
-  console.log('9. Contadores:', contadores);
-  console.log('10. Ferramentas:', ferramentas.length, '| Manutenções:', manutencoes.length, '| Fora:', foraDaEmpresa.length, '| Ativos:', ativos.length);
+  console.log('8. XLSX:', typeof XLSX);
+  console.log('9. Service Worker:', 'serviceWorker' in navigator ? 'suportado' : 'não suportado');
+  console.log('10. Contadores:', contadores);
+  console.log('11. Ferramentas:', ferramentas.length, '| Manutenções:', manutencoes.length, '| Fora:', foraDaEmpresa.length, '| Ativos:', ativos.length);
 };
 </script>
 </body>
