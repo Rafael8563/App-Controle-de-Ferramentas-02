@@ -7,8 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Manutenção">
-<meta name="description" content="Sistema de Manutenção - PCM e Ordens de Serviço">
-<title>Manutenção Pro — PCM + OS</title>
+<title>Manutenção Pro v5</title>
 
 <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
@@ -18,55 +17,33 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-/* ============ VARIÁVEIS ============ */
 :root{
   --bg-0:#060d17; --bg-1:#0a1a2e; --bg-2:#0d2a3d;
   --surface:rgba(255,255,255,0.055);
   --surface-2:rgba(255,255,255,0.09);
   --border:rgba(255,255,255,0.10);
-  --border-strong:rgba(255,255,255,0.18);
-  --text:#ffffff;
-  --text-2:#b0c8d9;
-  --text-3:rgba(176,200,217,0.55);
+  --border-strong:rgba(255,255,255,0.20);
+  --text:#ffffff; --text-2:#b0c8d9; --text-3:rgba(176,200,217,0.55);
   --header-bg:rgba(3,10,20,0.9);
-
-  --primary:#1eb8c9;
-  --primary-2:#6ae2ef;
-  --purple:#7c5cbf;
-  --pink:#ff6b9d;
-  --green:#2ddb7a;
-  --yellow:#ffd14a;
-  --orange:#f5a623;
-  --red:#ff6b82;
-
-  --yellow-text:#ffd14a;
-  --orange-text:#f5a623;
-
+  --primary:#1eb8c9; --primary-2:#6ae2ef;
+  --purple:#7c5cbf; --pink:#ff6b9d;
+  --green:#2ddb7a; --yellow:#ffd14a; --orange:#f5a623; --red:#ff6b82;
+  --yellow-text:#ffd14a; --orange-text:#f5a623;
   --shadow-lg:0 20px 60px rgba(0,0,0,0.55);
   --shadow-md:0 10px 30px rgba(0,0,0,0.35);
-  --radius:16px;
-  --radius-sm:12px;
-  --t-fast:0.2s ease;
-  --t-smooth:0.35s cubic-bezier(0.34,1.3,0.64,1);
+  --radius:16px; --radius-sm:12px;
+  --t-fast:0.18s ease;
 }
-
 body.light{
   --bg-0:#f4f6fa; --bg-1:#e8edf5; --bg-2:#dde5f0;
-  --surface:rgba(255,255,255,0.85);
-  --surface-2:rgba(255,255,255,0.95);
-  --border:rgba(0,0,0,0.08);
-  --border-strong:rgba(0,0,0,0.15);
-  --text:#0a1a2e;
-  --text-2:#4a5b6e;
-  --text-3:rgba(74,91,110,0.6);
+  --surface:rgba(255,255,255,0.85); --surface-2:rgba(255,255,255,0.95);
+  --border:rgba(0,0,0,0.08); --border-strong:rgba(0,0,0,0.15);
+  --text:#0a1a2e; --text-2:#4a5b6e; --text-3:rgba(74,91,110,0.6);
   --header-bg:rgba(255,255,255,0.92);
-  --yellow-text:#8a6400;
-  --orange-text:#a85900;
+  --yellow-text:#8a6400; --orange-text:#a85900;
   --shadow-lg:0 20px 60px rgba(0,0,0,0.12);
   --shadow-md:0 10px 30px rgba(0,0,0,0.08);
 }
-
-/* ============ RESET ============ */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{
@@ -77,19 +54,16 @@ body{
     radial-gradient(ellipse at 80% 70%,rgba(124,92,191,0.10) 0%,transparent 55%),
     linear-gradient(180deg,var(--bg-0) 0%,var(--bg-1) 45%,var(--bg-2) 100%);
   background-attachment:fixed;
-  min-height:100vh;
-  overflow-x:hidden;
+  min-height:100vh;overflow-x:hidden;
   transition:background 0.4s ease,color 0.4s ease;
   padding-bottom:env(safe-area-inset-bottom);
+  -webkit-text-size-adjust:100%;
 }
 input,textarea,select,button{font-family:inherit;font-size:inherit}
 img{max-width:100%;display:block}
-
-/* ============ LAYOUT ============ */
 .app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
-main{flex:1;max-width:1280px;width:100%;margin:0 auto;padding:20px}
+main{flex:1;max-width:1280px;width:100%;margin:0 auto;padding:20px;padding-bottom:60px}
 
-/* ============ HEADER ============ */
 header{
   position:sticky;top:0;z-index:50;
   background:var(--header-bg);
@@ -97,31 +71,21 @@ header{
   border-bottom:1px solid var(--border);
   box-shadow:0 4px 30px rgba(0,0,0,0.25);
 }
-.header-top{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:12px;padding:12px 20px;flex-wrap:wrap;
-}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:12px;min-width:0}
 .brand-logo{
   width:44px;height:44px;flex-shrink:0;border-radius:14px;
   background:linear-gradient(135deg,var(--primary),var(--purple),var(--pink));
-  background-size:200% 200%;
-  display:grid;place-items:center;font-size:22px;
+  background-size:200% 200%;display:grid;place-items:center;font-size:22px;
   box-shadow:0 6px 24px rgba(30,184,201,0.35);
-  animation:gradientMove 8s ease infinite;
 }
-@keyframes gradientMove{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .brand-text{min-width:0}
 .brand-text h1{
   font-size:20px;font-weight:800;letter-spacing:-0.3px;
   background:linear-gradient(120deg,var(--text) 20%,var(--primary-2) 50%,var(--purple) 80%);
-  background-size:200% auto;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-  animation:gradientText 6s ease infinite alternate;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-@keyframes gradientText{to{background-position:100% center}}
 .brand-sub{font-size:11px;color:var(--text-3);margin-top:1px}
 .header-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .chip{
@@ -133,94 +97,45 @@ header{
 .chip-user{color:var(--primary-2);background:rgba(30,184,201,0.12);border-color:rgba(30,184,201,0.3)}
 .chip-online{color:var(--green)}
 .chip-offline{color:var(--red)}
-
-/* Módulos */
-.modules{
-  display:flex;gap:6px;padding:0 20px;
-  border-bottom:1px solid var(--border);
-}
+.modules{display:flex;gap:6px;padding:0 20px;border-bottom:1px solid var(--border)}
 .mod-btn{
   border:none;background:transparent;color:var(--text-2);
-  padding:12px 20px;font-weight:700;font-size:13px;
-  cursor:pointer;position:relative;transition:var(--t-fast);
+  padding:12px 20px;font-weight:700;font-size:13px;cursor:pointer;
   border-bottom:3px solid transparent;margin-bottom:-1px;
 }
-.mod-btn:hover{color:var(--text)}
-.mod-btn.active{
-  color:var(--text);
-  border-bottom-color:var(--primary);
-}
-
-/* Nav */
-nav{
-  display:flex;gap:4px;padding:10px 20px;overflow-x:auto;
-  scrollbar-width:none;
-}
+.mod-btn.active{color:var(--text);border-bottom-color:var(--primary)}
+nav{display:flex;gap:4px;padding:10px 20px;overflow-x:auto;scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
 nav button{
   white-space:nowrap;border:none;background:transparent;
   color:var(--text-2);border-radius:20px;
-  padding:8px 16px;font-weight:600;font-size:13px;
-  cursor:pointer;transition:var(--t-fast);flex-shrink:0;
+  padding:8px 16px;font-weight:600;font-size:13px;cursor:pointer;flex-shrink:0;
 }
-nav button:hover{color:var(--text);background:var(--surface)}
-nav button.active{
-  color:#fff;
-  background:linear-gradient(135deg,var(--primary),var(--purple));
-  box-shadow:0 4px 20px rgba(30,184,201,0.35);
-}
+nav button.active{color:#fff;background:linear-gradient(135deg,var(--primary),var(--purple))}
 
-/* ============ VIEWS ============ */
-.view{display:none;animation:fadeIn 0.35s ease}
+.view{display:none}
 .view.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* ============ COMPONENTES ============ */
 .section-title{
   font-size:18px;font-weight:700;margin:0;
   background:linear-gradient(120deg,var(--text) 30%,var(--primary-2) 70%,var(--purple));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-.section-header{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:12px;flex-wrap:wrap;margin:24px 0 16px;
-}
-
+.section-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:24px 0 16px}
 .card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:20px;
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  box-shadow:var(--shadow-md);
-  transition:var(--t-fast);
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-md);
 }
-.card:hover{border-color:var(--border-strong)}
-.card h3{
-  font-size:12px;color:var(--text-3);
-  text-transform:uppercase;letter-spacing:0.6px;
-  font-weight:600;margin-bottom:12px;
-}
-
+.card h3{font-size:12px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;font-weight:600;margin-bottom:12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
 
-/* Botões */
 button{
-  border:1px solid var(--border);
-  background:var(--surface);
-  color:var(--text);
-  padding:9px 18px;
-  border-radius:24px;
-  font-weight:600;font-size:13px;
-  cursor:pointer;
-  transition:var(--t-fast);
+  border:1px solid var(--border);background:var(--surface);color:var(--text);
+  padding:9px 18px;border-radius:24px;font-weight:600;font-size:13px;
+  cursor:pointer;transition:var(--t-fast);
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
 }
-button:hover{transform:translateY(-2px);border-color:var(--border-strong);box-shadow:var(--shadow-md)}
-button:active{transform:translateY(0)}
-button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-
+button:hover{transform:translateY(-2px);border-color:var(--border-strong)}
 .btn-primary{background:linear-gradient(135deg,var(--primary),var(--purple));border-color:transparent;color:#fff}
 .btn-success{background:linear-gradient(135deg,#1a8a5a,var(--green));border-color:transparent;color:#fff}
 .btn-danger{background:linear-gradient(135deg,#a82f4a,var(--red));border-color:transparent;color:#fff}
@@ -230,144 +145,67 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .btn-ghost{background:transparent}
 .btn-block{width:100%;padding:16px;font-size:15px;border-radius:16px;font-weight:700}
 .btn-sm{padding:6px 12px;font-size:12px;border-radius:20px}
+.btn-icon{padding:6px 10px;font-size:13px;border-radius:20px;min-width:34px;justify-content:center}
 
-/* Formulários */
-label{
-  display:block;font-size:12px;font-weight:600;
-  color:var(--text-2);margin:14px 0 6px;
-}
+label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin:14px 0 6px}
 input,textarea,select{
-  width:100%;padding:11px 14px;
-  border-radius:var(--radius-sm);
-  border:1px solid var(--border);
-  background:rgba(0,0,0,0.18);
-  color:var(--text);outline:none;
-  font-size:14px;transition:var(--t-fast);
+  width:100%;padding:11px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:rgba(0,0,0,0.18);
+  color:var(--text);outline:none;font-size:14px;
 }
 body.light input,body.light textarea,body.light select{background:rgba(255,255,255,0.7)}
-input:focus,textarea:focus,select:focus{
-  border-color:var(--primary);
-  box-shadow:0 0 0 4px rgba(30,184,201,0.12);
-  background:rgba(0,0,0,0.28);
-}
-body.light input:focus,body.light textarea:focus,body.light select:focus{background:#fff}
+input:focus,textarea:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(30,184,201,0.12)}
 textarea{resize:vertical;min-height:70px;font-family:inherit}
 select{cursor:pointer}
-
-/* Search */
-.search{
-  width:100%;padding:12px 16px;
-  border-radius:var(--radius-sm);
-  background:rgba(0,0,0,0.18);
-  border:1px solid var(--border);
-  color:var(--text);outline:none;font-size:14px;
-  margin:4px 0 14px;
-}
+.search{width:100%;padding:12px 16px;border-radius:var(--radius-sm);background:rgba(0,0,0,0.18);border:1px solid var(--border);color:var(--text);outline:none;font-size:14px;margin:4px 0 14px}
 body.light .search{background:rgba(255,255,255,0.7)}
-.search:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(30,184,201,0.12)}
 
-/* Badges */
-.badge{
-  display:inline-block;padding:3px 11px;
-  border-radius:999px;font-size:11px;font-weight:600;
-  border:1px solid transparent;white-space:nowrap;
-}
+.badge{display:inline-block;padding:3px 11px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
 .badge-green{background:rgba(45,219,122,0.15);color:var(--green)}
 .badge-yellow{background:rgba(255,209,74,0.15);color:var(--yellow-text)}
 .badge-red{background:rgba(255,107,130,0.15);color:var(--red)}
 .badge-blue{background:rgba(30,184,201,0.15);color:var(--primary-2)}
 .badge-purple{background:rgba(124,92,191,0.18);color:#b39ddb}
 .badge-orange{background:rgba(245,166,35,0.15);color:var(--orange-text)}
-.badge-gray{background:rgba(255,255,255,0.08);color:var(--text-2)}
 
-/* Stats */
-.stat{
-  text-align:center;padding:6px 2px;
-}
-.stat-ico{font-size:32px;display:block;margin-bottom:4px;opacity:.9}
+.stat{text-align:center;padding:6px 2px}
+.stat-ico{font-size:32px;display:block;margin-bottom:4px}
 .stat-lbl{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px}
-.stat-num{
-  display:block;font-size:36px;font-weight:800;margin-top:2px;line-height:1.1;
-  background:linear-gradient(120deg,var(--text) 30%,var(--primary-2) 60%,var(--purple));
-  background-size:200% auto;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-
-/* Empty state */
-.empty{
-  text-align:center;padding:50px 20px;
-  color:var(--text-3);grid-column:1/-1;
-}
+.stat-num{display:block;font-size:36px;font-weight:800;margin-top:2px;line-height:1.1}
+.empty{text-align:center;padding:50px 20px;color:var(--text-3);grid-column:1/-1}
 .empty .emoji{font-size:52px;display:block;margin-bottom:12px;opacity:.4}
 
-/* Item card (listas) */
 .item-card{
-  display:grid;grid-template-columns:88px 1fr auto;
-  gap:14px;align-items:center;
-  padding:14px;background:var(--surface);
-  border:1px solid var(--border);border-radius:var(--radius-sm);
-  transition:var(--t-fast);
+  display:grid;grid-template-columns:88px 1fr auto;gap:14px;align-items:center;
+  padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
 }
-.item-card:hover{border-color:var(--border-strong);transform:translateY(-1px)}
-.item-thumb{
-  width:88px;height:70px;object-fit:cover;
-  border-radius:10px;background:rgba(0,0,0,0.25);
-  border:1px solid var(--border);
-}
-.item-thumb-ph{
-  width:88px;height:70px;border-radius:10px;
-  background:rgba(255,255,255,0.03);
-  border:1px dashed var(--border);
-  display:grid;place-items:center;font-size:30px;color:var(--text-3);
-}
+.item-thumb{width:88px;height:70px;object-fit:cover;border-radius:10px;background:rgba(0,0,0,0.25);border:1px solid var(--border);cursor:zoom-in}
+.item-thumb-ph{width:88px;height:70px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px dashed var(--border);display:grid;place-items:center;font-size:30px;color:var(--text-3)}
 .item-body{min-width:0}
-.item-name{font-weight:700;font-size:14px;margin-bottom:4px}
+.item-name{font-weight:700;font-size:14px;margin-bottom:4px;word-break:break-word}
 .item-meta{color:var(--text-3);font-size:12px;line-height:1.5}
 .item-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
 .item-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
-.item-actions button{
-  padding:6px 10px;font-size:13px;border-radius:20px;
-  min-width:34px;justify-content:center;
-}
 
-/* OS cards */
 .os-list{display:flex;flex-direction:column;gap:12px}
-.os-card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-left:4px solid var(--primary);
-  padding:16px;border-radius:var(--radius-sm);
-  box-shadow:var(--shadow-md);
-  transition:var(--t-fast);
-}
-.os-card:hover{border-color:var(--border-strong);transform:translateY(-1px)}
-.os-card.status-aguardando{border-left-color:var(--orange);background:rgba(245,166,35,0.04)}
-.os-card.status-concluida{border-left-color:var(--green)}
-.os-card.status-execucao{border-left-color:var(--yellow)}
-.os-card.status-encerrada{border-left-color:var(--text-3)}
+.os-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--primary);padding:16px;border-radius:var(--radius-sm);box-shadow:var(--shadow-md)}
+.os-card.st-aguardando{border-left-color:var(--orange)}
+.os-card.st-concluida{border-left-color:var(--green)}
+.os-card.st-execucao{border-left-color:var(--yellow)}
+.os-card.st-encerrada{border-left-color:var(--text-3)}
 .os-card h3{font-size:14px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .os-card small{display:block;color:var(--text-3);font-size:12px;margin-bottom:3px;line-height:1.5}
 .os-card .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
 .os-card .actions button{flex:1;min-width:70px;padding:8px 10px;font-size:12px}
-
-.status-pill{
-  display:inline-block;padding:3px 10px;border-radius:12px;
-  font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.3px;
-}
+.status-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase}
 .pill-aberta{background:#0077cc}
 .pill-execucao{background:#ffc107;color:#000}
 .pill-aguardando{background:#fd7e14}
 .pill-concluida{background:#28a745}
 .pill-encerrada{background:#6c757d}
 
-/* KPIs */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px}
-.kpi{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:14px;position:relative;
-  border-left:4px solid var(--primary);
-}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;position:relative;border-left:4px solid var(--primary)}
 .kpi.green{border-left-color:var(--green)}
 .kpi.red{border-left-color:var(--red)}
 .kpi.orange{border-left-color:var(--orange)}
@@ -377,49 +215,19 @@ body.light .search{background:rgba(255,255,255,0.7)}
 .kpi-value{font-size:24px;font-weight:800;margin-top:4px;line-height:1.1}
 .kpi-ico{position:absolute;top:12px;right:12px;font-size:20px;opacity:.35}
 
-/* Chart */
-.chart-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:16px;margin-bottom:14px;
-}
-.chart-card h3{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text)}
+.chart-card,.rank-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:14px}
+.chart-card h3,.rank-card h3{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text);text-transform:none;letter-spacing:0}
 .chart-card canvas{max-height:220px}
-
-/* Ranking */
-.rank-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:16px;margin-bottom:14px;
-}
-.rank-card h3{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text)}
-.rank-row{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:10px 0;border-bottom:1px solid var(--border);
-  font-size:13px;gap:10px;
-}
+.rank-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;gap:10px}
 .rank-row:last-child{border-bottom:none}
-.rank-pos{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:24px;height:24px;border-radius:50%;
-  background:rgba(30,184,201,0.15);color:var(--primary-2);
-  font-weight:700;font-size:11px;margin-right:8px;flex-shrink:0;
-}
+.rank-pos{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(30,184,201,0.15);color:var(--primary-2);font-weight:700;font-size:11px;margin-right:8px}
 .rank-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rank-val{font-weight:700;color:var(--primary-2);flex-shrink:0}
+.rank-val{font-weight:700;color:var(--primary-2)}
 
-/* Resumo (home OS) */
-.resumo-grid{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;
-}
+.resumo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
 @media(min-width:640px){.resumo-grid{grid-template-columns:repeat(4,1fr)}}
-.resumo{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:14px;
-  display:flex;align-items:center;gap:12px;
-}
-.resumo-ico{
-  width:42px;height:42px;border-radius:12px;flex-shrink:0;
-  display:grid;place-items:center;font-size:20px;
-}
+.resumo{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;display:flex;align-items:center;gap:12px}
+.resumo-ico{width:42px;height:42px;border-radius:12px;flex-shrink:0;display:grid;place-items:center;font-size:20px}
 .resumo-ico.blue{background:rgba(30,184,201,0.15);color:var(--primary-2)}
 .resumo-ico.orange{background:rgba(245,166,35,0.15);color:var(--orange)}
 .resumo-ico.green{background:rgba(45,219,122,0.15);color:var(--green)}
@@ -427,202 +235,97 @@ body.light .search{background:rgba(255,255,255,0.7)}
 .resumo-num{font-size:22px;font-weight:800;line-height:1}
 .resumo-lbl{font-size:10px;text-transform:uppercase;color:var(--text-3);letter-spacing:0.5px;margin-top:3px}
 
-/* Modal */
-dialog{
-  width:min(720px,94vw);padding:0;border:1px solid var(--border);
-  border-radius:20px;background:var(--header-bg);
-  backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
-  color:var(--text);box-shadow:var(--shadow-lg);
-  animation:modalIn 0.35s cubic-bezier(0.34,1.3,0.64,1);
-}
-@keyframes modalIn{from{opacity:0;transform:scale(0.9) translateY(40px)}to{opacity:1;transform:scale(1) translateY(0)}}
+dialog{width:min(720px,94vw);padding:0;border:1px solid var(--border);border-radius:20px;background:var(--header-bg);color:var(--text);box-shadow:var(--shadow-lg);max-height:95vh}
 dialog::backdrop{background:rgba(0,0,0,0.75);backdrop-filter:blur(8px)}
-.modal-body{padding:26px 28px;max-height:88vh;overflow-y:auto}
-.modal-title{
-  font-size:20px;font-weight:700;margin-bottom:16px;
-  background:linear-gradient(120deg,var(--text) 30%,var(--primary-2) 60%,var(--purple));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-}
+.modal-body{padding:26px 28px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:20px;font-weight:700;margin-bottom:16px}
 .modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
 
-/* Peças aguardadas */
-.wait-box{
-  background:rgba(245,166,35,0.08);
-  border:2px solid var(--orange);
-  border-radius:var(--radius-sm);
-  padding:14px;margin-top:12px;
-}
-.wait-box h3{color:var(--orange);font-size:14px;margin-bottom:8px}
+.wait-box{background:rgba(245,166,35,0.08);border:2px solid var(--orange);border-radius:var(--radius-sm);padding:14px;margin-top:12px}
+.wait-box h3{color:var(--orange);font-size:14px;margin-bottom:8px;text-transform:none;letter-spacing:0}
 
-/* Linhas dinâmicas */
-.dyn-row{
-  display:grid;grid-template-columns:2fr 1fr 1fr auto;
-  gap:6px;margin-bottom:6px;align-items:center;
-}
+.dyn-row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center}
 .dyn-row input{margin:0;padding:8px 10px;font-size:13px}
-.dyn-row button{
-  background:rgba(255,107,130,0.15);color:var(--red);
-  border:none;border-radius:8px;padding:8px 12px;
-  display:grid;place-items:center;font-size:14px;
-}
-.dyn-row button:hover{background:var(--red);color:#fff}
+.dyn-row button{background:rgba(255,107,130,0.15);color:var(--red);border:none;border-radius:8px;padding:8px 12px}
 
-/* Midia */
-.midia-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
-  gap:8px;margin-top:10px;
-}
-.midia-item{
-  position:relative;border-radius:8px;overflow:hidden;
-  border:1px solid var(--border);
-}
+.midia-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:10px}
+.midia-item{position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border);cursor:zoom-in}
 .midia-item img{width:100%;height:90px;object-fit:cover;display:block}
-.midia-item button{
-  position:absolute;top:2px;right:2px;
-  background:rgba(200,30,30,0.9);color:#fff;
-  border:none;border-radius:50%;
-  width:24px;height:24px;font-size:12px;
-  padding:0;justify-content:center;
-}
+.foto-actions{position:absolute;top:2px;right:2px;display:flex;gap:2px}
+.foto-actions button{background:rgba(200,30,30,0.9);color:#fff;border:none;border-radius:50%;width:24px;height:24px;font-size:12px;padding:0;display:grid;place-items:center;cursor:pointer}
+.foto-actions button.zoom{background:rgba(30,184,201,0.9)}
 
-/* Assinatura */
-.sig-canvas{
-  border:2px dashed var(--border);border-radius:10px;
-  touch-action:none;width:100%;max-width:420px;
-  background:rgba(0,0,0,0.15);display:block;margin-bottom:8px;
-}
+.sig-canvas{border:2px dashed var(--border);border-radius:10px;touch-action:none;width:100%;max-width:420px;background:rgba(0,0,0,0.15);display:block;margin-bottom:8px}
 body.light .sig-canvas{background:rgba(255,255,255,0.6)}
-.sig-canvas.drawing{border-color:var(--primary);border-style:solid;box-shadow:0 0 0 3px rgba(30,184,201,0.15)}
+.sig-canvas.drawing{border-color:var(--primary);border-style:solid}
 
-/* Quadros de setor */
-.setor-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);padding:18px;cursor:pointer;
-  transition:var(--t-fast);
-}
-.setor-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.setor-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer}
+.setor-card:hover{border-color:var(--primary);transform:translateY(-2px)}
 .setor-card h3{font-size:14px;color:var(--text);font-weight:700;text-transform:none;letter-spacing:0;margin-bottom:6px}
-.setor-total{
-  font-size:30px;font-weight:800;margin:4px 0;
-  background:linear-gradient(120deg,var(--text) 30%,var(--primary-2) 60%,var(--yellow));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-}
+.setor-total{font-size:30px;font-weight:800;margin:4px 0}
 
-/* Footer */
-footer{
-  text-align:center;padding:30px 20px;
-  font-size:12px;color:var(--text-3);
-  border-top:1px solid var(--border);margin-top:40px;
-}
+footer{text-align:center;padding:30px 20px;font-size:12px;color:var(--text-3);border-top:1px solid var(--border);margin-top:40px}
 
-/* Toast */
-.toast{
-  position:fixed;bottom:30px;left:50%;
-  transform:translateX(-50%) translateY(120%);
-  background:#222;color:#fff;
-  padding:12px 22px;border-radius:14px;
-  font-size:14px;z-index:99999;
-  transition:transform 0.35s cubic-bezier(0.34,1.3,0.64,1);
-  max-width:90vw;text-align:center;
-  box-shadow:0 10px 40px rgba(0,0,0,0.5);
-  pointer-events:none;
-}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(120%);background:#222;color:#fff;padding:12px 22px;border-radius:14px;font-size:14px;z-index:99999;transition:transform 0.35s;max-width:90vw;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.5);pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.ok{background:linear-gradient(135deg,#1a8a5a,#2ddb7a)}
 .toast.error{background:linear-gradient(135deg,#a82f4a,#ff6b82)}
 .toast.warning{background:linear-gradient(135deg,#c47d00,#f5a623)}
 .toast.info{background:linear-gradient(135deg,var(--primary),var(--purple))}
 
-/* Loading */
-.loading{
-  position:fixed;inset:0;background:rgba(0,0,0,0.85);
-  backdrop-filter:blur(6px);display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:16px;
-  z-index:99999;color:#fff;
-}
-.spinner{
-  width:50px;height:50px;border:4px solid rgba(255,255,255,0.15);
-  border-top-color:var(--primary);border-radius:50%;
-  animation:spin 0.8s linear infinite;
-}
+.loading{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:99999;color:#fff}
+.spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,0.15);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* QR reader */
 #qr-reader{width:100%;max-width:400px;margin:auto;border-radius:12px;overflow:hidden}
 #qrcode-box{margin-top:12px;text-align:center;display:flex;justify-content:center}
+#foto-zoom{max-width:100%;max-height:80vh;border-radius:12px;margin:0 auto}
+.progress-bar{width:220px;height:6px;background:rgba(255,255,255,0.1);border-radius:10px;overflow:hidden}
+.progress-bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--primary),var(--purple));transition:width 0.25s}
 
-/* Instalar app */
-.install-btn{
-  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-  z-index:9998;background:linear-gradient(135deg,var(--primary),var(--purple));
-  color:#fff;padding:12px 26px;border-radius:30px;
-  font-weight:700;font-size:14px;border:none;
-  box-shadow:0 8px 30px rgba(30,184,201,0.45);
-}
+.cmdk{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:99999;display:none;align-items:flex-start;justify-content:center;padding:80px 20px}
+.cmdk.show{display:flex}
+.cmdk-inner{width:100%;max-width:600px;background:var(--header-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg)}
+.cmdk-input{width:100%;padding:18px 22px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-size:16px;outline:none}
+.cmdk-results{max-height:400px;overflow-y:auto}
+.cmdk-item{padding:12px 22px;cursor:pointer;display:flex;align-items:center;gap:12px;font-size:14px;border-bottom:1px solid var(--border)}
+.cmdk-item:last-child{border-bottom:none}
+.cmdk-item:hover,.cmdk-item.active{background:var(--surface-2)}
+.cmdk-item .type{font-size:10px;color:var(--text-3);margin-left:auto;text-transform:uppercase;font-weight:600}
+.cmdk-empty{padding:30px;text-align:center;color:var(--text-3);font-size:13px}
 
-/* iOS banner */
-.ios-banner{
-  position:fixed;bottom:0;left:0;right:0;
-  background:linear-gradient(135deg,var(--primary),var(--purple));
-  color:#fff;padding:14px 20px;z-index:9999;
-  display:flex;justify-content:space-between;align-items:center;gap:12px;
-  font-size:13px;box-shadow:0 -4px 20px rgba(0,0,0,0.4);
-}
-.ios-banner button{
-  background:rgba(255,255,255,0.2);color:#fff;
-  padding:6px 14px;font-size:12px;border-radius:20px;
-}
-
-/* Util */
 .hidden{display:none !important}
 .muted{color:var(--text-3)}
 .small{font-size:12px}
-.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}
+.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}
 .mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}
 .row{display:flex;gap:8px;flex-wrap:wrap}
-.row-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 
-/* Mobile */
 @media (max-width:700px){
   .header-top{padding:10px 14px}
   .modules{padding:0 14px}
   .mod-btn{padding:10px 14px;font-size:12px}
   nav{padding:8px 14px}
-  main{padding:14px}
+  main{padding:14px;padding-bottom:80px}
   .item-card{grid-template-columns:1fr;gap:10px;text-align:center}
   .item-thumb,.item-thumb-ph{width:100%;height:150px;max-width:220px;margin:0 auto}
   .item-actions{justify-content:center}
   .brand-text h1{font-size:16px}
   .brand-logo{width:38px;height:38px;font-size:19px}
-  .stat-num{font-size:28px}
-  .kpi-value{font-size:20px}
   .dyn-row{grid-template-columns:1fr}
-  .dyn-row button{padding:10px}
-  .grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-  .modal-body{padding:20px}
 }
-
-/* Scrollbar */
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
-::-webkit-scrollbar-thumb:hover{background:var(--border-strong)}
 </style>
 </head>
 <body>
 
 <div class="app">
 
-<!-- ==================== HEADER ==================== -->
 <header>
   <div class="header-top">
     <div class="brand">
       <div class="brand-logo">🛠</div>
       <div class="brand-text">
         <h1>Manutenção Pro</h1>
-        <div class="brand-sub">PCM de Ferramentas + Ordens de Serviço</div>
+        <div class="brand-sub">PCM + Ordens de Serviço · v5</div>
       </div>
     </div>
     <div class="header-actions">
@@ -631,12 +334,10 @@ footer{
       <span class="chip chip-online" id="chip-rede">🟢 Online</span>
     </div>
   </div>
-
   <div class="modules">
     <button class="mod-btn active" data-mod="pcm" onclick="App.setModulo('pcm')">🛠 PCM</button>
     <button class="mod-btn" data-mod="os" onclick="App.setModulo('os')">📋 Ordens</button>
   </div>
-
   <nav id="nav">
     <button class="nav-pcm active" data-view="painel">📊 Painel</button>
     <button class="nav-pcm" data-view="ferramentas">🔧 Ferramentas</button>
@@ -652,10 +353,8 @@ footer{
   </nav>
 </header>
 
-<!-- ==================== MAIN ==================== -->
 <main>
 
-<!-- ============ PCM: PAINEL ============ -->
 <section id="view-painel" class="view active" data-mod="pcm">
   <div id="pcm-stats" class="grid"></div>
   <div class="section-header">
@@ -665,7 +364,6 @@ footer{
   <div id="pcm-setores" class="grid"></div>
 </section>
 
-<!-- ============ PCM: FERRAMENTAS ============ -->
 <section id="view-ferramentas" class="view" data-mod="pcm">
   <div class="section-header">
     <h2 class="section-title">🔧 Ferramentas</h2>
@@ -676,11 +374,10 @@ footer{
       <button class="btn-primary btn-sm" onclick="PCM.abrirFerramenta()">＋ Nova</button>
     </div>
   </div>
-  <input class="search" id="busca-ferramentas" placeholder="🔎 Pesquisar por nome, código ou setor..." oninput="PCM.renderFerramentas()">
+  <input class="search" id="busca-ferramentas" placeholder="🔎 Pesquisar por nome, código ou setor..." data-search="ferramentas">
   <div id="lista-ferramentas" class="grid"></div>
 </section>
 
-<!-- ============ PCM: ATIVOS ============ -->
 <section id="view-ativos" class="view" data-mod="pcm">
   <div class="section-header">
     <h2 class="section-title">🏭 Ativos</h2>
@@ -690,11 +387,10 @@ footer{
       <button class="btn-primary btn-sm" onclick="PCM.abrirAtivo()">＋ Novo</button>
     </div>
   </div>
-  <input class="search" id="busca-ativos" placeholder="🔎 Pesquisar ativo..." oninput="PCM.renderAtivos()">
+  <input class="search" id="busca-ativos" placeholder="🔎 Pesquisar ativo..." data-search="ativos">
   <div id="lista-ativos" class="grid"></div>
 </section>
 
-<!-- ============ PCM: MANUTENÇÃO ============ -->
 <section id="view-manutencao" class="view" data-mod="pcm">
   <div class="section-header">
     <h2 class="section-title">🧰 Manutenção Interna</h2>
@@ -703,7 +399,6 @@ footer{
   <div id="lista-manutencoes" class="grid"></div>
 </section>
 
-<!-- ============ PCM: ASSISTÊNCIA ============ -->
 <section id="view-assistencia" class="view" data-mod="pcm">
   <div class="section-header">
     <h2 class="section-title">☠️ Assistência Técnica</h2>
@@ -712,11 +407,10 @@ footer{
       <button class="btn-primary btn-sm" onclick="PCM.abrirAssistencia('externa')">＋ Nova</button>
     </div>
   </div>
-  <input class="search" id="busca-assistencia" placeholder="🔎 Pesquisar..." oninput="PCM.renderAssistencias('externa')">
+  <input class="search" id="busca-assistencia" placeholder="🔎 Pesquisar..." data-search="assistencia">
   <div id="lista-assistencias" class="grid"></div>
 </section>
 
-<!-- ============ PCM: SETORES ============ -->
 <section id="view-setores" class="view" data-mod="pcm">
   <div class="section-header">
     <h2 class="section-title">📍 Setores</h2>
@@ -725,37 +419,32 @@ footer{
   <div id="lista-setores" class="grid"></div>
 </section>
 
-<!-- ============ PCM: HISTÓRICO ============ -->
 <section id="view-historico" class="view" data-mod="pcm">
   <div class="section-header">
     <h2 class="section-title">📜 Histórico</h2>
     <button class="btn-danger btn-sm" onclick="PCM.limparHistorico()">🗑️ Limpar</button>
   </div>
+  <input class="search" id="busca-historico" placeholder="🔎 Filtrar por ação, item, usuário..." data-search="historico">
   <div id="lista-historico" class="card"></div>
 </section>
 
-<!-- ============ PCM: BACKUP ============ -->
 <section id="view-backup" class="view" data-mod="pcm">
   <h2 class="section-title mb-12">💾 Backup e Restauração</h2>
-
   <div class="card mb-12">
     <h3>📤 Exportar</h3>
-    <p class="muted small mb-8">Salva todos os dados em um arquivo JSON (equipamentos, ordens, assistências, setores, histórico).</p>
+    <p class="muted small mb-8">Salva todos os dados em um arquivo JSON.</p>
     <button class="btn-success" onclick="Backup.exportar()">Exportar Backup</button>
   </div>
-
   <div class="card mb-12">
     <h3>📥 Restaurar</h3>
     <p class="muted small mb-8">⚠️ Substitui TODOS os dados atuais pelo conteúdo do arquivo.</p>
     <input type="file" id="input-backup" accept=".json" hidden onchange="Backup.importar(this.files[0])">
     <button class="btn-primary" onclick="document.getElementById('input-backup').click()">Importar Backup</button>
   </div>
-
   <div class="card mb-12" style="border-left:3px solid var(--primary)">
     <h3>📊 Estatísticas</h3>
     <div id="backup-stats" class="mt-12"></div>
   </div>
-
   <div class="card" style="border-left:3px solid var(--red)">
     <h3>⚠️ Zona de Perigo</h3>
     <p class="muted small mb-8">Apaga absolutamente tudo. Sem volta.</p>
@@ -763,7 +452,6 @@ footer{
   </div>
 </section>
 
-<!-- ============ OS: HOME ============ -->
 <section id="view-os-home" class="view" data-mod="os">
   <div id="os-resumo" class="resumo-grid"></div>
   <button class="btn-primary btn-block mb-12" onclick="OS.nova()">
@@ -776,7 +464,6 @@ footer{
   <div id="os-home-lista" class="os-list"></div>
 </section>
 
-<!-- ============ OS: LISTA ============ -->
 <section id="view-os-lista" class="view" data-mod="os">
   <div class="section-header">
     <h2 class="section-title">📋 OS Salvas</h2>
@@ -786,21 +473,18 @@ footer{
       <button class="btn-primary btn-sm" onclick="OS.nova()">＋ Nova</button>
     </div>
   </div>
-  <input class="search" id="busca-os" placeholder="🔍 Buscar por nº, equipamento, TAG..." oninput="OS.renderLista()">
+  <input class="search" id="busca-os" placeholder="🔍 Buscar por nº, equipamento, TAG..." data-search="os">
   <p class="muted small mb-12" id="os-contador"></p>
   <div id="os-lista" class="os-list"></div>
 </section>
 
-<!-- ============ OS: DASHBOARD ============ -->
 <section id="view-os-dash" class="view" data-mod="os">
   <h2 class="section-title mb-12">📊 Indicadores de Produção</h2>
   <div id="os-kpi" class="kpi-grid"></div>
-
   <h2 class="section-title mt-16 mb-12">📈 Análise</h2>
   <div class="chart-card"><h3>OS por Status</h3><canvas id="graf-status"></canvas></div>
   <div class="chart-card"><h3>Tipos de Serviço</h3><canvas id="graf-tipos"></canvas></div>
   <div class="chart-card"><h3>OS por Dia (últimos 30 dias)</h3><canvas id="graf-dia"></canvas></div>
-
   <h2 class="section-title mt-16 mb-12">🏆 Rankings</h2>
   <div class="rank-card"><h3>🔧 Top 5 Equipamentos</h3><div id="rank-equip"></div></div>
   <div class="rank-card"><h3>👷 Técnicos (por OS)</h3><div id="rank-tec"></div></div>
@@ -808,10 +492,8 @@ footer{
   <div class="rank-card"><h3>🔩 Top 5 Peças</h3><div id="rank-pecas"></div></div>
 </section>
 
-<!-- ============ OS: FORMULÁRIO ============ -->
 <section id="view-os-form" class="view" data-mod="os">
   <button class="btn-ghost btn-sm mb-12" onclick="App.showView('os-home')">← Voltar</button>
-
   <div class="card mb-12">
     <h3>📋 Identificação</h3>
     <label>Nº da OS *</label><input id="f-numero">
@@ -819,16 +501,12 @@ footer{
     <label>Solicitante</label><input id="f-solicitante">
     <label>Setor</label><input id="f-setor">
   </div>
-
   <div class="card mb-12">
     <h3>📌 Status</h3>
     <label>Status</label>
-    <select id="f-status" onchange="OS.toggleWaitBox()">
-      <option>Aberta</option>
-      <option>Execução</option>
-      <option>Aguardando Peças</option>
-      <option>Concluída</option>
-      <option>Encerrada</option>
+    <select id="f-status">
+      <option>Aberta</option><option>Execução</option><option>Aguardando Peças</option>
+      <option>Concluída</option><option>Encerrada</option>
     </select>
     <div id="wait-box" class="wait-box hidden">
       <h3>🟠 Peças Aguardadas</h3>
@@ -837,7 +515,6 @@ footer{
       <label>Data prevista</label><input type="date" id="f-data-prevista">
     </div>
   </div>
-
   <div class="card mb-12">
     <h3>🔧 Equipamento</h3>
     <label>TAG (digite ou selecione)</label>
@@ -849,52 +526,45 @@ footer{
     <label>Tipo de Serviço *</label>
     <select id="f-tipo">
       <option value="">Selecione...</option>
-      <option>Corretiva</option>
-      <option>Preventiva</option>
-      <option>Melhoria</option>
-      <option>Predial</option>
+      <option>Corretiva</option><option>Preventiva</option>
+      <option>Melhoria</option><option>Predial</option>
     </select>
     <label>Causa</label><input id="f-causa">
     <button class="btn-ghost btn-sm mt-12" onclick="OS.gerarQR()">🔳 Gerar QR Code</button>
     <div id="qrcode-box"></div>
   </div>
-
   <div class="card mb-12">
     <h3>📝 Descrições</h3>
     <label>Serviço a ser realizado</label><textarea id="f-descricao" rows="3"></textarea>
     <label>Serviço realizado</label><textarea id="f-realizado" rows="3"></textarea>
   </div>
-
   <div class="card mb-12">
     <h3>⏱️ Datas e Horas</h3>
-    <label>Início da Ocorrência</label><input type="datetime-local" id="f-ini-ocor" onchange="OS.calcularTempos()">
-    <label>Início do Conserto</label><input type="datetime-local" id="f-ini-cons" onchange="OS.calcularTempos()">
-    <label>Fim do Conserto</label><input type="datetime-local" id="f-fim-cons" onchange="OS.calcularTempos()">
-    <label>Fim da Ocorrência</label><input type="datetime-local" id="f-fim-ocor" onchange="OS.calcularTempos()">
+    <label>Início da Ocorrência</label><input type="datetime-local" id="f-ini-ocor" data-calc="1">
+    <label>Início do Conserto</label><input type="datetime-local" id="f-ini-cons" data-calc="1">
+    <label>Fim do Conserto</label><input type="datetime-local" id="f-fim-cons" data-calc="1">
+    <label>Fim da Ocorrência</label><input type="datetime-local" id="f-fim-ocor" data-calc="1">
     <div id="info-tempo" style="background:rgba(30,184,201,0.08);border:1px solid var(--primary);border-radius:10px;padding:10px;margin-top:10px;font-size:13px">
       ⏱️ Preencha as datas para calcular.
     </div>
   </div>
-
   <div class="card mb-12">
     <h3>👷 Mão de Obra</h3>
     <div id="mao-obra-list"></div>
     <button class="btn-ghost btn-sm mt-8" onclick="OS.addMaoObra()">＋ Adicionar</button>
   </div>
-
   <div class="card mb-12">
     <h3>🔩 Peças Utilizadas</h3>
     <div id="pecas-list"></div>
     <button class="btn-ghost btn-sm mt-8" onclick="OS.addPeca()">＋ Adicionar</button>
   </div>
-
   <div class="card mb-12">
     <h3>📷 Fotos</h3>
     <input type="file" id="f-midia" accept="image/*" capture="environment" multiple hidden onchange="OS.addMidias(event)">
     <button class="btn-ghost btn-sm" onclick="document.getElementById('f-midia').click()">📸 Adicionar Fotos</button>
+    <p class="muted small mt-8">Máximo 20 fotos. Compressão automática.</p>
     <div id="midia-preview" class="midia-grid"></div>
   </div>
-
   <div class="card mb-12">
     <h3>✍️ Assinaturas</h3>
     <label>Executante</label>
@@ -904,7 +574,6 @@ footer{
     <canvas id="sig-resp" class="sig-canvas" width="420" height="130"></canvas>
     <button class="btn-ghost btn-sm" onclick="OS.limparSig('sig-resp')">Limpar</button>
   </div>
-
   <div class="row mt-16">
     <button class="btn-primary" style="flex:1;min-width:140px;padding:14px" onclick="OS.salvar()">💾 Salvar OS</button>
     <button class="btn-success" style="flex:1;min-width:140px;padding:14px" onclick="OS.pdfAtual()">📄 Gerar PDF</button>
@@ -913,11 +582,9 @@ footer{
 </section>
 
 </main>
-
-<footer>✦ Manutenção Pro — Sistema Unificado ✦</footer>
+<footer>✦ Manutenção Pro v5 ✦</footer>
 </div>
 
-<!-- ==================== MODAIS ==================== -->
 <dialog id="dlg-ferramenta">
   <div class="modal-body">
     <h2 class="modal-title" id="title-ferramenta">Cadastrar ferramenta</h2>
@@ -944,6 +611,13 @@ footer{
       <option value="assistencia">Assistência</option>
     </select>
     <label>Observações</label><textarea id="ferr-obs" rows="3"></textarea>
+    <label>Fotos</label>
+    <input type="file" id="ferr-foto" accept="image/*" capture="environment" multiple hidden
+           onchange="PCM.addFotosForm('ferr', event)">
+    <button class="btn-ghost btn-sm" onclick="document.getElementById('ferr-foto').click()">
+      📸 Adicionar Fotos
+    </button>
+    <div id="ferr-foto-preview" class="midia-grid"></div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="UI.fechar('dlg-ferramenta')">Cancelar</button>
       <button class="btn-primary" onclick="PCM.salvarFerramenta()">💾 Salvar</button>
@@ -959,10 +633,8 @@ footer{
     <label>TAG (deixe vazio para gerar)</label><input id="ativ-codigo">
     <label>Tipo</label>
     <select id="ativ-tipo">
-      <option>Máquina</option>
-      <option>Equipamento</option>
-      <option>Veículo</option>
-      <option>Instalação</option>
+      <option>Máquina</option><option>Equipamento</option>
+      <option>Veículo</option><option>Instalação</option>
     </select>
     <label>Fabricante</label><input id="ativ-fabricante">
     <label>Setor</label><select id="ativ-setor"></select>
@@ -974,6 +646,13 @@ footer{
       <option value="assistencia">Assistência</option>
     </select>
     <label>Observações</label><textarea id="ativ-obs" rows="3"></textarea>
+    <label>Fotos</label>
+    <input type="file" id="ativ-foto" accept="image/*" capture="environment" multiple hidden
+           onchange="PCM.addFotosForm('ativ', event)">
+    <button class="btn-ghost btn-sm" onclick="document.getElementById('ativ-foto').click()">
+      📸 Adicionar Fotos
+    </button>
+    <div id="ativ-foto-preview" class="midia-grid"></div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="UI.fechar('dlg-ativo')">Cancelar</button>
       <button class="btn-primary" onclick="PCM.salvarAtivo()">💾 Salvar</button>
@@ -993,28 +672,29 @@ footer{
     <label>Setor</label><select id="assist-setor"></select>
     <label>Tipo de Serviço</label>
     <select id="assist-tipo-servico">
-      <option>Reparo mecânico</option>
-      <option>Reparo elétrico</option>
-      <option>Retífica</option>
-      <option>Calibração</option>
-      <option>Preventiva</option>
-      <option>Outro</option>
+      <option>Reparo mecânico</option><option>Reparo elétrico</option>
+      <option>Retífica</option><option>Calibração</option>
+      <option>Preventiva</option><option>Outro</option>
     </select>
     <label>Data de Saída</label><input type="date" id="assist-data-saida">
     <label>Data de Retorno</label><input type="date" id="assist-data-retorno">
     <label>Status</label>
     <select id="assist-status">
-      <option>Enviado</option>
-      <option>Em manutenção</option>
-      <option>Aguardando peça</option>
-      <option>Pronto para retorno</option>
-      <option>Retornado</option>
-      <option>Sem conserto</option>
+      <option>Enviado</option><option>Em manutenção</option>
+      <option>Aguardando peça</option><option>Pronto para retorno</option>
+      <option>Retornado</option><option>Sem conserto</option>
     </select>
     <label>Nº OS</label><input id="assist-os">
     <label>Valor (R$)</label><input id="assist-valor">
     <label>Descrição</label><textarea id="assist-desc" rows="2"></textarea>
     <label>Solução</label><textarea id="assist-solucao" rows="2"></textarea>
+    <label>Fotos</label>
+    <input type="file" id="assist-foto" accept="image/*" capture="environment" multiple hidden
+           onchange="PCM.addFotosForm('assist', event)">
+    <button class="btn-ghost btn-sm" onclick="document.getElementById('assist-foto').click()">
+      📸 Adicionar Fotos
+    </button>
+    <div id="assist-foto-preview" class="midia-grid"></div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="UI.fechar('dlg-assistencia')">Cancelar</button>
       <button class="btn-primary" onclick="PCM.salvarAssistencia()">💾 Salvar</button>
@@ -1051,7 +731,7 @@ footer{
 <dialog id="dlg-scanner">
   <div class="modal-body" style="max-width:500px">
     <h2 class="modal-title">📷 Escanear código</h2>
-    <p class="muted small mb-12">Aponte a câmera para o QR Code da ferramenta/ativo.</p>
+    <p class="muted small mb-12">Aponte a câmera para o QR Code.</p>
     <div id="qr-reader"></div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="Scanner.fechar()">Fechar</button>
@@ -1059,10 +739,37 @@ footer{
   </div>
 </dialog>
 
-<!-- Toast -->
+<dialog id="dlg-diff">
+  <div class="modal-body" style="max-width:600px">
+    <h2 class="modal-title">📝 Alterações detectadas</h2>
+    <p class="muted small mb-12">A OS foi modificada por outro usuário. Escolha o que fazer:</p>
+    <div id="diff-content"></div>
+    <div class="modal-actions">
+      <button class="btn-danger" onclick="UI.fechar('dlg-diff')">Cancelar</button>
+      <button class="btn-warning" onclick="OS.sobrescrever()">Sobrescrever</button>
+      <button class="btn-primary" onclick="OS.recarregar()">Recarregar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dlg-foto">
+  <div class="modal-body" style="text-align:center;max-width:900px">
+    <img id="foto-zoom" alt="">
+    <div class="modal-actions" style="justify-content:center">
+      <button class="btn-ghost" onclick="UI.fechar('dlg-foto')">Fechar</button>
+    </div>
+  </div>
+</dialog>
+
+<div id="cmdk" class="cmdk" onclick="if(event.target.id==='cmdk')CmdK.fechar()">
+  <div class="cmdk-inner">
+    <input class="cmdk-input" id="cmdk-input" placeholder="🔎 Busca global (Ctrl+K)..." autocomplete="off">
+    <div class="cmdk-results" id="cmdk-results"></div>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
-<!-- ==================== JS ==================== -->
 <script>
 /* ============================================================
    UTILS
@@ -1071,98 +778,220 @@ const $ = id => document.getElementById(id);
 const $$ = sel => document.querySelectorAll(sel);
 
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
+const escAttr = s => String(s ?? "").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 const hoje = () => new Date().toISOString().slice(0,10);
-
-const agoraLocal = () => {
-  const d = new Date();
-  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  return d.toISOString().slice(0,16);
-};
-
 const fmtData = v => {
   if(!v) return "—";
   const d = v.length <= 10 ? new Date(v + "T00:00:00") : new Date(v);
   return isNaN(d) ? v : d.toLocaleDateString("pt-BR");
 };
-
 const fmtDataHora = v => {
   if(!v) return "—";
   const d = new Date(v);
   return isNaN(d) ? v : d.toLocaleString("pt-BR");
 };
-
 const diffHoras = (a,b) => {
   if(!a || !b) return null;
   const d = (new Date(b) - new Date(a)) / 36e5;
   return isNaN(d) ? null : d;
 };
-
 const fmtDur = h => {
   if(h == null || isNaN(h)) return "—";
   const H = Math.floor(h);
   const M = Math.round((h - H) * 60);
   return `${H}h ${String(M).padStart(2,"0")}min`;
 };
-
-const lerArquivo = f => new Promise((res, rej) => {
-  const r = new FileReader();
-  r.onload = function(){ res(this.result); };
-  r.onerror = rej;
-  r.readAsDataURL(f);
-});
-
-const comprimir = (dataUrl, maxW = 1200, q = 0.75) => new Promise(res => {
-  const img = new Image();
-  img.onload = () => {
-    try {
-      const c = document.createElement("canvas");
-      let w = img.width, h = img.height;
-      if(w > maxW){ h = (maxW/w)*h; w = maxW; }
-      c.width = w; c.height = h;
-      c.getContext("2d").drawImage(img, 0, 0, w, h);
-      res(c.toDataURL("image/jpeg", q));
-    } catch(e){ res(dataUrl); }
+const debounce = (fn, ms = 250) => {
+  let t;
+  return function(...args){
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), ms);
   };
-  img.onerror = () => res(dataUrl);
-  img.src = dataUrl;
-});
+};
 
 /* ============================================================
-   UI (helpers)
+   IMAGEM — compressão adaptativa, EXIF, Blob, zoom
+============================================================ */
+const Imagem = (() => {
+  async function lerOrientacao(file){
+    return new Promise(resolve => {
+      try {
+        const reader = new FileReader();
+        reader.onload = function(e){
+          try {
+            const view = new DataView(e.target.result);
+            if(view.getUint16(0, false) !== 0xFFD8) return resolve(1);
+            const length = view.byteLength;
+            let offset = 2;
+            while(offset < length){
+              if(view.getUint16(offset + 2, false) <= 8) return resolve(1);
+              const marker = view.getUint16(offset, false);
+              offset += 2;
+              if(marker === 0xFFE1){
+                if(view.getUint32(offset += 2, false) !== 0x45786966) return resolve(1);
+                const little = view.getUint16(offset += 6, false) === 0x4949;
+                offset += view.getUint32(offset + 4, little);
+                const tags = view.getUint16(offset, little);
+                offset += 2;
+                for(let i = 0; i < tags; i++){
+                  if(view.getUint16(offset + (i * 12), little) === 0x0112){
+                    return resolve(view.getUint16(offset + (i * 12) + 8, little));
+                  }
+                }
+              } else if((marker & 0xFF00) !== 0xFF00) break;
+              else offset += view.getUint16(offset, false);
+            }
+            resolve(1);
+          } catch(e){ resolve(1); }
+        };
+        reader.onerror = () => resolve(1);
+        reader.readAsArrayBuffer(file.slice(0, 64 * 1024));
+      } catch(e){ resolve(1); }
+    });
+  }
+
+  async function comprimir(file, maxW = 1280, q = 0.75, maxBytes = 400_000){
+    const dataUrl = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+    const orient = await lerOrientacao(file);
+    let tentativa = 0, resultado = "";
+    while(tentativa < 4){
+      resultado = await desenhar(dataUrl, maxW, q, orient);
+      if(resultado.length <= maxBytes) break;
+      q = Math.max(0.35, q - 0.15);
+      maxW = Math.max(700, maxW - 200);
+      tentativa++;
+    }
+    return resultado;
+  }
+
+  function desenhar(dataUrl, maxW, q, orientacao){
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const c = document.createElement("canvas");
+          const ctx = c.getContext("2d");
+          let w = img.width, h = img.height;
+          if(w > maxW){ h = (maxW/w) * h; w = maxW; }
+          const rot = orientacao >= 5 && orientacao <= 8;
+          c.width = rot ? h : w;
+          c.height = rot ? w : h;
+          if(rot){
+            ctx.translate(c.width/2, c.height/2);
+            if(orientacao === 6) ctx.rotate(Math.PI/2);
+            else if(orientacao === 8) ctx.rotate(-Math.PI/2);
+            else if(orientacao === 3) ctx.rotate(Math.PI);
+            ctx.drawImage(img, -w/2, -h/2, w, h);
+          } else if(orientacao === 3){
+            ctx.translate(w/2, h/2); ctx.rotate(Math.PI);
+            ctx.drawImage(img, -w/2, -h/2, w, h);
+          } else {
+            ctx.drawImage(img, 0, 0, w, h);
+          }
+          resolve(c.toDataURL("image/jpeg", q));
+        } catch(e){ resolve(dataUrl); }
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
+    });
+  }
+
+  function toBlob(dataUrl){
+    try {
+      const [meta, b64] = dataUrl.split(",");
+      const mime = (meta.match(/:(.*?);/) || [,"image/jpeg"])[1];
+      const bin = atob(b64);
+      const arr = new Uint8Array(bin.length);
+      for(let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      return new Blob([arr], { type:mime });
+    } catch(e){ return null; }
+  }
+
+  function toDataURL(blobOrStr){
+    if(typeof blobOrStr === "string") return Promise.resolve(blobOrStr);
+    if(!(blobOrStr instanceof Blob)) return Promise.resolve("");
+    return new Promise(res => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => res("");
+      r.readAsDataURL(blobOrStr);
+    });
+  }
+
+  function toObjectURL(blob){
+    if(blob instanceof Blob) return URL.createObjectURL(blob);
+    return blob;
+  }
+
+  function abrirZoom(src){
+    const img = $("foto-zoom");
+    if(!img) return;
+    img.src = src;
+    $("dlg-foto").showModal();
+  }
+
+  return { comprimir, toBlob, toDataURL, toObjectURL, lerOrientacao, abrirZoom };
+})();
+
+/* ============================================================
+   UI
 ============================================================ */
 const UI = (() => {
+  const queue = [];
+  let showing = false;
   function toast(msg, tipo = "info", dur = 2800){
+    queue.push({ msg, tipo, dur });
+    if(!showing) next();
+  }
+  function next(){
+    const item = queue.shift();
+    if(!item){ showing = false; return; }
+    showing = true;
     const el = $("toast");
-    if(!el) return;
-    el.textContent = msg;
-    el.className = "toast show " + tipo;
+    el.textContent = item.msg;
+    el.className = "toast show " + item.tipo;
     clearTimeout(el._t);
-    el._t = setTimeout(() => { el.className = "toast " + tipo; }, dur);
+    el._t = setTimeout(() => {
+      el.className = "toast " + item.tipo;
+      setTimeout(() => { showing = false; next(); }, 320);
+    }, item.dur);
   }
   const abrir = id => $(id).showModal();
-  const fechar = id => $(id).close();
-  const loading = (show = true) => {
+  const fechar = id => { const d = $(id); if(d && d.open) d.close(); };
+  function loading(show = true){
     const ex = $("loading");
     if(show && !ex){
       const d = document.createElement("div");
-      d.id = "loading";
-      d.className = "loading";
-      d.innerHTML = '<div class="spinner"></div><div>Processando...</div>';
+      d.id = "loading"; d.className = "loading";
+      d.innerHTML = '<div class="spinner"></div><div>Processando...</div><div class="progress-bar"><div></div></div>';
       document.body.appendChild(d);
     } else if(!show && ex){ ex.remove(); }
-  };
-  return { toast, abrir, fechar, loading };
+  }
+  function setProgress(pct){
+    const bar = document.querySelector(".loading .progress-bar>div");
+    if(bar) bar.style.width = pct + "%";
+  }
+  return { toast, abrir, fechar, loading, setProgress };
 })();
 const toast = UI.toast;
 
+window.addEventListener("error", e => console.error("[Global]", e.error || e.message));
+window.addEventListener("unhandledrejection", e => {
+  console.error("[Promise]", e.reason);
+  toast("Erro: " + (e.reason?.message || e.reason), "error");
+});
+
 /* ============================================================
-   DB (IndexedDB)
+   DB
 ============================================================ */
 const DB = (() => {
-  const NAME = "manutencaoPro";
-  const VER = 2;
-
+  const NAME = "manutencaoProV5";
+  const VER = 1;
   const STORES = {
     equipamentos: { key:"id", auto:true, idx:["tag","setor","categoria","status"] },
     ordens:       { key:"id", auto:true, idx:["numero","status","tag"] },
@@ -1171,12 +1000,11 @@ const DB = (() => {
     historico:    { key:"id", auto:true },
     config:       { key:"chave" }
   };
-
-  let db = null;
+  let dbPromise = null;
 
   function open(){
-    return new Promise((res, rej) => {
-      if(db) return res(db);
+    if(dbPromise) return dbPromise;
+    dbPromise = new Promise((res, rej) => {
       const req = indexedDB.open(NAME, VER);
       req.onupgradeneeded = e => {
         const d = e.target.result;
@@ -1187,135 +1015,219 @@ const DB = (() => {
           }
         }
       };
-      req.onsuccess = e => { db = e.target.result; res(db); };
-      req.onerror = e => rej(e.target.error);
+      req.onsuccess = e => {
+        const db = e.target.result;
+        db.onclose = () => { dbPromise = null; };
+        db.onversionchange = () => { db.close(); dbPromise = null; };
+        res(db);
+      };
+      req.onerror = e => { dbPromise = null; rej(e.target.error); };
     });
+    return dbPromise;
   }
 
-  const store = (s, mode="readonly") => db.transaction(s, mode).objectStore(s);
+  async function store(name, mode = "readonly"){
+    const db = await open();
+    return db.transaction(name, mode).objectStore(name);
+  }
 
-  const put = (s, o) => new Promise((res, rej) => {
-    const r = store(s, "readwrite").put(o);
-    r.onsuccess = () => res(r.result);
-    r.onerror = () => rej(r.error);
-  });
-  const get = (s, k) => new Promise((res, rej) => {
-    const r = store(s).get(k);
-    r.onsuccess = () => res(r.result);
-    r.onerror = () => rej(r.error);
-  });
-  const all = s => new Promise((res, rej) => {
-    const r = store(s).getAll();
-    r.onsuccess = () => res(r.result || []);
-    r.onerror = () => rej(r.error);
-  });
-  const del = (s, k) => new Promise((res, rej) => {
-    const r = store(s, "readwrite").delete(k);
-    r.onsuccess = () => res();
-    r.onerror = () => rej(r.error);
-  });
-  const clear = s => new Promise((res, rej) => {
-    const r = store(s, "readwrite").clear();
-    r.onsuccess = () => res();
-    r.onerror = () => rej(r.error);
-  });
-
+  const put = async (s, o) => {
+    const st = await store(s, "readwrite");
+    return new Promise((res, rej) => {
+      const r = st.put(o);
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => {
+        const err = r.error;
+        if(err && (err.name === "QuotaExceededError" || err.code === 22)){
+          toast("⚠️ Armazenamento cheio! Remova fotos antigas.", "error", 6000);
+        }
+        rej(err);
+      };
+    });
+  };
+  const get = async (s, k) => {
+    const st = await store(s);
+    return new Promise((res, rej) => {
+      const r = st.get(k);
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+  };
+  const all = async s => {
+    const st = await store(s);
+    return new Promise((res, rej) => {
+      const r = st.getAll();
+      r.onsuccess = () => res(r.result || []);
+      r.onerror = () => rej(r.error);
+    });
+  };
+  const del = async (s, k) => {
+    const st = await store(s, "readwrite");
+    return new Promise((res, rej) => {
+      const r = st.delete(k);
+      r.onsuccess = () => res();
+      r.onerror = () => rej(r.error);
+    });
+  };
+  const clear = async s => {
+    const st = await store(s, "readwrite");
+    return new Promise((res, rej) => {
+      const r = st.clear();
+      r.onsuccess = () => res();
+      r.onerror = () => rej(r.error);
+    });
+  };
   const getCfg = async (k, def = null) => {
     const r = await get("config", k);
     return r ? r.valor : def;
   };
   const setCfg = (k, v) => put("config", { chave:k, valor:v });
 
-  // Migração da v1 (localStorage)
   async function migrar(){
-    if(await getCfg("migrado_v2", false)) return false;
-    const ler = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)); } catch(e){ return d; } };
-    const ferr = ler("controleFerramentas", []);
-    const ativ = ler("controleAtivos", []);
-    const seto = ler("controleSetores", []);
-    const manu = ler("controleManutencoes", []);
-    const fora = ler("controleForaDaEmpresa", []);
-    const hist = ler("controleHistorico", []);
+    if(!await getCfg("migrado_v4", false)){
+      const ler = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)); } catch(e){ return d; } };
+      const ferr = ler("controleFerramentas", []);
+      const ativ = ler("controleAtivos", []);
+      const seto = ler("controleSetores", []);
+      const manu = ler("controleManutencoes", []);
+      const fora = ler("controleForaDaEmpresa", []);
+      const hist = ler("controleHistorico", []);
 
-    // Sempre cria setores padrão se não existirem
-    const existentes = await all("setores");
-    if(!existentes.length && !seto.length){
-      const padrao = ["Acabamento 01","Acabamento 02","Laminação 01","Marcenaria","CNC","Manutenção","Almoxarifado"];
-      for(const n of padrao) await put("setores", { nome:n, observacoes:"" });
+      const existentes = await all("setores");
+      if(!existentes.length && !seto.length){
+        const padrao = ["Acabamento 01","Acabamento 02","Laminação 01","Marcenaria","CNC","Manutenção","Almoxarifado"];
+        for(const n of padrao) await put("setores", { nome:n, observacoes:"" });
+      }
+      for(const s of seto) await put("setores", { nome:s.nome, observacoes:s.observacoes || "" });
+      const mapa = {};
+      for(const f of ferr){
+        const id = await put("equipamentos", {
+          tag: f.codigo || "", nome: f.nome || "", categoria: "ferramenta",
+          subcategoria: f.categoria || "outras", setor: f.setor || "",
+          quantidade: f.quantidade || 1,
+          status: (f.status || "disponivel").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""),
+          observacoes: f.observacoes || "",
+          fotos: (f.fotos || []).map(url => ({ tipo:"foto", blob:Imagem.toBlob(url), data:null })).filter(x => x.blob),
+          dataCriacao: new Date().toISOString()
+        });
+        mapa["f_" + f.id] = id;
+      }
+      for(const a of ativ){
+        const id = await put("equipamentos", {
+          tag: a.codigo || "", nome: a.nome || "", categoria: "ativo",
+          tipo: a.tipo || "Máquina", setor: a.setor || "",
+          status: (a.status || "operando").toLowerCase(),
+          fabricante: a.fabricante || "", observacoes: a.observacoes || "",
+          fotos: (a.fotos || []).map(url => ({ tipo:"foto", blob:Imagem.toBlob(url), data:null })).filter(x => x.blob),
+          dataCriacao: new Date().toISOString()
+        });
+        mapa["a_" + a.id] = id;
+      }
+      for(const m of manu){
+        await put("assistencias", {
+          tipo: "interna", equipamentoId: mapa["f_" + m.id] || null,
+          nome: m.nome || "", tag: m.codigo || "", empresa: "Interna",
+          status: m.status || "Aberta", descricao: m.descricao || "",
+          solucao: m.solucao || "", dataSaida: m.dataEntrada || "",
+          dataRetorno: m.dataSaida || "", valor: m.custo || "",
+          fotos: []
+        });
+      }
+      for(const f of fora){
+        await put("assistencias", {
+          tipo: "externa", equipamentoId: mapa["f_" + f.id] || null,
+          nome: f.nome || "", tag: f.codigo || "",
+          empresa: f.empresa || "", setor: f.setor || "",
+          tipoServico: f.tipoServico || "",
+          dataSaida: f.dataSaida || "", dataRetorno: f.dataRetorno || "",
+          status: f.status || "Enviado", os: f.os || "", valor: f.valor || "",
+          descricao: f.descricao || "", solucao: f.solucao || "",
+          fotos: []
+        });
+      }
+      for(const h of hist){
+        await put("historico", {
+          itemId: h.itemId ? (mapa["f_" + h.itemId] || null) : null,
+          tipo: h.tipo || "sistema", nome: h.nome || "",
+          acao: h.acao || "", data: h.data || new Date().toISOString(),
+          usuario: h.usuario || "—"
+        });
+      }
+      await setCfg("migrado_v4", true);
     }
 
-    if(!ferr.length && !ativ.length && !fora.length){
-      await setCfg("migrado_v2", true);
-      return false;
+    if(!await getCfg("migrado_blob_v5", false)){
+      const equipamentos = await all("equipamentos");
+      for(const eq of equipamentos){
+        if(eq.fotos?.length && typeof eq.fotos[0] === "string"){
+          eq.fotos = eq.fotos.map(url => ({ tipo:"foto", blob:Imagem.toBlob(url), data:null })).filter(f => f.blob);
+          await put("equipamentos", eq);
+        }
+      }
+      const ordens = await all("ordens");
+      for(const o of ordens){
+        if(o.midias?.length && typeof o.midias[0] === "string"){
+          o.midias = o.midias.map(url => ({ tipo:"foto", blob:Imagem.toBlob(url), data:null })).filter(m => m.blob);
+          await put("ordens", o);
+        }
+      }
+      const assist = await all("assistencias");
+      for(const a of assist){
+        if(a.fotos?.length && typeof a.fotos[0] === "string"){
+          a.fotos = a.fotos.map(url => ({ tipo:"foto", blob:Imagem.toBlob(url), data:null })).filter(f => f.blob);
+          await put("assistencias", a);
+        }
+      }
+      await setCfg("migrado_blob_v5", true);
     }
-
-    // Migra
-    for(const s of seto) await put("setores", { nome:s.nome, observacoes:s.observacoes || "" });
-
-    const mapa = {};
-    for(const f of ferr){
-      const id = await put("equipamentos", {
-        tag: f.codigo || "", nome: f.nome || "",
-        categoria: "ferramenta", subcategoria: f.categoria || "outras",
-        setor: f.setor || "", quantidade: f.quantidade || 1,
-        status: (f.status || "disponivel").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""),
-        observacoes: f.observacoes || "", fotos: f.fotos || [],
-        dataCriacao: new Date().toISOString()
-      });
-      mapa["f_" + f.id] = id;
-    }
-    for(const a of ativ){
-      const id = await put("equipamentos", {
-        tag: a.codigo || "", nome: a.nome || "",
-        categoria: "ativo", tipo: a.tipo || "Máquina",
-        setor: a.setor || "", status: (a.status || "operando").toLowerCase(),
-        fabricante: a.fabricante || "", observacoes: a.observacoes || "",
-        fotos: a.fotos || [], dataCriacao: new Date().toISOString()
-      });
-      mapa["a_" + a.id] = id;
-    }
-    for(const m of manu){
-      await put("assistencias", {
-        tipo: "interna", equipamentoId: mapa["f_" + m.id] || null,
-        nome: m.nome || "", tag: m.codigo || "",
-        empresa: "Interna", status: m.status || "Aberta",
-        descricao: m.descricao || "", solucao: m.solucao || "",
-        dataSaida: m.dataEntrada || "", dataRetorno: m.dataSaida || "",
-        valor: m.custo || "", fotos: m.fotos || []
-      });
-    }
-    for(const f of fora){
-      await put("assistencias", {
-        tipo: "externa", equipamentoId: mapa["f_" + f.id] || null,
-        nome: f.nome || "", tag: f.codigo || "",
-        empresa: f.empresa || "", setor: f.setor || "",
-        tipoServico: f.tipoServico || "",
-        dataSaida: f.dataSaida || "", dataRetorno: f.dataRetorno || "",
-        status: f.status || "Enviado", os: f.os || "", valor: f.valor || "",
-        descricao: f.descricao || "", solucao: f.solucao || "",
-        fotos: f.fotos || []
-      });
-    }
-    for(const h of hist){
-      await put("historico", {
-        itemId: h.itemId ? (mapa["f_" + h.itemId] || null) : null,
-        tipo: h.tipo || "sistema", nome: h.nome || "",
-        acao: h.acao || "", data: h.data || new Date().toISOString(),
-        usuario: h.usuario || "—"
-      });
-    }
-    await setCfg("migrado_v2", true);
-    return true;
   }
 
-  return { open, put, get, all, del, clear, getCfg, setCfg, migrar };
+  return { open, put, get, all, del, clear, getCfg, setCfg, migrar, STORES };
 })();
 
 /* ============================================================
-   APP (estado global + navegação)
+   CACHE
+============================================================ */
+const Cache = (() => {
+  const data = { eq:null, os:null, ass:null, set:null, hist:null };
+  const invalidate = k => {
+    if(!k){ data.eq = data.os = data.ass = data.set = data.hist = null; }
+    else data[k] = null;
+  };
+  async function equip(){ if(!data.eq) data.eq = await DB.all("equipamentos"); return data.eq; }
+  async function ordens(){ if(!data.os) data.os = await DB.all("ordens"); return data.os; }
+  async function assist(){ if(!data.ass) data.ass = await DB.all("assistencias"); return data.ass; }
+  async function setores(){ if(!data.set) data.set = await DB.all("setores"); return data.set; }
+  async function historico(){ if(!data.hist) data.hist = await DB.all("historico"); return data.hist; }
+  async function reload(){
+    data.eq = await DB.all("equipamentos");
+    data.os = await DB.all("ordens");
+    data.ass = await DB.all("assistencias");
+    data.set = await DB.all("setores");
+    data.hist = await DB.all("historico");
+  }
+  return { equip, ordens, assist, setores, historico, invalidate, reload };
+})();
+
+/* ============================================================
+   APP
 ============================================================ */
 const App = (() => {
   const state = { mod:"pcm", view:"painel", usuario:"" };
+
+  const RENDER = {
+    painel:() => PCM.renderPainel(),
+    ferramentas:() => PCM.renderFerramentas(),
+    ativos:() => PCM.renderAtivos(),
+    manutencao:() => PCM.renderAssistencias("interna"),
+    assistencia:() => PCM.renderAssistencias("externa"),
+    setores:() => PCM.renderSetores(),
+    historico:() => PCM.renderHistorico(),
+    backup:() => Backup.renderStats(),
+    "os-home":() => OS.renderHome(),
+    "os-lista":() => OS.renderLista(),
+    "os-dash":() => OS.renderDash()
+  };
 
   function showView(view){
     $$(".view").forEach(v => v.classList.remove("active"));
@@ -1323,21 +1235,7 @@ const App = (() => {
     if(el) el.classList.add("active");
     state.view = view;
     $$("#nav button").forEach(b => b.classList.toggle("active", b.dataset.view === view));
-    // Render
-    const map = {
-      painel:() => PCM.renderPainel(),
-      ferramentas:() => PCM.renderFerramentas(),
-      ativos:() => PCM.renderAtivos(),
-      manutencao:() => PCM.renderAssistencias("interna"),
-      assistencia:() => PCM.renderAssistencias("externa"),
-      setores:() => PCM.renderSetores(),
-      historico:() => PCM.renderHistorico(),
-      backup:() => Backup.renderStats(),
-      "os-home":() => OS.renderHome(),
-      "os-lista":() => OS.renderLista(),
-      "os-dash":() => OS.renderDash()
-    };
-    if(map[view]) try { map[view](); } catch(e){ console.warn(e); }
+    if(RENDER[view]) try { RENDER[view](); } catch(e){ console.warn(e); }
     window.scrollTo({ top:0, behavior:"smooth" });
   }
 
@@ -1358,14 +1256,11 @@ const App = (() => {
     const isLight = document.body.classList.contains("light");
     localStorage.setItem("tema", isLight ? "light" : "dark");
     $("btn-tema").textContent = isLight ? "🌙" : "☀️";
-    // Redesenha assinaturas se existirem
     ["sig-exec","sig-resp"].forEach(id => {
       const c = $(id);
-      if(c && c._ativado){
-        c._ativado = false;
-        OS.ativarSig(id);
-      }
+      if(c && c._ativado){ c._ativado = false; OS.ativarSig(id); }
     });
+    if(state.view === "os-dash") OS.renderDash();
   }
 
   function promptUsuario(){
@@ -1392,26 +1287,20 @@ const App = (() => {
       data: new Date().toISOString(),
       usuario: state.usuario || "—"
     });
+    Cache.invalidate("hist");
   }
 
   async function init(){
-    // Tema
     if(localStorage.getItem("tema") === "light"){
       document.body.classList.add("light");
       $("btn-tema").textContent = "🌙";
     }
-
-    // Usuário
     state.usuario = await DB.getCfg("usuario", "");
     if(state.usuario) $("chip-user").textContent = "👤 " + state.usuario;
     else setTimeout(promptUsuario, 700);
 
-    // Nav
-    $$("#nav button").forEach(b => {
-      b.onclick = () => showView(b.dataset.view);
-    });
+    $$("#nav button").forEach(b => b.onclick = () => showView(b.dataset.view));
 
-    // Rede
     const updateNet = () => {
       const on = navigator.onLine;
       const el = $("chip-rede");
@@ -1422,6 +1311,26 @@ const App = (() => {
     window.addEventListener("offline", updateNet);
     updateNet();
 
+    const searchMap = {
+      ferramentas:() => PCM.renderFerramentas(),
+      ativos:() => PCM.renderAtivos(),
+      assistencia:() => PCM.renderAssistencias("externa"),
+      historico:() => PCM.renderHistorico(),
+      os:() => OS.renderLista()
+    };
+    document.querySelectorAll("[data-search]").forEach(el => {
+      const handler = searchMap[el.dataset.search];
+      if(handler) el.addEventListener("input", debounce(handler, 220));
+    });
+    document.querySelectorAll("[data-calc]").forEach(el => el.addEventListener("change", () => OS.calcularTempos()));
+    $("f-status")?.addEventListener("change", () => OS.toggleWaitBox());
+
+    document.addEventListener("keydown", e => {
+      if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){ e.preventDefault(); CmdK.abrir(); }
+      if(e.key === "Escape") CmdK.fechar();
+    });
+
+    await Cache.reload();
     setModulo("pcm");
     await PCM.carregarSetoresSelect();
   }
@@ -1430,30 +1339,18 @@ const App = (() => {
 })();
 
 /* ============================================================
-   PCM (ferramentas, ativos, assistências, setores)
+   PCM
 ============================================================ */
 const PCM = (() => {
   const CATS = {
     roquite:"⚙️ Roquete", lixadeira:"🔨 Lixadeira", parafusadeira:"🔩 Parafusadeira",
     politriz:"✨ Politriz", retifica:"🛠️ Retífica", pistola:"🎨 Pistola de Pintura", outras:"📦 Outras"
   };
-
-  let cache = { eq:[], ass:[], set:[] };
-
-  async function carregar(){
-    cache.eq = await DB.all("equipamentos");
-    cache.ass = await DB.all("assistencias");
-    cache.set = await DB.all("setores");
-    if(!cache.set.length){
-      const pad = ["Acabamento 01","Acabamento 02","Laminação 01","Marcenaria","CNC","Manutenção"];
-      for(const n of pad) await DB.put("setores", { nome:n, observacoes:"" });
-      cache.set = await DB.all("setores");
-    }
-  }
+  const formFotos = { ferr:[], ativ:[], assist:[] };
 
   async function carregarSetoresSelect(){
-    await carregar();
-    const opts = cache.set.map(s => `<option>${esc(s.nome)}</option>`).join("");
+    const set = await Cache.setores();
+    const opts = set.map(s => `<option>${esc(s.nome)}</option>`).join("");
     ["ferr-setor","ativ-setor","assist-setor"].forEach(id => {
       const el = $(id);
       if(el){ const v = el.value; el.innerHTML = opts; if(v) el.value = v; }
@@ -1470,19 +1367,96 @@ const PCM = (() => {
     return "badge-blue";
   }
 
-  /* ---------- PAINEL ---------- */
+  async function renderThumb(fotoObj, placeholder = "🔧"){
+    if(!fotoObj) return `<div class="item-thumb-ph">${placeholder}</div>`;
+    let src = fotoObj.data;
+    if(!src && fotoObj.blob) src = await Imagem.toDataURL(fotoObj.blob);
+    if(!src) return `<div class="item-thumb-ph">${placeholder}</div>`;
+    return `<img class="item-thumb" src="${escAttr(src)}" alt="" data-zoom-thumb="1">`;
+  }
+
+  function bindZoomThumbs(){
+    $$("[data-zoom-thumb]").forEach(img => img.onclick = () => Imagem.abrirZoom(img.src));
+  }
+
+  async function addFotosForm(prefixo, ev){
+    const files = [...ev.target.files].filter(f => f.type.startsWith("image/"));
+    if(!files.length){ ev.target.value = ""; return; }
+    if(formFotos[prefixo].length + files.length > 8){
+      toast("⚠️ Máximo de 8 fotos.", "warning");
+      ev.target.value = ""; return;
+    }
+    UI.loading(true);
+    const resultados = await Promise.allSettled(files.map(async f => {
+      const data = await Imagem.comprimir(f, 1000, 0.7, 300_000);
+      const blob = Imagem.toBlob(data);
+      return { tipo:"foto", blob, data };
+    }));
+    UI.loading(false);
+    const ok = resultados.filter(r => r.status === "fulfilled" && r.value).map(r => r.value);
+    formFotos[prefixo].push(...ok);
+    renderFotosForm(prefixo);
+    ev.target.value = "";
+  }
+
+  function renderFotosForm(prefixo){
+    const el = $(`${prefixo}-foto-preview`);
+    if(!el) return;
+    el.innerHTML = formFotos[prefixo].map((m, i) => {
+      const src = m.data || (m.blob ? Imagem.toObjectURL(m.blob) : "");
+      return `
+        <div class="midia-item">
+          <img src="${escAttr(src)}" alt="">
+          <div class="foto-actions">
+            <button class="zoom" data-act="zoom-f" data-prefixo="${prefixo}" data-idx="${i}">🔍</button>
+            <button data-act="rm-f" data-prefixo="${prefixo}" data-idx="${i}">✕</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    $$("[data-act='rm-f']").forEach(b => b.onclick = () => {
+      formFotos[b.dataset.prefixo].splice(+b.dataset.idx, 1);
+      renderFotosForm(b.dataset.prefixo);
+    });
+    $$("[data-act='zoom-f']").forEach(b => b.onclick = async () => {
+      const m = formFotos[b.dataset.prefixo][+b.dataset.idx];
+      const src = m.data || await Imagem.toDataURL(m.blob);
+      Imagem.abrirZoom(src);
+    });
+  }
+
+  async function carregarFotosForm(prefixo, lista){
+    formFotos[prefixo] = [];
+    for(const m of (lista || [])){
+      if(m.blob) formFotos[prefixo].push({ tipo:m.tipo || "foto", blob:m.blob, data:null });
+      else if(m.data) formFotos[prefixo].push({ tipo:m.tipo || "foto", blob:null, data:m.data });
+    }
+    renderFotosForm(prefixo);
+  }
+
+  function serializarFotos(prefixo){
+    return formFotos[prefixo].map(m => ({
+      tipo: m.tipo || "foto",
+      blob: m.blob || null,
+      data: m.blob ? null : m.data
+    }));
+  }
+
   async function renderPainel(){
-    await carregar();
-    const ferr = cache.eq.filter(e => e.categoria === "ferramenta");
-    const ativ = cache.eq.filter(e => e.categoria === "ativo");
+    const eq = await Cache.equip();
+    const ass = await Cache.assist();
+    const set = await Cache.setores();
+    const ferr = eq.filter(e => e.categoria === "ferramenta");
+    const ativ = eq.filter(e => e.categoria === "ativo");
 
     $("pcm-stats").innerHTML = [
-      ["🔧","Ferramentas",ferr.length,""],
-      ["🟢","Disponíveis",ferr.filter(f => f.status === "disponivel").length,""],
-      ["📤","Emprestadas",ferr.filter(f => f.status === "emprestada").length,""],
-      ["🧰","Manutenção",cache.ass.filter(a => a.tipo === "interna" && a.status !== "Retornado").length,""],
-      ["☠️","Assist. Téc.",cache.ass.filter(a => a.tipo === "externa" && a.status !== "Retornado").length,""],
-      ["🏭","Ativos",ativ.length,""]
+      ["🔧","Ferramentas",ferr.length],
+      ["🟢","Disponíveis",ferr.filter(f => f.status === "disponivel").length],
+      ["📤","Emprestadas",ferr.filter(f => f.status === "emprestada").length],
+      ["🧰","Manutenção",ass.filter(a => a.tipo === "interna" && a.status !== "Retornado").length],
+      ["☠️","Assist. Téc.",ass.filter(a => a.tipo === "externa" && a.status !== "Retornado").length],
+      ["🏭","Ativos",ativ.length]
     ].map(([ico, lbl, num]) => `
       <div class="card stat">
         <span class="stat-ico">${ico}</span>
@@ -1491,12 +1465,12 @@ const PCM = (() => {
       </div>
     `).join("");
 
-    $("pcm-setores").innerHTML = cache.set.length ? cache.set.map(s => {
+    $("pcm-setores").innerHTML = set.length ? set.map(s => {
       const f = ferr.filter(x => x.setor === s.nome).length;
       const a = ativ.filter(x => x.setor === s.nome).length;
-      const m = cache.ass.filter(x => x.setor === s.nome).length;
+      const m = ass.filter(x => x.setor === s.nome).length;
       return `
-        <div class="setor-card" onclick="PCM.abrirSetor('${esc(s.nome)}')">
+        <div class="setor-card" data-setor-nome="${escAttr(s.nome)}">
           <h3>📍 ${esc(s.nome)}</h3>
           <div class="setor-total">${f + a + m}</div>
           <div class="item-tags">
@@ -1507,13 +1481,18 @@ const PCM = (() => {
         </div>
       `;
     }).join("") : `<div class="empty"><span class="emoji">📍</span>Nenhum setor cadastrado.</div>`;
+
+    bindSetorCards();
   }
 
-  /* ---------- FERRAMENTAS ---------- */
+  function bindSetorCards(){
+    $$("[data-setor-nome]").forEach(el => el.onclick = () => abrirSetor(el.dataset.setorNome));
+  }
+
   async function renderFerramentas(){
-    await carregar();
+    const eq = await Cache.equip();
     const busca = ($("busca-ferramentas")?.value || "").toLowerCase().trim();
-    let ferr = cache.eq.filter(e => e.categoria === "ferramenta");
+    let ferr = eq.filter(e => e.categoria === "ferramenta");
     if(busca) ferr = ferr.filter(f => (f.nome + " " + f.tag + " " + f.setor).toLowerCase().includes(busca));
 
     const el = $("lista-ferramentas");
@@ -1521,9 +1500,9 @@ const PCM = (() => {
       el.innerHTML = `<div class="empty"><span class="emoji">🔍</span>Nenhuma ferramenta encontrada.</div>`;
       return;
     }
-    el.innerHTML = ferr.map(f => {
+    const cards = await Promise.all(ferr.map(async f => {
       const cat = CATS[f.subcategoria] || CATS.outras;
-      const foto = f.fotos?.[0] ? `<img class="item-thumb" src="${f.fotos[0]}" alt="">` : `<div class="item-thumb-ph">${cat.split(" ")[0]}</div>`;
+      const foto = await renderThumb(f.fotos?.[0], cat.split(" ")[0]);
       return `
         <div class="item-card">
           ${foto}
@@ -1540,22 +1519,32 @@ const PCM = (() => {
             </div>
           </div>
           <div class="item-actions">
-            <button title="Editar" onclick="PCM.abrirFerramenta(${f.id})">✏️</button>
-            <button title="Abrir OS" onclick="OS.novaComEquip(${f.id})">📋</button>
-            <button title="Enviar p/ assistência" onclick="PCM.enviarAssist(${f.id})">☠️</button>
-            <button title="Ficha PDF" onclick="Exportar.fichaEquip(${f.id})">📄</button>
-            <button title="Excluir" onclick="PCM.excluirEquip(${f.id})">🗑️</button>
+            <button class="btn-icon" data-act="edit-ferr" data-id="${f.id}">✏️</button>
+            <button class="btn-icon" data-act="os-ferr" data-id="${f.id}">📋</button>
+            <button class="btn-icon" data-act="assist-ferr" data-id="${f.id}">☠️</button>
+            <button class="btn-icon" data-act="pdf-ferr" data-id="${f.id}">📄</button>
+            <button class="btn-icon" data-act="del-ferr" data-id="${f.id}">🗑️</button>
           </div>
         </div>
       `;
-    }).join("");
+    }));
+    el.innerHTML = cards.join("");
+    bindFerrActions();
+    bindZoomThumbs();
   }
 
-  /* ---------- ATIVOS ---------- */
+  function bindFerrActions(){
+    $$("[data-act='edit-ferr']").forEach(b => b.onclick = () => abrirFerramenta(+b.dataset.id));
+    $$("[data-act='os-ferr']").forEach(b => b.onclick = () => OS.novaComEquip(+b.dataset.id));
+    $$("[data-act='assist-ferr']").forEach(b => b.onclick = () => enviarAssist(+b.dataset.id));
+    $$("[data-act='pdf-ferr']").forEach(b => b.onclick = () => Exportar.fichaEquip(+b.dataset.id));
+    $$("[data-act='del-ferr']").forEach(b => b.onclick = () => excluirEquip(+b.dataset.id));
+  }
+
   async function renderAtivos(){
-    await carregar();
+    const eq = await Cache.equip();
     const busca = ($("busca-ativos")?.value || "").toLowerCase().trim();
-    let ativ = cache.eq.filter(e => e.categoria === "ativo");
+    let ativ = eq.filter(e => e.categoria === "ativo");
     if(busca) ativ = ativ.filter(a => (a.nome + " " + a.tag + " " + a.setor + " " + (a.fabricante || "")).toLowerCase().includes(busca));
 
     const el = $("lista-ativos");
@@ -1563,8 +1552,8 @@ const PCM = (() => {
       el.innerHTML = `<div class="empty"><span class="emoji">🏭</span>Nenhum ativo encontrado.</div>`;
       return;
     }
-    el.innerHTML = ativ.map(a => {
-      const foto = a.fotos?.[0] ? `<img class="item-thumb" src="${a.fotos[0]}" alt="">` : `<div class="item-thumb-ph">🏭</div>`;
+    const cards = await Promise.all(ativ.map(async a => {
+      const foto = await renderThumb(a.fotos?.[0], "🏭");
       return `
         <div class="item-card">
           ${foto}
@@ -1579,34 +1568,40 @@ const PCM = (() => {
             </div>
           </div>
           <div class="item-actions">
-            <button title="Editar" onclick="PCM.abrirAtivo(${a.id})">✏️</button>
-            <button title="Abrir OS" onclick="OS.novaComEquip(${a.id})">📋</button>
-            <button title="Ficha PDF" onclick="Exportar.fichaEquip(${a.id})">📄</button>
-            <button title="Excluir" onclick="PCM.excluirEquip(${a.id})">🗑️</button>
+            <button class="btn-icon" data-act="edit-ativ" data-id="${a.id}">✏️</button>
+            <button class="btn-icon" data-act="os-ativ" data-id="${a.id}">📋</button>
+            <button class="btn-icon" data-act="pdf-ativ" data-id="${a.id}">📄</button>
+            <button class="btn-icon" data-act="del-ativ" data-id="${a.id}">🗑️</button>
           </div>
         </div>
       `;
-    }).join("");
+    }));
+    el.innerHTML = cards.join("");
+    $$("[data-act='edit-ativ']").forEach(b => b.onclick = () => abrirAtivo(+b.dataset.id));
+    $$("[data-act='os-ativ']").forEach(b => b.onclick = () => OS.novaComEquip(+b.dataset.id));
+    $$("[data-act='pdf-ativ']").forEach(b => b.onclick = () => Exportar.fichaEquip(+b.dataset.id));
+    $$("[data-act='del-ativ']").forEach(b => b.onclick = () => excluirEquip(+b.dataset.id));
+    bindZoomThumbs();
   }
 
-  /* ---------- ASSISTÊNCIAS ---------- */
   async function renderAssistencias(tipo){
-    await carregar();
+    const ass = await Cache.assist();
     const containerId = tipo === "interna" ? "lista-manutencoes" : "lista-assistencias";
     const el = $(containerId);
     const busca = ($("busca-assistencia")?.value || "").toLowerCase().trim();
-    let lista = cache.ass.filter(a => a.tipo === tipo);
+    let lista = ass.filter(a => a.tipo === tipo);
     if(busca) lista = lista.filter(a => (a.nome + " " + a.tag + " " + (a.empresa || "")).toLowerCase().includes(busca));
 
     if(!lista.length){
       el.innerHTML = `<div class="empty"><span class="emoji">${tipo === "interna" ? "🧰" : "☠️"}</span>Nenhum registro.</div>`;
       return;
     }
-    el.innerHTML = [...lista].reverse().map(a => {
+    const cards = await Promise.all([...lista].reverse().map(async a => {
       const st = a.status === "Retornado" ? "badge-green" : "badge-orange";
+      const foto = await renderThumb(a.fotos?.[0], a.tipo === "interna" ? "🧰" : "☠️");
       return `
         <div class="item-card">
-          <div class="item-thumb-ph">${a.tipo === "interna" ? "🧰" : "☠️"}</div>
+          ${foto}
           <div class="item-body">
             <div class="item-name">${esc(a.nome)}</div>
             <div class="item-meta">
@@ -1621,29 +1616,35 @@ const PCM = (() => {
             </div>
           </div>
           <div class="item-actions">
-            <button title="Editar" onclick="PCM.abrirAssistencia('${a.tipo}', ${a.id})">✏️</button>
-            <button title="Marcar retornado" onclick="PCM.marcarRetornado(${a.id})">✅</button>
-            <button title="Excluir" onclick="PCM.excluirAssistencia(${a.id})">🗑️</button>
+            <button class="btn-icon" data-act="edit-assist" data-tipo="${a.tipo}" data-id="${a.id}">✏️</button>
+            <button class="btn-icon" data-act="ret-assist" data-id="${a.id}">✅</button>
+            <button class="btn-icon" data-act="del-assist" data-id="${a.id}">🗑️</button>
           </div>
         </div>
       `;
-    }).join("");
+    }));
+    el.innerHTML = cards.join("");
+    $$("[data-act='edit-assist']").forEach(b => b.onclick = () => abrirAssistencia(b.dataset.tipo, +b.dataset.id));
+    $$("[data-act='ret-assist']").forEach(b => b.onclick = () => marcarRetornado(+b.dataset.id));
+    $$("[data-act='del-assist']").forEach(b => b.onclick = () => excluirAssistencia(+b.dataset.id));
+    bindZoomThumbs();
   }
 
-  /* ---------- SETORES ---------- */
   async function renderSetores(){
-    await carregar();
+    const eq = await Cache.equip();
+    const ass = await Cache.assist();
+    const set = await Cache.setores();
     const el = $("lista-setores");
-    if(!cache.set.length){
+    if(!set.length){
       el.innerHTML = `<div class="empty"><span class="emoji">📍</span>Nenhum setor.</div>`;
       return;
     }
-    el.innerHTML = cache.set.map(s => {
-      const f = cache.eq.filter(e => e.setor === s.nome && e.categoria === "ferramenta").length;
-      const a = cache.eq.filter(e => e.setor === s.nome && e.categoria === "ativo").length;
-      const m = cache.ass.filter(x => x.setor === s.nome).length;
+    el.innerHTML = set.map(s => {
+      const f = eq.filter(e => e.setor === s.nome && e.categoria === "ferramenta").length;
+      const a = eq.filter(e => e.setor === s.nome && e.categoria === "ativo").length;
+      const m = ass.filter(x => x.setor === s.nome).length;
       return `
-        <div class="setor-card" onclick="PCM.abrirSetor('${esc(s.nome)}')">
+        <div class="setor-card" data-setor-nome="${escAttr(s.nome)}">
           <h3>📍 ${esc(s.nome)}</h3>
           <div class="setor-total">${f + a + m}</div>
           <div class="item-tags">
@@ -1654,11 +1655,21 @@ const PCM = (() => {
         </div>
       `;
     }).join("");
+    bindSetorCards();
   }
 
-  /* ---------- HISTÓRICO ---------- */
   async function renderHistorico(){
-    const lista = (await DB.all("historico")).reverse().slice(0, 200);
+    const hist = await Cache.historico();
+    const busca = ($("busca-historico")?.value || "").toLowerCase().trim();
+    let lista = [...hist].reverse();
+    if(busca){
+      lista = lista.filter(h =>
+        (h.nome || "").toLowerCase().includes(busca) ||
+        (h.acao || "").toLowerCase().includes(busca) ||
+        (h.usuario || "").toLowerCase().includes(busca)
+      );
+    }
+    lista = lista.slice(0, 300);
     const el = $("lista-historico");
     if(!lista.length){
       el.innerHTML = `<div class="empty"><span class="emoji">📭</span>Nenhum registro.</div>`;
@@ -1675,7 +1686,6 @@ const PCM = (() => {
     `).join("");
   }
 
-  /* ---------- FORM: FERRAMENTA ---------- */
   async function abrirFerramenta(id = null){
     await carregarSetoresSelect();
     $("ferr-id").value = id || "";
@@ -1690,12 +1700,14 @@ const PCM = (() => {
       $("ferr-categoria").value = f.subcategoria || "outras";
       $("ferr-status").value = f.status || "disponivel";
       $("ferr-obs").value = f.observacoes || "";
+      await carregarFotosForm("ferr", f.fotos);
     } else {
       $("title-ferramenta").textContent = "📦 Cadastrar ferramenta";
       ["ferr-nome","ferr-codigo","ferr-obs"].forEach(i => $(i).value = "");
       $("ferr-qtd").value = 1;
       $("ferr-categoria").value = "outras";
       $("ferr-status").value = "disponivel";
+      await carregarFotosForm("ferr", []);
     }
     UI.abrir("dlg-ferramenta");
   }
@@ -1706,28 +1718,29 @@ const PCM = (() => {
     const id = parseInt($("ferr-id").value) || null;
     let codigo = $("ferr-codigo").value.trim();
     if(!codigo){
-      const n = (await DB.all("equipamentos")).length + 1;
-      codigo = `FER-${String(n).padStart(3,"0")}`;
+      const eq = await Cache.equip();
+      codigo = `FER-${String(eq.length + 1).padStart(3,"0")}`;
     }
     const obj = {
-      tag: codigo, nome,
-      categoria: "ferramenta",
+      tag: codigo, nome, categoria: "ferramenta",
       subcategoria: $("ferr-categoria").value,
       quantidade: parseInt($("ferr-qtd").value) || 1,
       setor: $("ferr-setor").value,
       status: $("ferr-status").value,
       observacoes: $("ferr-obs").value,
-      dataCriacao: new Date().toISOString()
+      fotos: serializarFotos("ferr"),
+      dataCriacao: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
     if(id) obj.id = id;
     await DB.put("equipamentos", obj);
-    await App.registrarHistorico({ itemId:id, tipo:"equipamento", nome, acao: id ? "editou" : "cadastrou" });
+    Cache.invalidate("eq");
+    await App.registrarHistorico({ itemId:id, tipo:"equipamento", nome, acao: id ? "editou ferramenta" : "cadastrou ferramenta" });
     toast("✅ Ferramenta salva!", "ok");
     UI.fechar("dlg-ferramenta");
     renderFerramentas(); renderPainel();
   }
 
-  /* ---------- FORM: ATIVO ---------- */
   async function abrirAtivo(id = null){
     await carregarSetoresSelect();
     $("ativ-id").value = id || "";
@@ -1742,11 +1755,13 @@ const PCM = (() => {
       $("ativ-setor").value = a.setor || "";
       $("ativ-status").value = a.status || "operando";
       $("ativ-obs").value = a.observacoes || "";
+      await carregarFotosForm("ativ", a.fotos);
     } else {
       $("title-ativo").textContent = "🏭 Cadastrar ativo";
       ["ativ-nome","ativ-codigo","ativ-fabricante","ativ-obs"].forEach(i => $(i).value = "");
       $("ativ-tipo").value = "Máquina";
       $("ativ-status").value = "operando";
+      await carregarFotosForm("ativ", []);
     }
     UI.abrir("dlg-ativo");
   }
@@ -1757,8 +1772,8 @@ const PCM = (() => {
     const id = parseInt($("ativ-id").value) || null;
     let codigo = $("ativ-codigo").value.trim();
     if(!codigo){
-      const n = (await DB.all("equipamentos")).length + 1;
-      codigo = `AT-${String(n).padStart(3,"0")}`;
+      const eq = await Cache.equip();
+      codigo = `AT-${String(eq.length + 1).padStart(3,"0")}`;
     }
     const obj = {
       tag: codigo, nome, categoria: "ativo",
@@ -1767,10 +1782,13 @@ const PCM = (() => {
       setor: $("ativ-setor").value,
       status: $("ativ-status").value,
       observacoes: $("ativ-obs").value,
-      dataCriacao: new Date().toISOString()
+      fotos: serializarFotos("ativ"),
+      dataCriacao: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
     if(id) obj.id = id;
     await DB.put("equipamentos", obj);
+    Cache.invalidate("eq");
     await App.registrarHistorico({ itemId:id, tipo:"equipamento", nome, acao: id ? "editou ativo" : "cadastrou ativo" });
     toast("✅ Ativo salvo!", "ok");
     UI.fechar("dlg-ativo");
@@ -1782,12 +1800,12 @@ const PCM = (() => {
     if(!eq) return;
     if(!confirm(`Excluir "${eq.nome}"?`)) return;
     await DB.del("equipamentos", id);
+    Cache.invalidate("eq");
     await App.registrarHistorico({ itemId:id, tipo:"equipamento", nome:eq.nome, acao:"excluiu" });
     toast("Excluído.", "ok");
     renderFerramentas(); renderAtivos(); renderPainel();
   }
 
-  /* ---------- FORM: ASSISTÊNCIA ---------- */
   async function abrirAssistencia(tipo = "externa", id = null){
     await carregarSetoresSelect();
     $("assist-id").value = id || "";
@@ -1809,6 +1827,7 @@ const PCM = (() => {
       $("assist-valor").value = a.valor || "";
       $("assist-desc").value = a.descricao || "";
       $("assist-solucao").value = a.solucao || "";
+      await carregarFotosForm("assist", a.fotos);
     } else {
       ["assist-nome","assist-codigo","assist-empresa","assist-responsavel","assist-os",
        "assist-valor","assist-desc","assist-solucao"].forEach(i => $(i).value = "");
@@ -1816,6 +1835,7 @@ const PCM = (() => {
       $("assist-data-retorno").value = "";
       $("assist-status").value = "Enviado";
       $("assist-tipo-servico").value = "Reparo mecânico";
+      await carregarFotosForm("assist", []);
     }
     UI.abrir("dlg-assistencia");
   }
@@ -1839,10 +1859,12 @@ const PCM = (() => {
       valor: $("assist-valor").value,
       descricao: $("assist-desc").value,
       solucao: $("assist-solucao").value,
+      fotos: serializarFotos("assist"),
       dataCriacao: new Date().toISOString()
     };
     if(id) obj.id = id;
     await DB.put("assistencias", obj);
+    Cache.invalidate("ass");
     await App.registrarHistorico({ itemId:id, tipo:"assistencia", nome, acao: id ? "editou" : "cadastrou" });
     toast("✅ Salvo!", "ok");
     UI.fechar("dlg-assistencia");
@@ -1858,6 +1880,7 @@ const PCM = (() => {
     $("assist-setor").value = eq.setor || "";
     eq.status = "assistencia";
     await DB.put("equipamentos", eq);
+    Cache.invalidate("eq");
     toast("Preencha os dados da assistência.", "info");
   }
 
@@ -1873,8 +1896,10 @@ const PCM = (() => {
       if(eq){
         eq.status = eq.categoria === "ferramenta" ? "disponivel" : "operando";
         await DB.put("equipamentos", eq);
+        Cache.invalidate("eq");
       }
     }
+    Cache.invalidate("ass");
     toast("✅ Retornado.", "ok");
     renderAssistencias(a.tipo);
   }
@@ -1884,11 +1909,11 @@ const PCM = (() => {
     if(!a) return;
     if(!confirm(`Excluir "${a.nome}"?`)) return;
     await DB.del("assistencias", id);
+    Cache.invalidate("ass");
     toast("Excluído.", "ok");
     renderAssistencias(a.tipo);
   }
 
-  /* ---------- FORM: SETOR ---------- */
   async function abrirSetor(nome = null){
     if(nome){
       const s = await DB.get("setores", nome);
@@ -1919,9 +1944,11 @@ const PCM = (() => {
       for(const e of eqs){
         if(e.setor === original){ e.setor = nome; await DB.put("equipamentos", e); }
       }
+      Cache.invalidate("eq");
     } else {
       await DB.put("setores", { nome, observacoes:obs });
     }
+    Cache.invalidate("set");
     toast("✅ Setor salvo!", "ok");
     UI.fechar("dlg-setor");
     await carregarSetoresSelect();
@@ -1933,6 +1960,7 @@ const PCM = (() => {
     if(!nome) return toast("Nenhum setor selecionado.", "error");
     if(!confirm(`Excluir setor "${nome}"?`)) return;
     await DB.del("setores", nome);
+    Cache.invalidate("set");
     toast("Setor excluído.", "ok");
     UI.fechar("dlg-setor");
     await carregarSetoresSelect();
@@ -1942,25 +1970,28 @@ const PCM = (() => {
   async function limparHistorico(){
     if(!confirm("Apagar todo o histórico?")) return;
     await DB.clear("historico");
+    Cache.invalidate("hist");
     toast("Histórico limpo.", "ok");
     renderHistorico();
   }
 
   return {
-    carregar, carregarSetoresSelect, CATS,
+    carregarSetoresSelect, CATS,
     renderPainel, renderFerramentas, renderAtivos, renderAssistencias, renderSetores, renderHistorico,
     abrirFerramenta, salvarFerramenta, excluirEquip,
     abrirAtivo, salvarAtivo,
     abrirAssistencia, salvarAssistencia, enviarAssist, marcarRetornado, excluirAssistencia,
-    abrirSetor, salvarSetor, excluirSetor, limparHistorico
+    abrirSetor, salvarSetor, excluirSetor, limparHistorico,
+    addFotosForm, renderFotosForm, carregarFotosForm
   };
 })();
 
 /* ============================================================
-   OS (Ordens de Serviço)
+   OS
 ============================================================ */
 const OS = (() => {
-  const state = { atual:{ id:null, midias:[], created_at:null } };
+  const state = { atual:{ id:null, midias:[], created_at:null }, original:null };
+  const charts = new Map();
 
   function pillStatus(st){
     const map = {
@@ -1969,18 +2000,16 @@ const OS = (() => {
     };
     return `<span class="status-pill ${map[st] || 'pill-aberta'}">${esc(st || "Aberta")}</span>`;
   }
-
   function classCard(st){
-    if(st === "Aguardando Peças") return "status-aguardando";
-    if(st === "Concluída") return "status-concluida";
-    if(st === "Execução") return "status-execucao";
-    if(st === "Encerrada") return "status-encerrada";
+    if(st === "Aguardando Peças") return "st-aguardando";
+    if(st === "Concluída") return "st-concluida";
+    if(st === "Execução") return "st-execucao";
+    if(st === "Encerrada") return "st-encerrada";
     return "";
   }
 
-  /* ---------- HOME ---------- */
   async function renderHome(){
-    const lista = await DB.all("ordens");
+    const lista = await Cache.ordens();
     const total = lista.length;
     const abertas = lista.filter(o => (o.status || "Aberta") === "Aberta").length;
     const exec = lista.filter(o => o.status === "Execução").length;
@@ -1989,22 +2018,10 @@ const OS = (() => {
     const backlog = abertas + exec + aguard;
 
     $("os-resumo").innerHTML = `
-      <div class="resumo">
-        <div class="resumo-ico blue">📋</div>
-        <div><div class="resumo-num">${total}</div><div class="resumo-lbl">Total OS</div></div>
-      </div>
-      <div class="resumo">
-        <div class="resumo-ico orange">⏳</div>
-        <div><div class="resumo-num">${backlog}</div><div class="resumo-lbl">Backlog</div></div>
-      </div>
-      <div class="resumo">
-        <div class="resumo-ico green">🟢</div>
-        <div><div class="resumo-num">${concluidas}</div><div class="resumo-lbl">Concluídas</div></div>
-      </div>
-      <div class="resumo">
-        <div class="resumo-ico red">🟠</div>
-        <div><div class="resumo-num">${aguard}</div><div class="resumo-lbl">Aguardando</div></div>
-      </div>
+      <div class="resumo"><div class="resumo-ico blue">📋</div><div><div class="resumo-num">${total}</div><div class="resumo-lbl">Total OS</div></div></div>
+      <div class="resumo"><div class="resumo-ico orange">⏳</div><div><div class="resumo-num">${backlog}</div><div class="resumo-lbl">Backlog</div></div></div>
+      <div class="resumo"><div class="resumo-ico green">🟢</div><div><div class="resumo-num">${concluidas}</div><div class="resumo-lbl">Concluídas</div></div></div>
+      <div class="resumo"><div class="resumo-ico red">🟠</div><div><div class="resumo-num">${aguard}</div><div class="resumo-lbl">Aguardando</div></div></div>
     `;
 
     const ultimas = [...lista].sort((a,b) => (b.created_at || "").localeCompare(a.created_at || "")).slice(0, 5);
@@ -2014,6 +2031,7 @@ const OS = (() => {
       return;
     }
     div.innerHTML = ultimas.map(o => cardOS(o)).join("");
+    bindOSActions();
   }
 
   function cardOS(o){
@@ -2022,26 +2040,38 @@ const OS = (() => {
     if(st === "Aguardando Peças" && o.pecaAguardada){
       extra = `<small style="color:var(--orange-text)"><b>🟠 ${esc(o.pecaAguardada)}</b></small>`;
     }
+    const nFotos = (o.midias || []).filter(m => m.tipo === "foto").length;
     return `
       <div class="os-card ${classCard(st)}">
         <h3>OS ${esc(o.numero || "—")} ${pillStatus(st)}</h3>
         <small>🔧 ${esc(o.equipamento || "—")} ${o.tag ? "· TAG " + esc(o.tag) : ""}</small>
-        <small>📅 ${fmtData(o.data)} ${o.tipo ? "· " + esc(o.tipo) : ""}</small>
+        <small>📅 ${fmtData(o.data)} ${o.tipo ? "· " + esc(o.tipo) : ""}${nFotos ? ` · 📷 ${nFotos}` : ""}</small>
         ${extra}
         <div class="actions">
-          <button class="btn-ghost" onclick="OS.editar(${o.id})">✏️ Editar</button>
-          <button class="btn-ghost" onclick="OS.duplicar(${o.id})">📋 Duplicar</button>
-          <button class="btn-success" onclick="OS.pdf(${o.id})">📄 PDF</button>
-          <button class="btn-warning" onclick="OS.whatsapp(${o.id})">📲</button>
-          <button class="btn-danger" onclick="OS.excluir(${o.id})">🗑️</button>
+          <button data-os-act="edit" data-id="${o.id}">✏️ Editar</button>
+          <button data-os-act="dup" data-id="${o.id}">📋 Duplicar</button>
+          <button class="btn-success" data-os-act="pdf" data-id="${o.id}">📄 PDF</button>
+          <button class="btn-warning" data-os-act="wpp" data-id="${o.id}">📲</button>
+          <button class="btn-danger" data-os-act="del" data-id="${o.id}">🗑️</button>
         </div>
       </div>
     `;
   }
 
-  /* ---------- LISTA ---------- */
+  function bindOSActions(){
+    $$("[data-os-act]").forEach(b => {
+      const act = b.dataset.osAct;
+      const id = +b.dataset.id;
+      if(act === "edit") b.onclick = () => editar(id);
+      else if(act === "dup") b.onclick = () => duplicar(id);
+      else if(act === "pdf") b.onclick = () => pdf(id);
+      else if(act === "wpp") b.onclick = () => whatsapp(id);
+      else if(act === "del") b.onclick = () => excluir(id);
+    });
+  }
+
   async function renderLista(){
-    const lista = await DB.all("ordens");
+    const lista = await Cache.ordens();
     const busca = ($("busca-os")?.value || "").toLowerCase().trim();
     let filtradas = busca
       ? lista.filter(o => [o.numero,o.tag,o.equipamento,o.solicitante,o.setor,o.descricao]
@@ -2058,11 +2088,12 @@ const OS = (() => {
     div.innerHTML = filtradas
       .sort((a,b) => (b.created_at || "").localeCompare(a.created_at || ""))
       .map(o => cardOS(o)).join("");
+    bindOSActions();
   }
 
-  /* ---------- NOVA / EDITAR ---------- */
   async function nova(){
     state.atual = { id:null, midias:[], created_at:null };
+    state.original = null;
     limparFormOS();
     $("f-data").value = hoje();
     addMaoObra(); addPeca();
@@ -2084,7 +2115,16 @@ const OS = (() => {
   async function editar(id){
     const o = await DB.get("ordens", id);
     if(!o) return;
-    state.atual = { id:o.id, midias:o.midias || [], created_at:o.created_at };
+    state.atual = {
+      id:o.id,
+      midias:(o.midias || []).map(m => ({
+        tipo:m.tipo || "foto",
+        blob:m.blob || null,
+        data:m.data || null
+      })),
+      created_at:o.created_at
+    };
+    state.original = JSON.parse(JSON.stringify({ ...o, midias:[], assinaturaExec:"", assinaturaResp:"" }));
 
     const set = (fid, v) => { const el = $(fid); if(el) el.value = v || ""; };
     set("f-numero", o.numero); set("f-data", o.data);
@@ -2135,13 +2175,12 @@ const OS = (() => {
   }
 
   async function popularTags(){
-    const lista = await DB.all("equipamentos");
+    const lista = await Cache.equip();
     $("list-tags").innerHTML = lista
-      .map(e => `<option value="${esc(e.tag)}">${esc(e.nome)} — ${esc(e.setor || "")}</option>`)
+      .map(e => `<option value="${escAttr(e.tag)}">${esc(e.nome)} — ${esc(e.setor || "")}</option>`)
       .join("");
   }
 
-  /* ---------- TEMPO ---------- */
   function toggleWaitBox(){
     const st = $("f-status").value;
     $("wait-box").classList.toggle("hidden", st !== "Aguardando Peças");
@@ -2160,14 +2199,13 @@ const OS = (() => {
     $("info-tempo").innerHTML = html || "⏱️ Preencha as datas para calcular.";
   }
 
-  /* ---------- LISTAS DINÂMICAS ---------- */
   function addMaoObra(nome = "", tempo = "", regime = ""){
     const div = document.createElement("div");
     div.className = "dyn-row";
     div.innerHTML = `
-      <input type="text" placeholder="Nome" value="${esc(nome)}">
-      <input type="text" placeholder="Tempo (h)" value="${esc(tempo)}">
-      <input type="text" placeholder="Regime" value="${esc(regime)}">
+      <input type="text" placeholder="Nome" value="${escAttr(nome)}">
+      <input type="text" placeholder="Tempo (h)" value="${escAttr(tempo)}">
+      <input type="text" placeholder="Regime" value="${escAttr(regime)}">
       <button type="button" title="Remover">✕</button>
     `;
     div.querySelector("button").onclick = () => div.remove();
@@ -2178,37 +2216,74 @@ const OS = (() => {
     const div = document.createElement("div");
     div.className = "dyn-row";
     div.innerHTML = `
-      <input type="text" placeholder="Código" value="${esc(codigo)}">
-      <input type="text" placeholder="Descrição" value="${esc(desc)}">
-      <input type="text" placeholder="Qtd" value="${esc(qtd)}">
+      <input type="text" placeholder="Código" value="${escAttr(codigo)}">
+      <input type="text" placeholder="Descrição" value="${escAttr(desc)}">
+      <input type="text" placeholder="Qtd" value="${escAttr(qtd)}">
       <button type="button" title="Remover">✕</button>
     `;
     div.querySelector("button").onclick = () => div.remove();
     $("pecas-list").appendChild(div);
   }
 
-  /* ---------- MÍDIA ---------- */
   async function addMidias(ev){
-    const files = [...ev.target.files];
-    if(!files.length) return;
-    for(const f of files){
-      if(f.type.startsWith("image/")){
-        const b64 = await lerArquivo(f);
-        const comp = await comprimir(b64, 1280, 0.7);
-        state.atual.midias.push({ tipo:"foto", data:comp });
-      }
+    const files = [...ev.target.files].filter(f => f.type.startsWith("image/"));
+    if(!files.length){ ev.target.value = ""; return; }
+
+    if(state.atual.midias.length + files.length > 20){
+      toast("⚠️ Limite de 20 fotos por OS.", "warning");
+      ev.target.value = "";
+      return;
     }
+
+    UI.loading(true);
+    UI.setProgress(0);
+
+    const resultados = await Promise.allSettled(files.map(async (f, idx) => {
+      const data = await Imagem.comprimir(f);
+      const blob = Imagem.toBlob(data);
+      const pct = Math.round(((idx + 1) / files.length) * 100);
+      UI.setProgress(pct);
+      return { tipo:"foto", blob, data };
+    }));
+
+    UI.loading(false);
+
+    const ok = resultados.filter(r => r.status === "fulfilled" && r.value).map(r => r.value);
+    const falhas = resultados.filter(r => r.status === "rejected" || !r.value).length;
+
+    state.atual.midias.push(...ok);
     renderMidias();
+
+    if(falhas) toast(`⚠️ ${falhas} foto(s) falharam ao processar.`, "warning");
+    if(ok.length) toast(`✅ ${ok.length} foto(s) adicionada(s).`, "ok");
+
     ev.target.value = "";
   }
 
   function renderMidias(){
-    $("midia-preview").innerHTML = state.atual.midias.map((m, i) => `
-      <div class="midia-item">
-        <img src="${m.data}" alt="">
-        <button onclick="OS.removerMidia(${i})" title="Remover">✕</button>
-      </div>
-    `).join("");
+    $("midia-preview").innerHTML = state.atual.midias.map((m, i) => {
+      const src = m.data || (m.blob ? Imagem.toObjectURL(m.blob) : "");
+      return `
+        <div class="midia-item">
+          <img src="${escAttr(src)}" alt="">
+          <div class="foto-actions">
+            <button class="zoom" data-act="zoom-midia" data-idx="${i}" title="Ampliar">🔍</button>
+            <button data-act="rm-midia" data-idx="${i}" title="Remover">✕</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    $$("[data-act='rm-midia']").forEach(b => b.onclick = e => {
+      e.stopPropagation();
+      removerMidia(+b.dataset.idx);
+    });
+    $$("[data-act='zoom-midia']").forEach(b => b.onclick = async e => {
+      e.stopPropagation();
+      const m = state.atual.midias[+b.dataset.idx];
+      const src = m.data || await Imagem.toDataURL(m.blob);
+      Imagem.abrirZoom(src);
+    });
   }
 
   function removerMidia(i){
@@ -2216,11 +2291,11 @@ const OS = (() => {
     renderMidias();
   }
 
-  /* ---------- ASSINATURA ---------- */
   function ativarSig(id){
     const c = $(id);
     if(!c || c._ativado) return;
     c._ativado = true;
+    c._vazio = true;
     const ctx = c.getContext("2d");
     ctx.strokeStyle = document.body.classList.contains("light") ? "#0a1a2e" : "#ffffff";
     ctx.lineWidth = 2;
@@ -2240,6 +2315,7 @@ const OS = (() => {
       drawing = true; c.classList.add("drawing");
       const {x,y} = getPos(e);
       ctx.beginPath(); ctx.moveTo(x,y);
+      c._vazio = false;
       e.preventDefault();
     };
     const move = e => {
@@ -2261,16 +2337,15 @@ const OS = (() => {
 
   function limparSig(id){
     const c = $(id);
-    if(c) c.getContext("2d").clearRect(0,0,c.width,c.height);
+    if(!c) return;
+    c.getContext("2d").clearRect(0,0,c.width,c.height);
+    c._vazio = true;
   }
 
   function pegarSig(id){
     const c = $(id);
-    if(!c) return "";
-    const data = c.getContext("2d").getImageData(0,0,c.width,c.height).data;
-    let vazio = true;
-    for(let i = 3; i < data.length; i += 4){ if(data[i] > 0){ vazio = false; break; } }
-    return vazio ? "" : c.toDataURL("image/png");
+    if(!c || c._vazio) return "";
+    return c.toDataURL("image/png");
   }
 
   function desenharSig(id, url){
@@ -2279,17 +2354,22 @@ const OS = (() => {
     const ctx = c.getContext("2d");
     ctx.clearRect(0,0,c.width,c.height);
     const img = new Image();
-    img.onload = () => ctx.drawImage(img, 0, 0, c.width, c.height);
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      c._vazio = false;
+    };
+    img.onerror = () => { c._vazio = true; };
     img.src = url;
   }
 
-  /* ---------- SALVAR ---------- */
   async function salvar(){
     const erros = [];
     const numero = $("f-numero").value.trim();
     const equip = $("f-equip").value.trim();
     const tipo = $("f-tipo").value;
     const data = $("f-data").value;
+    const status = $("f-status").value;
+    const realizado = $("f-realizado").value.trim();
 
     if(!numero) erros.push("Nº");
     if(!equip) erros.push("Equipamento");
@@ -2297,16 +2377,31 @@ const OS = (() => {
     if(!data) erros.push("Data");
     if(erros.length) return toast("⚠️ Preencha: " + erros.join(", "), "warning");
 
-    const todas = await DB.all("ordens");
+    if((status === "Concluída" || status === "Encerrada") && !realizado){
+      return toast("⚠️ OS concluída precisa do campo 'Serviço realizado'.", "warning");
+    }
+    if(status === "Aguardando Peças" && !$("f-peca-aguardada").value.trim()){
+      return toast("⚠️ Informe a peça aguardada.", "warning");
+    }
+
+    const todas = await Cache.ordens();
     if(todas.some(o => o.numero === numero && o.id !== state.atual.id)){
       return toast(`⚠️ Já existe uma OS com o nº "${numero}".`, "warning");
+    }
+
+    if(state.atual.id && state.original){
+      const dbAtual = await DB.get("ordens", state.atual.id);
+      if(dbAtual && dbAtual.updated_at && state.original.updated_at &&
+         dbAtual.updated_at !== state.original.updated_at){
+        return mostrarDiff(state.original, dbAtual);
+      }
     }
 
     const os = {
       numero, data,
       solicitante: $("f-solicitante").value,
       setor: $("f-setor").value,
-      status: $("f-status").value,
+      status,
       pecaAguardada: $("f-peca-aguardada").value,
       fornecedor: $("f-fornecedor").value,
       dataPrevista: $("f-data-prevista").value,
@@ -2317,7 +2412,7 @@ const OS = (() => {
       tipo,
       causa: $("f-causa").value,
       descricao: $("f-descricao").value,
-      realizado: $("f-realizado").value,
+      realizado,
       iniOcor: $("f-ini-ocor").value,
       iniCons: $("f-ini-cons").value,
       fimCons: $("f-fim-cons").value,
@@ -2330,137 +2425,222 @@ const OS = (() => {
       pecas: [...$$("#pecas-list .dyn-row")].map(l => ({
         codigo: l.children[0].value, desc: l.children[1].value, qtd: l.children[2].value
       })),
-      midias: state.atual.midias,
-      created_at: state.atual.created_at || new Date().toISOString()
+      midias: state.atual.midias.map(m => ({
+        tipo: m.tipo,
+        blob: m.blob || null,
+        data: m.blob ? null : m.data
+      })),
+      created_at: state.atual.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
     if(state.atual.id) os.id = state.atual.id;
     await DB.put("ordens", os);
+    Cache.invalidate("os");
     await App.registrarHistorico({ tipo:"ordem", nome:"OS " + numero, acao: state.atual.id ? "editou OS" : "criou OS" });
     toast("✅ OS salva!", "ok");
     setTimeout(() => App.showView("os-lista"), 500);
   }
 
-  /* ---------- PDF ---------- */
+  let pendingOS = null;
+  function mostrarDiff(original, dbAtual){
+    pendingOS = { original, dbAtual };
+    const campos = ["numero","data","status","equipamento","tag","tipo","solicitante","setor","descricao","realizado"];
+    let html = "<div style='max-height:300px;overflow-y:auto'>";
+    for(const c of campos){
+      if((original[c] || "") !== (dbAtual[c] || "")){
+        html += `<div style="padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="font-weight:600;font-size:12px;color:var(--primary-2)">${c}</div>
+          <div style="font-size:12px;margin-top:4px">
+            <span style="color:var(--red)">Seu: ${esc(original[c] || "—")}</span><br>
+            <span style="color:var(--green)">DB: ${esc(dbAtual[c] || "—")}</span>
+          </div>
+        </div>`;
+      }
+    }
+    html += "</div>";
+    $("diff-content").innerHTML = html || "<p class='muted small'>Nenhuma diferença nos campos principais.</p>";
+    UI.abrir("dlg-diff");
+  }
+
+  async function sobrescrever(){
+    UI.fechar("dlg-diff");
+    pendingOS = null;
+    toast("Sobrescrevendo dados do DB...", "warning");
+    const btn = document.querySelector("button[onclick='OS.salvar()']");
+    if(btn) btn.click();
+  }
+
+  async function recarregar(){
+    if(!pendingOS) return;
+    const { dbAtual } = pendingOS;
+    UI.fechar("dlg-diff");
+    pendingOS = null;
+    state.original = JSON.parse(JSON.stringify(dbAtual));
+    await editar(dbAtual.id);
+    toast("OS recarregada do banco.", "info");
+  }
+
   async function pdf(id){
     const os = await DB.get("ordens", id);
-    if(os) gerarPDF(os);
+    if(os) await gerarPDF(os);
   }
 
   async function pdfAtual(){
     const numero = $("f-numero").value.trim();
     if(!numero) return toast("Salve a OS antes.", "warning");
-    const os = (await DB.all("ordens")).find(o => o.numero === numero);
+    const os = (await Cache.ordens()).find(o => o.numero === numero);
     if(!os) return toast("Salve a OS antes.", "warning");
-    gerarPDF(os);
+    await gerarPDF(os);
   }
 
-  function gerarPDF(os){
+  function blobToDataURL(blob){
+    return new Promise(res => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => res("");
+      r.readAsDataURL(blob);
+    });
+  }
+
+  async function gerarPDF(os){
     if(!window.jspdf?.jsPDF) return toast("PDF não disponível.", "error");
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF("p","mm","a4");
-    const W = doc.internal.pageSize.getWidth();
-    let y = 20;
+    UI.loading(true);
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF("p","mm","a4");
+      const W = doc.internal.pageSize.getWidth();
+      const H = doc.internal.pageSize.getHeight();
 
-    // Cabeçalho
-    doc.setFillColor(13,42,61); doc.rect(0,0,W,26,"F");
-    doc.setFillColor(30,184,201); doc.rect(0,24,W,2,"F");
-    doc.setTextColor(255,255,255); doc.setFontSize(16); doc.setFont(undefined,"bold");
-    doc.text("ORDEM DE SERVIÇO", 14, 12);
-    doc.setFontSize(10); doc.setFont(undefined,"normal");
-    doc.text(`Nº ${os.numero || "—"}`, 14, 20);
-    doc.text(`Data: ${fmtData(os.data)}`, W - 14, 20, { align:"right" });
-
-    y = 38;
-    doc.setTextColor(20,20,20); doc.setFontSize(10);
-
-    const secao = titulo => {
-      if(y > 260){ doc.addPage(); y = 20; }
-      doc.setFillColor(240,244,248); doc.rect(14, y - 5, W - 28, 8, "F");
-      doc.setFont(undefined,"bold"); doc.setFontSize(11);
-      doc.text(titulo, 16, y + 1);
-      doc.setFontSize(10); y += 10;
-    };
-    const linha = (l, v) => {
-      if(y > 275){ doc.addPage(); y = 20; }
-      doc.setFont(undefined,"bold"); doc.text(l + ":", 16, y);
-      doc.setFont(undefined,"normal");
-      const txt = doc.splitTextToSize(String(v || "—"), W - 68);
-      doc.text(txt, 60, y);
-      y += Math.max(6, txt.length * 5);
-    };
-    const bloco = (titulo, txt) => {
-      if(y > 250){ doc.addPage(); y = 20; }
-      doc.setFont(undefined,"bold"); doc.text(titulo + ":", 16, y); y += 5;
-      doc.setFont(undefined,"normal");
-      const linhas = doc.splitTextToSize(String(txt || "—"), W - 32);
-      doc.text(linhas, 16, y);
-      y += linhas.length * 5 + 4;
-    };
-
-    secao("Identificação");
-    linha("Status", os.status || "Aberta");
-    linha("Solicitante", os.solicitante);
-    linha("Setor", os.setor);
-    linha("Tipo", os.tipo);
-
-    secao("Equipamento");
-    linha("TAG", os.tag);
-    linha("Equipamento", os.equipamento);
-    linha("Marca/Modelo", os.marca);
-    linha("Localização", os.local);
-    linha("Causa", os.causa);
-
-    secao("Descrições");
-    bloco("Serviço a ser realizado", os.descricao);
-    bloco("Serviço realizado", os.realizado);
-
-    if(os.iniOcor || os.iniCons || os.fimCons || os.fimOcor){
-      secao("Tempos");
-      linha("Início Ocorrência", fmtDataHora(os.iniOcor));
-      linha("Início Conserto", fmtDataHora(os.iniCons));
-      linha("Fim Conserto", fmtDataHora(os.fimCons));
-      linha("Fim Ocorrência", fmtDataHora(os.fimOcor));
-      const tP = diffHoras(os.iniOcor, os.fimOcor);
-      const tC = diffHoras(os.iniCons, os.fimCons);
-      if(tP != null) linha("Parada total", fmtDur(tP));
-      if(tC != null) linha("Tempo de conserto", fmtDur(tC));
-    }
-
-    if(os.maoObra?.filter(m => m.nome).length){
-      secao("Mão de Obra");
-      os.maoObra.forEach(m => {
-        if(!m.nome) return;
-        linha(m.nome, `${m.tempo || "—"} · ${m.regime || "—"}`);
-      });
-    }
-
-    if(os.pecas?.filter(p => p.codigo || p.desc).length){
-      secao("Peças Utilizadas");
-      os.pecas.forEach(p => {
-        if(!p.codigo && !p.desc) return;
-        linha(p.codigo || "—", `${p.desc || "—"} · Qtd: ${p.qtd || "—"}`);
-      });
-    }
-
-    if(os.assinaturaExec || os.assinaturaResp){
-      doc.addPage();
-      doc.setFontSize(14); doc.setFont(undefined,"bold");
-      doc.text("Assinaturas", W/2, 20, { align:"center" });
+      doc.setFillColor(13,42,61); doc.rect(0,0,W,26,"F");
+      doc.setFillColor(30,184,201); doc.rect(0,24,W,2,"F");
+      doc.setTextColor(255,255,255); doc.setFontSize(16); doc.setFont(undefined,"bold");
+      doc.text("ORDEM DE SERVIÇO", 14, 12);
       doc.setFontSize(10); doc.setFont(undefined,"normal");
-      if(os.assinaturaExec){
-        doc.text("Executante:", 20, 40);
-        try { doc.addImage(os.assinaturaExec, "PNG", 20, 45, 80, 30); } catch(e){}
-      }
-      if(os.assinaturaResp){
-        doc.text("Responsável:", 20, 90);
-        try { doc.addImage(os.assinaturaResp, "PNG", 20, 95, 80, 30); } catch(e){}
-      }
-    }
+      doc.text(`Nº ${os.numero || "—"}`, 14, 20);
+      doc.text(`Data: ${fmtData(os.data)}`, W - 14, 20, { align:"right" });
 
-    doc.save(`OS_${os.numero || "sem-numero"}.pdf`);
+      let y = 38;
+      doc.setTextColor(20,20,20); doc.setFontSize(10);
+
+      const secao = titulo => {
+        if(y > 260){ doc.addPage(); y = 20; }
+        doc.setFillColor(240,244,248); doc.rect(14, y - 5, W - 28, 8, "F");
+        doc.setFont(undefined,"bold"); doc.setFontSize(11);
+        doc.text(titulo, 16, y + 1);
+        doc.setFontSize(10); y += 10;
+      };
+      const linha = (l, v) => {
+        if(y > 275){ doc.addPage(); y = 20; }
+        doc.setFont(undefined,"bold"); doc.text(l + ":", 16, y);
+        doc.setFont(undefined,"normal");
+        const txt = doc.splitTextToSize(String(v || "—"), W - 68);
+        doc.text(txt, 60, y);
+        y += Math.max(6, txt.length * 5);
+      };
+      const bloco = (titulo, txt) => {
+        if(y > 250){ doc.addPage(); y = 20; }
+        doc.setFont(undefined,"bold"); doc.text(titulo + ":", 16, y); y += 5;
+        doc.setFont(undefined,"normal");
+        const linhas = doc.splitTextToSize(String(txt || "—"), W - 32);
+        doc.text(linhas, 16, y);
+        y += linhas.length * 5 + 4;
+      };
+
+      secao("Identificação");
+      linha("Status", os.status || "Aberta");
+      linha("Solicitante", os.solicitante);
+      linha("Setor", os.setor);
+      linha("Tipo", os.tipo);
+
+      secao("Equipamento");
+      linha("TAG", os.tag);
+      linha("Equipamento", os.equipamento);
+      linha("Marca/Modelo", os.marca);
+      linha("Localização", os.local);
+      linha("Causa", os.causa);
+
+      secao("Descrições");
+      bloco("Serviço a ser realizado", os.descricao);
+      bloco("Serviço realizado", os.realizado);
+
+      if(os.iniOcor || os.iniCons || os.fimCons || os.fimOcor){
+        secao("Tempos");
+        linha("Início Ocorrência", fmtDataHora(os.iniOcor));
+        linha("Início Conserto", fmtDataHora(os.iniCons));
+        linha("Fim Conserto", fmtDataHora(os.fimCons));
+        linha("Fim Ocorrência", fmtDataHora(os.fimOcor));
+        const tP = diffHoras(os.iniOcor, os.fimOcor);
+        const tC = diffHoras(os.iniCons, os.fimCons);
+        if(tP != null) linha("Parada total", fmtDur(tP));
+        if(tC != null) linha("Tempo de conserto", fmtDur(tC));
+      }
+
+      if(os.maoObra?.filter(m => m.nome).length){
+        secao("Mão de Obra");
+        os.maoObra.forEach(m => {
+          if(!m.nome) return;
+          linha(m.nome, `${m.tempo || "—"} · ${m.regime || "—"}`);
+        });
+      }
+
+      if(os.pecas?.filter(p => p.codigo || p.desc).length){
+        secao("Peças Utilizadas");
+        os.pecas.forEach(p => {
+          if(!p.codigo && !p.desc) return;
+          linha(p.codigo || "—", `${p.desc || "—"} · Qtd: ${p.qtd || "—"}`);
+        });
+      }
+
+      const fotos = (os.midias || []).filter(m => m.tipo === "foto");
+      if(fotos.length){
+        doc.addPage();
+        doc.setFillColor(13,42,61); doc.rect(0,0,W,20,"F");
+        doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont(undefined,"bold");
+        doc.text("REGISTRO FOTOGRÁFICO", W/2, 13, { align:"center" });
+        doc.setTextColor(20,20,20);
+
+        let x = 14, yy = 28, col = 0;
+        const imgW = 85, imgH = 65;
+
+        for(const m of fotos){
+          let dataUrl = m.data;
+          if(!dataUrl && m.blob) dataUrl = await blobToDataURL(m.blob);
+          if(!dataUrl) continue;
+          try {
+            if(yy + imgH > H - 15){
+              doc.addPage();
+              yy = 20; x = 14; col = 0;
+            }
+            doc.addImage(dataUrl, "JPEG", x, yy, imgW, imgH);
+            doc.setDrawColor(200); doc.rect(x, yy, imgW, imgH);
+            x += imgW + 6;
+            col++;
+            if(col >= 2){ x = 14; yy += imgH + 6; col = 0; }
+          } catch(e){}
+        }
+      }
+
+      if(os.assinaturaExec || os.assinaturaResp){
+        doc.addPage();
+        doc.setFontSize(14); doc.setFont(undefined,"bold");
+        doc.text("Assinaturas", W/2, 20, { align:"center" });
+        doc.setFontSize(10); doc.setFont(undefined,"normal");
+        if(os.assinaturaExec){
+          doc.text("Executante:", 20, 40);
+          try { doc.addImage(os.assinaturaExec, "PNG", 20, 45, 80, 30); } catch(e){}
+        }
+        if(os.assinaturaResp){
+          doc.text("Responsável:", 20, 90);
+          try { doc.addImage(os.assinaturaResp, "PNG", 20, 95, 80, 30); } catch(e){}
+        }
+      }
+
+      doc.save(`OS_${os.numero || "sem-numero"}.pdf`);
+    } finally {
+      UI.loading(false);
+    }
   }
 
-  /* ---------- QR ---------- */
   function gerarQR(){
     const tag = $("f-tag").value.trim();
     const eq = $("f-equip").value.trim();
@@ -2474,7 +2654,6 @@ const OS = (() => {
     }
   }
 
-  /* ---------- WHATSAPP ---------- */
   async function whatsapp(id){
     const os = await DB.get("ordens", id);
     if(!os) return;
@@ -2484,13 +2663,27 @@ const OS = (() => {
   async function whatsappAtual(){
     const numero = $("f-numero").value.trim();
     if(!numero) return toast("Salve a OS antes.", "warning");
-    const os = (await DB.all("ordens")).find(o => o.numero === numero);
+    const os = (await Cache.ordens()).find(o => o.numero === numero);
     if(!os) return toast("Salve a OS antes.", "warning");
     await compartilhar(os);
   }
 
   async function compartilhar(os){
     const texto = montarTexto(os);
+    const fotos = (os.midias || []).filter(m => m.tipo === "foto" && m.blob instanceof Blob);
+
+    if(fotos.length && navigator.canShare && navigator.share){
+      try {
+        const files = fotos.map((m, i) =>
+          new File([m.blob], `OS_${os.numero}_foto_${i+1}.jpg`, { type:"image/jpeg" })
+        );
+        if(navigator.canShare({ files })){
+          await navigator.share({ title:`OS ${os.numero}`, text:texto, files });
+          return;
+        }
+      } catch(e){}
+    }
+
     if(navigator.share){
       try { await navigator.share({ title:`OS ${os.numero}`, text:texto }); return; } catch(e){}
     }
@@ -2521,7 +2714,9 @@ const OS = (() => {
       t += `\n👷 *Mão de obra:*\n`;
       os.maoObra.forEach(m => { if(m.nome) t += `• ${m.nome} (${m.tempo || "—"})\n`; });
     }
-    t += `\n_${new Date().toLocaleString("pt-BR")}_`;
+    const nFotos = (os.midias || []).filter(m => m.tipo === "foto").length;
+    if(nFotos) t += `\n📷 *${nFotos} foto(s) anexada(s) no sistema.*`;
+    t += `\n\n_${new Date().toLocaleString("pt-BR")}_`;
     return t;
   }
 
@@ -2534,9 +2729,11 @@ const OS = (() => {
     novo.data = hoje();
     novo.status = "Aberta";
     novo.created_at = new Date().toISOString();
+    novo.updated_at = new Date().toISOString();
     novo.assinaturaExec = ""; novo.assinaturaResp = "";
     novo.midias = [];
     await DB.put("ordens", novo);
+    Cache.invalidate("os");
     toast("📋 OS duplicada!", "ok");
     renderLista(); renderHome();
   }
@@ -2544,13 +2741,17 @@ const OS = (() => {
   async function excluir(id){
     if(!confirm("Excluir esta OS?")) return;
     await DB.del("ordens", id);
+    Cache.invalidate("os");
     toast("OS excluída.", "ok");
     renderLista(); renderHome();
   }
 
-  /* ---------- DASHBOARD ---------- */
+  function destroyChart(id){
+    if(charts.has(id)){ try { charts.get(id).destroy(); } catch(e){} charts.delete(id); }
+  }
+
   async function renderDash(){
-    const lista = await DB.all("ordens");
+    const lista = await Cache.ordens();
     const total = lista.length;
     const abertas = lista.filter(o => (o.status || "Aberta") === "Aberta").length;
     const exec = lista.filter(o => o.status === "Execução").length;
@@ -2596,32 +2797,32 @@ const OS = (() => {
     if(window.Chart){
       const ctxS = $("graf-status");
       if(ctxS){
-        if(ctxS._c) ctxS._c.destroy();
-        ctxS._c = new Chart(ctxS, {
+        destroyChart("status");
+        charts.set("status", new Chart(ctxS, {
           type:"bar",
           data:{ labels:["Aberta","Execução","Aguardando","Concluída"],
                  datasets:[{ data:[abertas,exec,aguard,concluidas],
                              backgroundColor:["#1eb8c9","#ffc107","#f5a623","#2ddb7a"] }]},
           options:{ responsive:true, plugins:{ legend:{ display:false } },
                     scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } }
-        });
+        }));
       }
       const ctxT = $("graf-tipos");
       if(ctxT){
-        if(ctxT._c) ctxT._c.destroy();
+        destroyChart("tipos");
         const mel = lista.filter(o => o.tipo === "Melhoria").length;
         const pre = lista.filter(o => o.tipo === "Predial").length;
-        ctxT._c = new Chart(ctxT, {
+        charts.set("tipos", new Chart(ctxT, {
           type:"doughnut",
           data:{ labels:["Corretiva","Preventiva","Melhoria","Predial"],
                  datasets:[{ data:[corretivas,preventivas,mel,pre],
                              backgroundColor:["#ff6b82","#2ddb7a","#ffd14a","#1eb8c9"] }]},
           options:{ responsive:true, plugins:{ legend:{ position:"bottom" } } }
-        });
+        }));
       }
       const ctxD = $("graf-dia");
       if(ctxD){
-        if(ctxD._c) ctxD._c.destroy();
+        destroyChart("dia");
         const dias = [];
         const cont = {};
         for(let i = 29; i >= 0; i--){
@@ -2633,7 +2834,7 @@ const OS = (() => {
           const ref = (o.created_at || o.data || "").slice(0,10);
           if(cont[ref] !== undefined) cont[ref]++;
         });
-        ctxD._c = new Chart(ctxD, {
+        charts.set("dia", new Chart(ctxD, {
           type:"line",
           data:{ labels: dias.map(d => { const [,m,dd] = d.split("-"); return `${dd}/${m}`; }),
                  datasets:[{ label:"OS", data: dias.map(d => cont[d]),
@@ -2641,21 +2842,17 @@ const OS = (() => {
                              fill:true, tension:0.3 }]},
           options:{ responsive:true, plugins:{ legend:{ display:false } },
                     scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } }
-        });
+        }));
       }
     }
 
-    // Rankings
     const eqC = {}; lista.forEach(o => { if(o.equipamento) eqC[o.equipamento] = (eqC[o.equipamento] || 0) + 1; });
     renderRank("rank-equip", eqC, "OS");
-
     const tecC = {};
     lista.forEach(o => (o.maoObra || []).forEach(m => { if(m.nome) tecC[m.nome] = (tecC[m.nome] || 0) + 1; }));
     renderRank("rank-tec", tecC, "OS");
-
     const setC = {}; lista.forEach(o => { if(o.setor) setC[o.setor] = (setC[o.setor] || 0) + 1; });
     renderRank("rank-setor", setC, "OS");
-
     const pecC = {};
     lista.forEach(o => (o.pecas || []).forEach(p => {
       const k = p.desc || p.codigo;
@@ -2682,7 +2879,7 @@ const OS = (() => {
   return {
     nova, novaComEquip, editar, duplicar, excluir,
     renderHome, renderLista, renderDash,
-    salvar, pdf, pdfAtual, whatsapp, whatsappAtual,
+    salvar, sobrescrever, recarregar, pdf, pdfAtual, whatsapp, whatsappAtual,
     toggleWaitBox, addMaoObra, addPeca,
     addMidias, renderMidias, removerMidia,
     ativarSig, limparSig, calcularTempos, gerarQR,
@@ -2691,11 +2888,10 @@ const OS = (() => {
 })();
 
 /* ============================================================
-   SCANNER QR
+   SCANNER
 ============================================================ */
 const Scanner = (() => {
   let inst = null;
-
   function abrir(){
     if(!window.Html5Qrcode) return toast("Leitor não disponível.", "error");
     UI.abrir("dlg-scanner");
@@ -2706,7 +2902,7 @@ const Scanner = (() => {
       async texto => {
         const codigo = texto.trim();
         fechar();
-        const eq = (await DB.all("equipamentos")).find(e =>
+        const eq = (await Cache.equip()).find(e =>
           (e.tag || "").toLowerCase() === codigo.toLowerCase()
         );
         if(eq){
@@ -2720,24 +2916,20 @@ const Scanner = (() => {
       () => {}
     ).catch(err => { toast("Erro: " + err, "error"); fechar(); });
   }
-
   function fechar(){
     if(inst){
       try { inst.stop().then(() => inst?.clear()).catch(() => {}); } catch(e){}
       inst = null;
     }
-    const d = $("dlg-scanner");
-    if(d && d.open) d.close();
+    UI.fechar("dlg-scanner");
   }
-
   return { abrir, fechar };
 })();
 
 /* ============================================================
-   EXPORTAR (PDF + Excel)
+   EXPORTAR
 ============================================================ */
 const Exportar = (() => {
-
   function cabecalho(doc, titulo, sub){
     const W = doc.internal.pageSize.getWidth();
     doc.setFillColor(13,42,61); doc.rect(0,0,W,28,"F");
@@ -2748,111 +2940,109 @@ const Exportar = (() => {
     doc.setFontSize(9); doc.setTextColor(176,200,217);
     doc.text(`Gerado em ${new Date().toLocaleString("pt-BR")}`, W - 14, 15, { align:"right" });
   }
-
   function salvar(doc, nome){
     UI.loading(true);
     setTimeout(() => {
-      try {
-        doc.save(nome);
-      } catch(e){ toast("Erro ao salvar PDF.", "error"); }
+      try { doc.save(nome); }
+      catch(e){ toast("Erro ao salvar PDF.", "error"); }
       finally { UI.loading(false); }
-    }, 100);
+    }, 80);
+  }
+  const PDF_OK = () => !!(window.jspdf?.jsPDF);
+  const AT_OK = () => !!(window.jspdf?.jsPDF?.API?.autoTable);
+
+  function tabela(doc, head, body, cores){
+    if(AT_OK()){
+      doc.autoTable({
+        startY:36, head:[head], body,
+        theme:"grid",
+        headStyles:{ fillColor:cores, textColor:255, fontStyle:"bold" },
+        styles:{ fontSize:9, cellPadding:2 },
+        margin:{ left:14, right:14 }
+      });
+    } else {
+      let y = 40; doc.setFontSize(9);
+      doc.setFont(undefined,"bold");
+      head.forEach((h,i) => doc.text(String(h), 14 + i*30, y));
+      y += 5; doc.setFont(undefined,"normal");
+      body.forEach(row => {
+        if(y > 280){ doc.addPage(); y = 20; }
+        row.forEach((c,i) => doc.text(String(c || "—").slice(0,25), 14 + i*30, y));
+        y += 5;
+      });
+    }
   }
 
-  const PDF_OK = () => !!(window.jspdf?.jsPDF && window.jspdf.jsPDF.API);
-
-  /* ---------- Ferramentas ---------- */
   async function pdfFerramentas(){
     if(!PDF_OK()) return toast("PDF não disponível.", "error");
-    const lista = (await DB.all("equipamentos")).filter(e => e.categoria === "ferramenta");
+    const lista = (await Cache.equip()).filter(e => e.categoria === "ferramenta");
     if(!lista.length) return toast("Nenhuma ferramenta.", "warning");
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     cabecalho(doc, "FERRAMENTAS", `Total: ${lista.length}`);
-    doc.autoTable({
-      startY:36,
-      head:[["Nome","Código","Categoria","Setor","Qtd","Status"]],
-      body: lista.map(f => [
+    tabela(doc,
+      ["Nome","Código","Categoria","Setor","Qtd","Status"],
+      lista.map(f => [
         f.nome, f.tag || "—",
         (PCM.CATS[f.subcategoria] || PCM.CATS.outras).replace(/^[^\s]+\s/, ""),
         f.setor || "—", f.quantidade || 1, f.status || "—"
       ]),
-      theme:"grid",
-      headStyles:{ fillColor:[30,184,201], textColor:255, fontStyle:"bold" },
-      styles:{ fontSize:9, cellPadding:2 },
-      margin:{ left:14, right:14 }
-    });
+      [30,184,201]
+    );
     salvar(doc, `Ferramentas_${hoje()}.pdf`);
   }
 
-  /* ---------- Ativos ---------- */
   async function pdfAtivos(){
     if(!PDF_OK()) return toast("PDF não disponível.", "error");
-    const lista = (await DB.all("equipamentos")).filter(e => e.categoria === "ativo");
+    const lista = (await Cache.equip()).filter(e => e.categoria === "ativo");
     if(!lista.length) return toast("Nenhum ativo.", "warning");
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     cabecalho(doc, "ATIVOS", `Total: ${lista.length}`);
-    doc.autoTable({
-      startY:36,
-      head:[["Nome","TAG","Tipo","Setor","Fabricante","Status"]],
-      body: lista.map(a => [a.nome, a.tag || "—", a.tipo || "—", a.setor || "—", a.fabricante || "—", a.status || "—"]),
-      theme:"grid",
-      headStyles:{ fillColor:[124,92,191], textColor:255, fontStyle:"bold" },
-      styles:{ fontSize:9, cellPadding:2 },
-      margin:{ left:14, right:14 }
-    });
+    tabela(doc,
+      ["Nome","TAG","Tipo","Setor","Fabricante","Status"],
+      lista.map(a => [a.nome, a.tag || "—", a.tipo || "—", a.setor || "—", a.fabricante || "—", a.status || "—"]),
+      [124,92,191]
+    );
     salvar(doc, `Ativos_${hoje()}.pdf`);
   }
 
-  /* ---------- Assistências ---------- */
   async function pdfAssistencias(){
     if(!PDF_OK()) return toast("PDF não disponível.", "error");
-    const lista = (await DB.all("assistencias")).filter(a => a.tipo === "externa");
+    const lista = (await Cache.assist()).filter(a => a.tipo === "externa");
     if(!lista.length) return toast("Nenhuma assistência.", "warning");
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     cabecalho(doc, "ASSISTÊNCIA TÉCNICA", `Total: ${lista.length}`);
-    doc.autoTable({
-      startY:36,
-      head:[["Item","Empresa","Saída","Retorno","Status","Valor"]],
-      body: lista.map(a => [
-        a.nome, a.empresa || "—",
-        fmtData(a.dataSaida), fmtData(a.dataRetorno),
+    tabela(doc,
+      ["Item","Empresa","Saída","Retorno","Status","Valor"],
+      lista.map(a => [
+        a.nome, a.empresa || "—", fmtData(a.dataSaida), fmtData(a.dataRetorno),
         a.status || "—", a.valor ? `R$ ${a.valor}` : "—"
       ]),
-      theme:"grid",
-      headStyles:{ fillColor:[124,92,191], textColor:255, fontStyle:"bold" },
-      styles:{ fontSize:9, cellPadding:2 },
-      margin:{ left:14, right:14 }
-    });
+      [124,92,191]
+    );
     salvar(doc, `Assistencias_${hoje()}.pdf`);
   }
 
-  /* ---------- OS ---------- */
   async function pdfOS(){
     if(!PDF_OK()) return toast("PDF não disponível.", "error");
-    const lista = await DB.all("ordens");
+    const lista = await Cache.ordens();
     if(!lista.length) return toast("Nenhuma OS.", "warning");
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     cabecalho(doc, "ORDENS DE SERVIÇO", `Total: ${lista.length}`);
-    doc.autoTable({
-      startY:36,
-      head:[["Nº","Data","Equipamento","Tipo","Status","Solicitante"]],
-      body: lista.map(o => [
+    tabela(doc,
+      ["Nº","Data","Equipamento","Tipo","Status","Solicitante"],
+      lista.map(o => [
         o.numero || "—", fmtData(o.data), o.equipamento || "—",
         o.tipo || "—", o.status || "Aberta", o.solicitante || "—"
       ]),
-      theme:"grid",
-      headStyles:{ fillColor:[30,184,201], textColor:255, fontStyle:"bold" },
-      styles:{ fontSize:8, cellPadding:2 },
-      margin:{ left:14, right:14 }
-    });
+      [30,184,201]
+    );
     salvar(doc, `Ordens_${hoje()}.pdf`);
   }
 
-  /* ---------- Ficha de equipamento ---------- */
   async function fichaEquip(id){
     if(!PDF_OK()) return toast("PDF não disponível.", "error");
     const eq = await DB.get("equipamentos", id);
@@ -2860,10 +3050,10 @@ const Exportar = (() => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const W = doc.internal.pageSize.getWidth();
+    const H = doc.internal.pageSize.getHeight();
     cabecalho(doc, "FICHA DO EQUIPAMENTO", eq.nome);
     let y = 42;
     doc.setTextColor(20,20,20); doc.setFontSize(11);
-
     const linha = (l, v) => {
       if(y > 270){ doc.addPage(); y = 20; }
       doc.setFont(undefined,"bold"); doc.text(l + ":", 16, y);
@@ -2872,7 +3062,6 @@ const Exportar = (() => {
       doc.text(txt, 60, y);
       y += txt.length * 6 + 2;
     };
-
     linha("Nome", eq.nome);
     linha("TAG/Código", eq.tag);
     linha("Categoria", eq.categoria);
@@ -2884,32 +3073,52 @@ const Exportar = (() => {
     linha("Observações", eq.observacoes);
     linha("Criado em", fmtDataHora(eq.dataCriacao));
 
-    // OS relacionadas
-    const todas = await DB.all("ordens");
-    const oss = todas.filter(o => o.tag && eq.tag && o.tag === eq.tag);
-    if(oss.length){
-      y += 6;
-      if(y > 260){ doc.addPage(); y = 20; }
-      doc.setFont(undefined,"bold"); doc.setFontSize(12);
-      doc.text("Ordens de Serviço relacionadas:", 16, y); y += 8;
-      doc.setFontSize(10); doc.setFont(undefined,"normal");
-      oss.forEach(o => {
-        if(y > 275){ doc.addPage(); y = 20; }
-        doc.text(`• OS ${o.numero} — ${fmtData(o.data)} — ${o.status || "Aberta"} — ${o.tipo || "—"}`, 20, y);
-        y += 5;
-      });
+    if(eq.fotos?.length){
+      doc.addPage();
+      doc.setFillColor(13,42,61); doc.rect(0,0,W,20,"F");
+      doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont(undefined,"bold");
+      doc.text("REGISTRO FOTOGRÁFICO", W/2, 13, { align:"center" });
+      doc.setTextColor(20,20,20);
+
+      let x = 14, yy = 28, col = 0;
+      const imgW = 85, imgH = 65;
+      for(const m of eq.fotos){
+        let src = m.data;
+        if(!src && m.blob) src = await Imagem.toDataURL(m.blob);
+        if(!src) continue;
+        try {
+          if(yy + imgH > H - 15){ doc.addPage(); yy = 20; x = 14; col = 0; }
+          doc.addImage(src, "JPEG", x, yy, imgW, imgH);
+          doc.setDrawColor(200); doc.rect(x, yy, imgW, imgH);
+          x += imgW + 6; col++;
+          if(col >= 2){ x = 14; yy += imgH + 6; col = 0; }
+        } catch(e){}
+      }
     }
 
+    const todas = await Cache.ordens();
+    const oss = todas.filter(o => o.tag && eq.tag && o.tag === eq.tag);
+    if(oss.length){
+      doc.addPage();
+      doc.setFont(undefined,"bold"); doc.setFontSize(12);
+      doc.text("Ordens de Serviço relacionadas:", 16, 20);
+      doc.setFontSize(10); doc.setFont(undefined,"normal");
+      let yy = 30;
+      oss.forEach(o => {
+        if(yy > 280){ doc.addPage(); yy = 20; }
+        doc.text(`• OS ${o.numero} — ${fmtData(o.data)} — ${o.status || "Aberta"} — ${o.tipo || "—"}`, 20, yy);
+        yy += 5;
+      });
+    }
     const nome = (eq.nome || "equip").replace(/\s+/g, "_");
     salvar(doc, `Ficha_${nome}.pdf`);
   }
 
-  /* ---------- Excel ---------- */
   const XLSX_OK = () => !!window.XLSX;
 
   async function excelFerramentas(){
     if(!XLSX_OK()) return toast("Excel não disponível.", "error");
-    const lista = (await DB.all("equipamentos")).filter(e => e.categoria === "ferramenta");
+    const lista = (await Cache.equip()).filter(e => e.categoria === "ferramenta");
     if(!lista.length) return toast("Nenhuma ferramenta.", "warning");
     const dados = lista.map(f => ({
       "Código": f.tag || "",
@@ -2929,7 +3138,7 @@ const Exportar = (() => {
 
   async function excelAtivos(){
     if(!XLSX_OK()) return toast("Excel não disponível.", "error");
-    const lista = (await DB.all("equipamentos")).filter(e => e.categoria === "ativo");
+    const lista = (await Cache.equip()).filter(e => e.categoria === "ativo");
     if(!lista.length) return toast("Nenhum ativo.", "warning");
     const dados = lista.map(a => ({
       "TAG": a.tag || "",
@@ -2949,7 +3158,7 @@ const Exportar = (() => {
 
   async function excelOS(){
     if(!XLSX_OK()) return toast("Excel não disponível.", "error");
-    const lista = await DB.all("ordens");
+    const lista = await Cache.ordens();
     if(!lista.length) return toast("Nenhuma OS.", "warning");
     const dados = lista.map(o => ({
       "Número": o.numero || "",
@@ -2962,6 +3171,7 @@ const Exportar = (() => {
       "Setor": o.setor || "",
       "Descrição": (o.descricao || "").replace(/[\n;]/g, " "),
       "Realizado": (o.realizado || "").replace(/[\n;]/g, " "),
+      "Fotos": (o.midias || []).filter(m => m.tipo === "foto").length,
       "Início Ocorrência": o.iniOcor || "",
       "Fim Ocorrência": o.fimOcor || "",
       "MTTR (h)": diffHoras(o.iniCons, o.fimCons)?.toFixed(2) || ""
@@ -2987,12 +3197,11 @@ const Backup = (() => {
 
   async function exportar(){
     const dados = {
-      versao: "3.0",
+      versao: "5.0",
       gerado: new Date().toISOString(),
       usuario: App.state.usuario || "—"
     };
     for(const s of STORES) dados[s] = await DB.all(s);
-
     const blob = new Blob([JSON.stringify(dados, null, 2)], { type:"application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -3008,19 +3217,20 @@ const Backup = (() => {
     reader.onload = async function(e){
       try {
         const dados = JSON.parse(e.target.result);
-        if(!dados.equipamentos && !dados.ordens){
-          return toast("Arquivo inválido.", "error");
-        }
+        if(!dados.equipamentos && !dados.ordens) return toast("Arquivo inválido.", "error");
         if(!confirm("⚠️ Isso SUBSTITUI todos os dados atuais. Continuar?")) return;
-
+        UI.loading(true);
         for(const s of STORES) await DB.clear(s);
         for(const s of STORES){
           const lista = dados[s] || [];
           for(const item of lista) await DB.put(s, item);
         }
+        Cache.invalidate();
+        UI.loading(false);
         toast("✅ Backup restaurado!", "ok");
         setTimeout(() => location.reload(), 800);
       } catch(err){
+        UI.loading(false);
         toast("Erro: " + err.message, "error");
       }
     };
@@ -3042,9 +3252,20 @@ const Backup = (() => {
     const el = $("backup-stats");
     if(!el) return;
     const [eq, os, ass, set, hist] = await Promise.all(STORES.map(s => DB.all(s)));
-    let bytes = 0;
-    for(const k in localStorage) if(Object.prototype.hasOwnProperty.call(localStorage, k)) bytes += (localStorage[k] || "").length;
-
+    let quotaHtml = "";
+    if(navigator.storage?.estimate){
+      const est = await navigator.storage.estimate();
+      const usado = (est.usage / 1024 / 1024).toFixed(2);
+      const total = (est.quota / 1024 / 1024).toFixed(0);
+      const pct = ((est.usage / est.quota) * 100).toFixed(1);
+      const cor = pct > 80 ? "var(--red)" : pct > 60 ? "var(--orange)" : "var(--green)";
+      quotaHtml = `
+        <div class="card stat" style="padding:14px;border-left:4px solid ${cor}">
+          <strong class="stat-num" style="font-size:22px">${usado}MB</strong>
+          <div class="stat-lbl">Usado de ${total}MB (${pct}%)</div>
+        </div>
+      `;
+    }
     el.innerHTML = `
       <div class="grid">
         <div class="card stat" style="padding:14px"><strong class="stat-num" style="font-size:22px">${eq.length}</strong><div class="stat-lbl">Equipamentos</div></div>
@@ -3052,7 +3273,7 @@ const Backup = (() => {
         <div class="card stat" style="padding:14px"><strong class="stat-num" style="font-size:22px">${ass.length}</strong><div class="stat-lbl">Assistências</div></div>
         <div class="card stat" style="padding:14px"><strong class="stat-num" style="font-size:22px">${set.length}</strong><div class="stat-lbl">Setores</div></div>
         <div class="card stat" style="padding:14px"><strong class="stat-num" style="font-size:22px">${hist.length}</strong><div class="stat-lbl">Histórico</div></div>
-        <div class="card stat" style="padding:14px"><strong class="stat-num" style="font-size:22px">${(bytes/1024).toFixed(1)}KB</strong><div class="stat-lbl">localStorage</div></div>
+        ${quotaHtml}
       </div>
     `;
   }
@@ -3061,18 +3282,105 @@ const Backup = (() => {
 })();
 
 /* ============================================================
-   PWA (Service Worker inline)
+   CMD+K
+============================================================ */
+const CmdK = (() => {
+  let items = [];
+  let active = 0;
+
+  async function build(){
+    const [eq, os, set] = await Promise.all([Cache.equip(), Cache.ordens(), Cache.setores()]);
+    items = [
+      ...eq.map(e => ({ tipo:"equip", ico:"🔧", label:e.nome, sub:e.tag || e.setor || "", id:e.id })),
+      ...os.map(o => ({ tipo:"os", ico:"📋", label:`OS ${o.numero}`, sub:o.equipamento || "", id:o.id })),
+      ...set.map(s => ({ tipo:"setor", ico:"📍", label:s.nome, sub:"Setor", id:s.nome }))
+    ];
+  }
+
+  function abrir(){
+    $("cmdk").classList.add("show");
+    $("cmdk-input").value = "";
+    setTimeout(() => $("cmdk-input").focus(), 50);
+    build().then(() => render(""));
+  }
+
+  function fechar(){
+    $("cmdk").classList.remove("show");
+    active = 0;
+  }
+
+  function render(busca){
+    const b = busca.toLowerCase().trim();
+    const filtered = b
+      ? items.filter(i => (i.label + " " + i.sub).toLowerCase().includes(b)).slice(0, 30)
+      : items.slice(0, 20);
+    const el = $("cmdk-results");
+    if(!filtered.length){
+      el.innerHTML = `<div class="cmdk-empty">Nada encontrado.</div>`;
+      return;
+    }
+    el.innerHTML = filtered.map((i, idx) => `
+      <div class="cmdk-item ${idx === active ? 'active' : ''}" data-idx="${idx}">
+        <span>${i.ico}</span>
+        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          <b>${esc(i.label)}</b>
+          ${i.sub ? `<span class="muted small" style="margin-left:6px">${esc(i.sub)}</span>` : ""}
+        </span>
+        <span class="type">${i.tipo}</span>
+      </div>
+    `).join("");
+    $$(".cmdk-item").forEach(el2 => el2.onclick = () => select(filtered[+el2.dataset.idx]));
+  }
+
+  function select(item){
+    fechar();
+    if(item.tipo === "equip") PCM.abrirFerramenta(item.id);
+    else if(item.tipo === "os") OS.editar(item.id);
+    else if(item.tipo === "setor") PCM.abrirSetor(item.id);
+  }
+
+  function init(){
+    $("cmdk-input").addEventListener("input", e => { active = 0; render(e.target.value); });
+    $("cmdk-input").addEventListener("keydown", e => {
+      const els = $$(".cmdk-item");
+      if(e.key === "ArrowDown"){
+        e.preventDefault();
+        active = Math.min(active + 1, els.length - 1);
+        render($("cmdk-input").value);
+      } else if(e.key === "ArrowUp"){
+        e.preventDefault();
+        active = Math.max(active - 1, 0);
+        render($("cmdk-input").value);
+      } else if(e.key === "Enter" && els[active]) els[active].click();
+    });
+  }
+
+  return { abrir, fechar, init };
+})();
+
+/* ============================================================
+   PWA
 ============================================================ */
 if("serviceWorker" in navigator){
   const swCode = `
-    const CACHE = "manutencao-pro-v3";
-    self.addEventListener("install", e => self.skipWaiting());
+    const CACHE = "manutencao-pro-v5";
+    const PRECACHE = [
+      "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
+      "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js",
+      "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
+      "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js",
+      "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+    ];
+    self.addEventListener("install", e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE).catch(()=>{})).then(() => self.skipWaiting()));
+    });
     self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
     self.addEventListener("fetch", e => {
       if(e.request.method !== "GET") return;
       e.respondWith(
         caches.match(e.request).then(c => c || fetch(e.request).then(res => {
-          if(res && res.status === 200 && res.type === "basic"){
+          if(res && res.status === 200){
             const copy = res.clone();
             caches.open(CACHE).then(cc => cc.put(e.request, copy)).catch(() => {});
           }
@@ -3096,6 +3404,7 @@ window.addEventListener("beforeinstallprompt", e => {
   b.id = "btn-install";
   b.className = "install-btn";
   b.textContent = "📲 Instalar App";
+  b.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9998;background:linear-gradient(135deg,#1eb8c9,#7c5cbf);color:#fff;padding:12px 26px;border-radius:30px;font-weight:700;font-size:14px;border:none;box-shadow:0 8px 30px rgba(30,184,201,0.45);cursor:pointer";
   b.onclick = async () => {
     if(installPrompt){
       installPrompt.prompt();
@@ -3105,23 +3414,21 @@ window.addEventListener("beforeinstallprompt", e => {
   };
   document.body.appendChild(b);
 });
-
 window.addEventListener("appinstalled", () => {
   $("btn-install")?.remove();
   toast("✅ App instalado!", "ok");
 });
 
-/* iOS banner */
 function bannerIOS(){
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   if(!isIOS) return;
   if(localStorage.getItem("bannerIOS") === "1") return;
   if(window.navigator.standalone) return;
   const b = document.createElement("div");
-  b.className = "ios-banner";
+  b.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#1eb8c9,#7c5cbf);color:#fff;padding:14px 20px;z-index:9999;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;box-shadow:0 -4px 20px rgba(0,0,0,0.4)";
   b.innerHTML = `
     <span>📲 Instalar: toque em <b>Compartilhar</b> → <b>Adicionar à Tela</b></span>
-    <button onclick="this.parentNode.remove();localStorage.setItem('bannerIOS','1')">OK</button>
+    <button onclick="this.parentNode.remove();localStorage.setItem('bannerIOS','1')" style="background:rgba(255,255,255,0.2);color:#fff;padding:6px 14px;font-size:12px;border-radius:20px;border:none;cursor:pointer">OK</button>
   `;
   document.body.appendChild(b);
 }
@@ -3134,14 +3441,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     await DB.open();
     const migrou = await DB.migrar();
     if(migrou) setTimeout(() => toast("✅ Dados migrados!", "ok"), 1200);
-
     OS.ativarSig("sig-exec");
     OS.ativarSig("sig-resp");
-
     await App.init();
+    CmdK.init();
     bannerIOS();
-
-    window.addEventListener("error", e => console.error("Erro:", e.error || e.message));
   } catch(e){
     console.error("Falha ao iniciar:", e);
     toast("❌ Erro ao iniciar: " + e.message, "error");
